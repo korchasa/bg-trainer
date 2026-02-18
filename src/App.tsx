@@ -186,31 +186,31 @@ interface Category {
 
 const CATEGORIES: Category[] = [
   { id: "sym", name: "Глагол «съм»", modes: [
-    { id: "sym_pick", icon: "🔗", label: "Подбери форму", desc: "Выбери форму для местоимения", type: "pick", data: () => DATA_SYM },
-    { id: "sym_fill", icon: "⏱", label: "На скорость", desc: "Выбери форму с таймером", type: "timed", data: () => DATA_SYM },
+    { id: "sym_pick", icon: "🎯", label: "Подбери форму", desc: "Выбери форму для местоимения", type: "pick", data: () => DATA_SYM },
+    { id: "sym_fill", icon: "⚡", label: "На скорость", desc: "Выбери форму с таймером", type: "timed", data: () => DATA_SYM },
   ]},
   { id: "imam", name: "Имам / искам", modes: [
-    { id: "imam_pick", icon: "🔗", label: "Имам", desc: "Спряжение «имам»", type: "pick", data: () => DATA_IMAM },
-    { id: "iskam_pick", icon: "🔗", label: "Искам", desc: "Спряжение «искам»", type: "pick", data: () => DATA_ISKAM },
+    { id: "imam_pick", icon: "🤲", label: "Имам", desc: "Спряжение «имам»", type: "pick", data: () => DATA_IMAM },
+    { id: "iskam_pick", icon: "🌟", label: "Искам", desc: "Спряжение «искам»", type: "pick", data: () => DATA_ISKAM },
   ]},
   { id: "article", name: "Артикли", modes: [
-    { id: "art_pick", icon: "📎", label: "Добавь артикль", desc: "Выбери правильный суффикс", type: "pickOpt", data: () => ({ items: DATA_ARTICLE, opts: ARTICLE_OPTIONS }) },
+    { id: "art_pick", icon: "🏷️", label: "Добавь артикль", desc: "Выбери правильный суффикс", type: "pickOpt", data: () => ({ items: DATA_ARTICLE, opts: ARTICLE_OPTIONS }) },
   ]},
   { id: "gender", name: "Род существительных", modes: [
-    { id: "gen_pick", icon: "⚥", label: "Определи род", desc: "м.р., ж.р. или ср.р.?", type: "pickOpt", data: () => ({ items: DATA_GENDER, opts: GENDER_OPTIONS }) },
+    { id: "gen_pick", icon: "🔍", label: "Определи род", desc: "м.р., ж.р. или ср.р.?", type: "pickOpt", data: () => ({ items: DATA_GENDER, opts: GENDER_OPTIONS }) },
   ]},
   { id: "plural", name: "Множественное число", modes: [
-    { id: "pl_pick", icon: "👥", label: "Образуй мн.ч.", desc: "Выбери правильную форму", type: "pickFrom", data: () => DATA_PLURAL },
+    { id: "pl_pick", icon: "📚", label: "Образуй мн.ч.", desc: "Выбери правильную форму", type: "pickFrom", data: () => DATA_PLURAL },
   ]},
   { id: "possess", name: "Притежательные", modes: [
-    { id: "poss_pick", icon: "🏠", label: "Чей? Чья?", desc: "Выбери притежательную форму", type: "pickFrom", data: () => DATA_POSSESS },
+    { id: "poss_pick", icon: "🔑", label: "Чей? Чья?", desc: "Выбери притежательную форму", type: "pickFrom", data: () => DATA_POSSESS },
   ]},
   { id: "neg", name: "Отрицание", modes: [
-    { id: "neg_tf", icon: "🚫", label: "Отрицание", desc: "Выбери правильное отрицание", type: "negation", data: () => DATA_NEGATION },
+    { id: "neg_tf", icon: "❌", label: "Отрицание", desc: "Выбери правильное отрицание", type: "negation", data: () => DATA_NEGATION },
   ]},
   { id: "ques", name: "Порядок слов в вопросах", modes: [
     { id: "q_build", icon: "🧩", label: "Собери вопрос", desc: "Расставь слова по порядку", type: "build", data: () => DATA_BUILD },
-    { id: "q_li", icon: "📍", label: "Вставь «ли»", desc: "Найди место для «ли»", type: "li", data: () => DATA_LI },
+    { id: "q_li", icon: "💬", label: "Вставь «ли»", desc: "Найди место для «ли»", type: "li", data: () => DATA_LI },
   ]},
 ];
 const ALL_MODES = CATEGORIES.flatMap(c => c.modes);
