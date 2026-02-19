@@ -890,7 +890,7 @@ export default function App() {
   const isVerb = modeId?.startsWith("sym") || modeId?.startsWith("imam") || modeId?.startsWith("iskam");
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center">
+    <div className="h-screen overflow-hidden bg-white flex flex-col items-center">
       <div className="relative w-full h-screen max-w-md mx-auto flex flex-col overflow-hidden bg-white">
 
         {/* === HOME/MENU === */}
@@ -927,10 +927,24 @@ export default function App() {
               ))}
             </div>
 
+            {/* Random exercise button */}
+            <button
+              onClick={() => startGame(ALL_MODES[Math.floor(Math.random() * ALL_MODES.length)].id)}
+              className="w-full py-4 flex items-center justify-center gap-2 mt-auto mb-3 rounded-full font-bold text-white text-base transition-all active:scale-[0.98] active:opacity-90 bg-[#111111]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+                <polyline points="21 16 21 21 16 21" />
+                <line x1="15" y1="15" x2="21" y2="21" />
+              </svg>
+              <span>Случайное упражнение</span>
+            </button>
+
             {/* Analytics button */}
             <button
               onClick={() => setScreen("analytics")}
-              className="w-full py-4 flex items-center justify-center gap-2 mt-auto mb-2 rounded-full font-bold text-white text-base shadow-lg transition-all active:scale-[0.98] active:opacity-90"
+              className="w-full py-4 flex items-center justify-center gap-2 mb-2 rounded-full font-bold text-white text-base shadow-lg transition-all active:scale-[0.98] active:opacity-90"
               style={{ backgroundColor: ACCENT }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
