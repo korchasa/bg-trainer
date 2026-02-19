@@ -50,15 +50,27 @@ const DATA_ARTICLE = [
   { q: "мъж", label: "мужской род", answer: "-ът", hint: "мужчина" },
   { q: "стол", label: "мужской род", answer: "-ът", hint: "стул" },
   { q: "град", label: "мужской род", answer: "-ът", hint: "город" },
+  { q: "нос", label: "мужской род", answer: "-ът", hint: "нос" },
+  { q: "зъб", label: "мужской род", answer: "-ът", hint: "зуб" },
+  { q: "хляб", label: "мужской род", answer: "-ът", hint: "хлеб" },
+  { q: "вятър", label: "мужской род", answer: "-ът", hint: "ветер" },
   { q: "жена", label: "женский род", answer: "-та", hint: "женщина" },
   { q: "книга", label: "женский род", answer: "-та", hint: "книга" },
   { q: "улица", label: "женский род", answer: "-та", hint: "улица" },
+  { q: "майка", label: "женский род", answer: "-та", hint: "мама" },
+  { q: "вода", label: "женский род", answer: "-та", hint: "вода" },
+  { q: "нощ", label: "женский род", answer: "-та", hint: "ночь" },
   { q: "дете", label: "средний род", answer: "-то", hint: "ребёнок" },
   { q: "море", label: "средний род", answer: "-то", hint: "море" },
   { q: "село", label: "средний род", answer: "-то", hint: "село" },
+  { q: "яйце", label: "средний род", answer: "-то", hint: "яйцо" },
+  { q: "небе", label: "средний род", answer: "-то", hint: "небо" },
+  { q: "дърво", label: "средний род", answer: "-то", hint: "дерево" },
   { q: "деца", label: "множественное число", answer: "-та", hint: "дети" },
   { q: "книги", label: "множественное число", answer: "-те", hint: "книги" },
   { q: "мъже", label: "множественное число", answer: "-те", hint: "мужчины" },
+  { q: "градове", label: "множественное число", answer: "-те", hint: "города" },
+  { q: "жени", label: "множественное число", answer: "-те", hint: "женщины" },
 ];
 const ARTICLE_OPTIONS = ["-ът", "-та", "-то", "-те", "-а"];
 const DATA_GENDER = [
@@ -66,14 +78,24 @@ const DATA_GENDER = [
   { q: "стол", answer: "мужской", hint: "стул" },
   { q: "град", answer: "мужской", hint: "город" },
   { q: "ден", answer: "мужской", hint: "день" },
+  { q: "нос", answer: "мужской", hint: "нос" },
+  { q: "зъб", answer: "мужской", hint: "зуб" },
+  { q: "хляб", answer: "мужской", hint: "хлеб" },
+  { q: "вятър", answer: "мужской", hint: "ветер" },
   { q: "жена", answer: "женский", hint: "женщина" },
   { q: "книга", answer: "женский", hint: "книга" },
   { q: "нощ", answer: "женский", hint: "ночь" },
   { q: "улица", answer: "женский", hint: "улица" },
+  { q: "майка", answer: "женский", hint: "мама" },
+  { q: "вода", answer: "женский", hint: "вода" },
+  { q: "врата", answer: "женский", hint: "дверь" },
   { q: "дете", answer: "средний", hint: "ребёнок" },
   { q: "море", answer: "средний", hint: "море" },
   { q: "село", answer: "средний", hint: "село" },
   { q: "сърце", answer: "средний", hint: "сердце" },
+  { q: "яйце", answer: "средний", hint: "яйцо" },
+  { q: "небе", answer: "средний", hint: "небо" },
+  { q: "дърво", answer: "средний", hint: "дерево" },
 ];
 const GENDER_OPTIONS = ["мужской", "женский", "средний"];
 const DATA_PLURAL = [
@@ -89,6 +111,14 @@ const DATA_PLURAL = [
   { q: "ден", answer: "дни", hint: "день", decoys: ["денове", "дене", "дена"] },
   { q: "нощ", answer: "нощи", hint: "ночь", decoys: ["нощове", "нощта", "ноще"] },
   { q: "ръка", answer: "ръце", hint: "рука", decoys: ["ръки", "ръкове", "ръката"] },
+  { q: "нос", answer: "носове", hint: "нос", decoys: ["носи", "носе", "носа"] },
+  { q: "зъб", answer: "зъби", hint: "зуб", decoys: ["зъбове", "зъбе", "зъба"] },
+  { q: "брат", answer: "братя", hint: "брат", decoys: ["братове", "брати", "брате"] },
+  { q: "гора", answer: "гори", hint: "лес", decoys: ["горове", "горе", "горите"] },
+  { q: "дума", answer: "думи", hint: "слово", decoys: ["думове", "думе", "думата"] },
+  { q: "майка", answer: "майки", hint: "мама", decoys: ["майкове", "майке", "майката"] },
+  { q: "куче", answer: "кучета", hint: "собака", decoys: ["кучи", "кучове", "куче"] },
+  { q: "дърво", answer: "дървета", hint: "дерево", decoys: ["дърви", "дървове", "дървото"] },
 ];
 const DATA_PRONOUN_SHORT = [
   { q: "аз", label: "винительный падеж", answer: "ме", hint: "меня" },
@@ -99,19 +129,29 @@ const DATA_PRONOUN_SHORT = [
   { q: "той", label: "дательный падеж", answer: "му", hint: "ему" },
   { q: "тя", label: "винительный падеж", answer: "я", hint: "её" },
   { q: "тя", label: "дательный падеж", answer: "ѝ", hint: "ей" },
+  { q: "то", label: "винительный падеж", answer: "го", hint: "его (ср.р.)" },
+  { q: "то", label: "дательный падеж", answer: "му", hint: "ему (ср.р.)" },
   { q: "ние", label: "винительный падеж", answer: "ни", hint: "нас" },
+  { q: "ние", label: "дательный падеж", answer: "ни", hint: "нам" },
+  { q: "вие", label: "винительный падеж", answer: "ви", hint: "вас" },
+  { q: "вие", label: "дательный падеж", answer: "ви", hint: "вам" },
   { q: "те", label: "винительный падеж", answer: "ги", hint: "их" },
+  { q: "те", label: "дательный падеж", answer: "им", hint: "им" },
 ];
 const DATA_POSSESS = [
   { q: "мой", label: "мужской род, полная форма", answer: "моят / мой", hint: "мой (полн.)" },
   { q: "моя", label: "женский род, полная форма", answer: "моята / моя", hint: "моя (полн.)" },
   { q: "мой", label: "краткая форма", answer: "ми", hint: "мой (кратк.)" },
+  { q: "твой", label: "мужской род, полная форма", answer: "твоят / твой", hint: "твой (полн.)" },
+  { q: "твоя", label: "женский род, полная форма", answer: "твоята / твоя", hint: "твоя (полн.)" },
   { q: "твой", label: "краткая форма", answer: "ти", hint: "твой (кратк.)" },
   { q: "негов", label: "мужской род, полная форма", answer: "неговият", hint: "его (полн.)" },
   { q: "негов", label: "краткая форма", answer: "му", hint: "его (кратк.)" },
   { q: "неин", label: "женский род, полная форма", answer: "нейният", hint: "её (полн.)" },
   { q: "неин", label: "краткая форма", answer: "ѝ", hint: "её (кратк.)" },
+  { q: "наш", label: "мужской род, полная форма", answer: "нашият / наш", hint: "наш (полн.)" },
   { q: "наш", label: "краткая форма", answer: "ни", hint: "наш (кратк.)" },
+  { q: "ваш", label: "мужской род, полная форма", answer: "вашият / ваш", hint: "ваш (полн.)" },
   { q: "ваш", label: "краткая форма", answer: "ви", hint: "ваш (кратк.)" },
   { q: "техен", label: "краткая форма", answer: "им", hint: "их (кратк.)" },
 ];
@@ -124,6 +164,12 @@ const DATA_NEGATION = [
   { q: "някой е тук", answer: "никой не е тук", hint: "кто-то здесь" },
   { q: "ти знаеш", answer: "ти не знаеш", hint: "ты знаешь" },
   { q: "има време", answer: "няма време", hint: "есть время" },
+  { q: "аз знам", answer: "аз не знам", hint: "я знаю" },
+  { q: "тя чете", answer: "тя не чете", hint: "она читает" },
+  { q: "той обича музика", answer: "той не обича музика", hint: "он любит музыку" },
+  { q: "имам пари", answer: "нямам пари", hint: "у меня есть деньги" },
+  { q: "ние чакаме", answer: "ние не чакаме", hint: "мы ждём" },
+  { q: "той дойде", answer: "той не дойде", hint: "он пришёл" },
 ];
 const DATA_BUILD = [
   { words: ["какво", "правиш", "?"], translation: "Что делаешь?" },
@@ -137,6 +183,13 @@ const DATA_BUILD = [
   { words: ["къде", "е", "гарата", "?"], translation: "Где вокзал?" },
   { words: ["кога", "тръгва", "влакът", "?"], translation: "Когда отправляется поезд?" },
   { words: ["как", "се", "чувстваш", "?"], translation: "Как себя чувствуешь?" },
+  { words: ["кой", "е", "той", "?"], translation: "Кто он?" },
+  { words: ["какво", "има", "там", "?"], translation: "Что там есть?" },
+  { words: ["колко", "струва", "кафето", "?"], translation: "Сколько стоит кофе?" },
+  { words: ["кога", "спиш", "?"], translation: "Когда ты спишь?" },
+  { words: ["как", "се", "казва", "тя", "?"], translation: "Как её зовут?" },
+  { words: ["защо", "не", "идваш", "?"], translation: "Почему не приходишь?" },
+  { words: ["откъде", "е", "тя", "?"], translation: "Откуда она?" },
 ];
 const DATA_LI = [
   { words: ["Говориш", "български"], liPosition: 0, result: "Говориш ли български?", translation: "Говоришь по-болгарски?" },
@@ -147,6 +200,12 @@ const DATA_LI = [
   { words: ["Знаеш", "къде", "е"], liPosition: 0, result: "Знаеш ли къде е?", translation: "Знаешь, где это?" },
   { words: ["Обичаш", "музика"], liPosition: 0, result: "Обичаш ли музика?", translation: "Любишь музыку?" },
   { words: ["Вярваш", "ми"], liPosition: 0, result: "Вярваш ли ми?", translation: "Веришь мне?" },
+  { words: ["Четеш", "книги"], liPosition: 0, result: "Четеш ли книги?", translation: "Читаешь книги?" },
+  { words: ["Живееш", "тук"], liPosition: 0, result: "Живееш ли тук?", translation: "Живёшь здесь?" },
+  { words: ["Харесваш", "ме"], liPosition: 0, result: "Харесваш ли ме?", translation: "Нравлюсь тебе?" },
+  { words: ["Учиш", "български"], liPosition: 0, result: "Учиш ли български?", translation: "Учишь болгарский?" },
+  { words: ["Пиеш", "кафе"], liPosition: 0, result: "Пиеш ли кафе?", translation: "Пьёшь кофе?" },
+  { words: ["Работиш", "тук"], liPosition: 0, result: "Работиш ли тук?", translation: "Работаешь здесь?" },
 ];
 
 // === CATEGORIES & MODES ===
@@ -437,7 +496,7 @@ function TimedEngine({ data, onComplete }: { data: () => DataItem[]; onComplete:
 
 function PickOptEngine({ data, onComplete }: { data: () => { items: DataItem[]; opts: string[] }; onComplete: (s: number, t: number, e: number) => void }) {
   const { items, opts: options } = data();
-  const [qs] = useState(() => sh(items).slice(0, 10) as DataItem[]);
+  const [qs] = useState(() => sh(items).slice(0, 15) as DataItem[]);
   const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 10, 1000);
 
   const item = qs[cur];
@@ -463,7 +522,7 @@ function PickOptEngine({ data, onComplete }: { data: () => { items: DataItem[]; 
 
 function PickFromEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (s: number, t: number, e: number) => void }) {
   const items = data();
-  const [qs] = useState(() => sh(items).slice(0, 10) as DataItem[]);
+  const [qs] = useState(() => sh(items).slice(0, 15) as DataItem[]);
   const [options, setOptions] = useState<DataItem[]>([]);
   const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 10, 1000);
 
@@ -510,7 +569,7 @@ function makeNegDecoys(corr: string): string[] {
 
 function NegEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (s: number, t: number, e: number) => void }) {
   const items = data();
-  const [qs] = useState(() => sh(items).slice(0, 8) as DataItem[]);
+  const [qs] = useState(() => sh(items).slice(0, 12) as DataItem[]);
   const [options, setOptions] = useState<DataItem[]>([]);
   const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 15, 1200);
 
@@ -557,7 +616,7 @@ function NegEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (
 
 function BuildEngine({ data, onComplete }: { data: () => BuildItem[]; onComplete: (s: number, t: number, e: number) => void }) {
   const items = data();
-  const [qs] = useState(() => sh(items).slice(0, 8) as BuildItem[]);
+  const [qs] = useState(() => sh(items).slice(0, 12) as BuildItem[]);
   const [cur, setCur] = useState(0);
   const [placed, setPlaced] = useState<string[]>([]);
   const [pool, setPool] = useState<string[]>([]);
@@ -634,7 +693,7 @@ function BuildEngine({ data, onComplete }: { data: () => BuildItem[]; onComplete
 
 function LiEngine({ data, onComplete }: { data: () => LiItem[]; onComplete: (s: number, t: number, e: number) => void }) {
   const items = data();
-  const [qs] = useState(() => sh(items).slice(0, 8) as LiItem[]);
+  const [qs] = useState(() => sh(items).slice(0, 12) as LiItem[]);
   const [cur, setCur] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const [reaction, setReaction] = useState("");
