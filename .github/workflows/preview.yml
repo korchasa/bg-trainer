@@ -1,0 +1,86 @@
+name: Deploy Branch Preview
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compute branch dir
+        id: branch
+        # Replace '/' with '-' so nested branches become flat directory names.
+        # claude/my-feature  →  preview/claude-my-feature
+        run: echo "dir=$(echo '${{ github.ref_name }}' | tr '/' '-')" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /bg-trainer/preview/${{ steps.branch.outputs.dir }}/
+
+      - name: Deploy preview
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: preview/${{ steps.branch.outputs.dir }}
+          keep_files: true   # don't wipe root or other previews
+
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchDir = '${{ steps.branch.outputs.dir }}';
+            const url = `https://${{ github.repository_owner }}.github.io/bg-trainer/preview/${branchDir}/`;
+            const body = `### Preview deployed\n\n🔗 ${url}`;
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${{ github.ref_name }}`,
+              state: 'open',
+            });
+
+            for (const pr of prs.data) {
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+              });
+              const existing = comments.data.find(c =>
+                c.user.login === 'github-actions[bot]' && c.body.includes('Preview deployed')
+              );
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body,
+                });
+              }
+            }
