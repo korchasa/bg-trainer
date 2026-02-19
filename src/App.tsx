@@ -3,10 +3,11 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, 
 
 const sh = (arr: any[]) => [...arr].sort(() => Math.random() - 0.5);
 const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-const OK = ["🎉 Браво!","✨ Точно!","🔥 Супер!","💪 Молодец!","⚡ Вярно!","🌟 Отлично!"];
-const FAIL = ["😅 Не-а!","🤔 Не съвсем!","💫 Почти!","🙈 Упс!","😬 Мимо!"];
+const OK = ["Браво!", "Точно!", "Супер!", "Молодец!", "Вярно!", "Отлично!"];
+const FAIL = ["Не-а!", "Не съвсем!", "Почти!", "Упс!", "Мимо!"];
 const CHART_COLORS = ["#8b5cf6","#0ea5e9","#10b981","#f59e0b","#f43f5e","#6366f1","#ec4899","#14b8a6","#a855f7","#fb923c"];
 const STORAGE_KEY = "bg-trainer-v3";
+const ACCENT = "#E60023";
 
 interface HistoryEntry {
   mode: string;
@@ -218,43 +219,80 @@ const MODE_LABELS: Record<string, string> = {};
 ALL_MODES.forEach(m => MODE_LABELS[m.id] = `${m.icon} ${m.label}`);
 
 // === UI COMPONENTS ===
-function Reaction({ text }: { text: string }) {
-  return <div className="h-9 flex items-center justify-center">
-    {text ? <div className="text-2xl font-bold animate-bounce">{text}</div> : null}
-  </div>;
+
+function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-900 transition-colors"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+  );
 }
 
-function Progress({ cur, total, score }: { cur: number; total: number; score: number }) {
-  return <>
-    <div className="flex justify-between w-full max-w-sm text-sm text-gray-500">
-      <span>{cur + 1}/{total}</span><span>Очки: {score}</span>
+function NavHeader({ title, onBack, right }: { title: string; onBack: () => void; right?: React.ReactNode }) {
+  return (
+    <div className="bg-white/95 border-b border-[#f0f0f0] sticky top-0 z-50 h-14 flex items-center justify-between px-4 shrink-0">
+      <BackButton onClick={onBack} />
+      <h2 className="text-base font-bold text-gray-900">{title}</h2>
+      <div className="w-10 flex items-center justify-end">{right}</div>
     </div>
-    <div className="w-full max-w-sm bg-gray-800 rounded-full h-2">
-      <div className="h-2 rounded-full bg-violet-500 transition-all" style={{ width: `${(cur / total) * 100}%` }} />
+  );
+}
+
+function Reaction({ text }: { text: string }) {
+  return (
+    <div className="h-9 flex items-center justify-center">
+      {text ? <div className="text-xl font-black text-gray-900 animate-bounce">{text}</div> : null}
     </div>
-  </>;
+  );
+}
+
+function Progress({ cur, total, score, accent = false }: { cur: number; total: number; score: number; accent?: boolean }) {
+  return (
+    <>
+      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+        <span>{cur + 1}/{total}</span>
+        <span>{score} pts</span>
+      </div>
+      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-10">
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{ width: `${(cur / total) * 100}%`, backgroundColor: accent ? ACCENT : '#111111' }}
+        />
+      </div>
+    </>
+  );
 }
 
 function Correction({ show, text }: { show: boolean; text: string }) {
-  return <div className="h-6 flex items-center justify-center">
-    {show ? <span className="text-emerald-400 text-sm">✓ {text}</span> : null}
-  </div>;
+  return (
+    <div className="h-6 flex items-center justify-center">
+      {show ? <span className="text-emerald-600 text-sm font-semibold">✓ {text}</span> : null}
+    </div>
+  );
 }
 
-// === AnswerBtn ===
 function AnswerBtn({ val, sel, correctVal, onClick, className = "", children }: {
   val: string; sel: string | null; correctVal: string; onClick: () => void; className?: string; children?: React.ReactNode;
 }) {
-  let cls = "bg-gray-800 text-white border border-gray-600 hover:bg-gray-700 cursor-pointer";
+  let cls = "bg-white border-2 border-[#E9E9E9] text-[#111111] hover:border-[#111111] cursor-pointer active:bg-[#111111] active:text-white active:border-[#111111]";
   if (sel !== null) {
-    if (val === correctVal)        cls = "bg-emerald-500 text-white border-emerald-400";
-    else if (val === sel)          cls = "bg-red-500 text-white border-red-400";
-    else                           cls = "bg-gray-800 text-gray-500 border-gray-700";
+    if (val === correctVal)     cls = "bg-emerald-500 text-white border-emerald-500 cursor-default";
+    else if (val === sel)       cls = `bg-[${ACCENT}] text-white border-[${ACCENT}] cursor-default`;
+    else                         cls = "bg-white text-gray-300 border-[#E9E9E9] cursor-default";
   }
-  return <button onClick={onClick}
-    className={`rounded-xl font-bold transition-all shadow-md ${cls} ${sel !== null ? "cursor-default" : ""} ${className}`}>
-    {children ?? val}
-  </button>;
+  return (
+    <button
+      onClick={sel === null ? onClick : undefined}
+      className={`rounded-[20px] font-semibold transition-all ${cls} ${className}`}
+    >
+      {children ?? val}
+    </button>
+  );
 }
 
 // === useTimer ===
@@ -316,7 +354,10 @@ function useGame(qs: DataItem[], onComplete: (score: number, time: number, error
 }
 
 // === GAME ENGINES ===
-function PickEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (s: number, t: number, e: number) => void }) {
+
+function PickEngine({ data, onComplete, accent = false }: {
+  data: () => DataItem[]; onComplete: (s: number, t: number, e: number) => void; accent?: boolean;
+}) {
   const items = data();
   const [qs] = useState(() => sh(items) as DataItem[]);
   const [options, setOptions] = useState<DataItem[]>([]);
@@ -328,24 +369,28 @@ function PickEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: 
   const shownAnswer = corr || item.answer;
   const shownHint = items.find(x => x.answer === shownAnswer)?.hint || item.hint;
 
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className="text-center">
-      <div className="text-4xl font-bold text-violet-400 mb-2">{item.q}</div>
-      <div className="text-gray-500 text-sm">({item.hint})</div>
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <Progress cur={cur} total={qs.length} score={score} accent={accent} />
+      <div className="flex-1 flex flex-col items-center justify-center mb-8">
+        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter">{item.q}</h1>
+        <p className="text-lg font-semibold text-gray-400">({item.hint})</p>
+        {sel !== null && (
+          <div className="text-center mt-6">
+            <div className="text-3xl font-black text-gray-900">{shownAnswer}</div>
+            <div className="text-base text-gray-400 mt-1">{shownHint}</div>
+          </div>
+        )}
+      </div>
+      <Reaction text={reaction} />
+      <div className="w-full grid grid-cols-3 gap-3 mb-4">
+        {options.map((o, j) =>
+          <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={shownAnswer}
+            onClick={() => answer(o.answer, item.answer)} className="h-16 text-lg" />
+        )}
+      </div>
     </div>
-    {sel !== null && <div className="text-center py-2">
-      <div className="text-3xl font-bold text-white">{shownAnswer}</div>
-      <div className="text-lg text-gray-400 mt-1">{shownHint}</div>
-    </div>}
-    <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
-      {options.map((o, j) =>
-        <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={shownAnswer}
-          onClick={() => answer(o.answer, item.answer)} className="px-3 py-3 text-lg" />
-      )}
-    </div>
-  </div>;
+  );
 }
 
 function TimedEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (s: number, t: number, e: number) => void }) {
@@ -369,21 +414,25 @@ function TimedEngine({ data, onComplete }: { data: () => DataItem[]; onComplete:
   };
 
   const item = qs[cur];
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className={`text-2xl font-mono font-bold ${timeLeft <= 3 ? "text-red-400" : "text-gray-400"}`}>⏱ {timeLeft}с</div>
-    <div className="text-center">
-      <div className="text-4xl font-bold text-white mb-2">{item.q} ___</div>
-      <div className="text-gray-500 text-sm">({item.hint})</div>
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <Progress cur={cur} total={qs.length} score={score} />
+      <div className="flex-1 flex flex-col items-center justify-center mb-6">
+        <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>
+          ⏱ {timeLeft}с
+        </div>
+        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{item.q} ___</h1>
+        <p className="text-base font-medium text-gray-400">({item.hint})</p>
+      </div>
+      <Reaction text={reaction} />
+      <div className="w-full grid grid-cols-2 gap-3 mb-4">
+        {item.options.map((o: DataItem, j: number) =>
+          <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={corr || item.answer}
+            onClick={() => go(o)} className="h-16 text-xl" />
+        )}
+      </div>
     </div>
-    <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-      {item.options.map((o: DataItem, j: number) =>
-        <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={corr || item.answer}
-          onClick={() => go(o)} className="px-4 py-4 text-xl" />
-      )}
-    </div>
-  </div>;
+  );
 }
 
 function PickOptEngine({ data, onComplete }: { data: () => { items: DataItem[]; opts: string[] }; onComplete: (s: number, t: number, e: number) => void }) {
@@ -392,22 +441,24 @@ function PickOptEngine({ data, onComplete }: { data: () => { items: DataItem[]; 
   const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 10, 1000);
 
   const item = qs[cur];
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className="text-center">
-      <div className="text-4xl font-bold text-violet-400 mb-1">{item.q}</div>
-      {item.label && <div className="text-gray-500 text-xs mb-1">{item.label}</div>}
-      <div className="text-gray-500 text-sm">({item.hint})</div>
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <Progress cur={cur} total={qs.length} score={score} />
+      <div className="flex-1 flex flex-col items-center justify-center mb-6">
+        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter">{item.q}</h1>
+        {item.label && <div className="text-sm font-semibold text-gray-400 mb-1">{item.label}</div>}
+        <p className="text-base font-medium text-gray-400">({item.hint})</p>
+        <Correction show={sel !== null && sel !== item.answer} text={`${item.answer} → ${item.hint}`} />
+      </div>
+      <Reaction text={reaction} />
+      <div className="flex flex-wrap gap-3 justify-center w-full mb-4">
+        {options.map(o =>
+          <AnswerBtn key={o} val={o} sel={sel} correctVal={item.answer}
+            onClick={() => answer(o, item.answer)} className="px-6 py-4 text-lg" />
+        )}
+      </div>
     </div>
-    <Correction show={sel !== null && sel !== item.answer} text={`${item.answer} → ${item.hint}`} />
-    <div className="flex flex-wrap gap-3 justify-center w-full max-w-sm">
-      {options.map(o =>
-        <AnswerBtn key={o} val={o} sel={sel} correctVal={item.answer}
-          onClick={() => answer(o, item.answer)} className="px-5 py-3 text-lg" />
-      )}
-    </div>
-  </div>;
+  );
 }
 
 function PickFromEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (s: number, t: number, e: number) => void }) {
@@ -425,22 +476,24 @@ function PickFromEngine({ data, onComplete }: { data: () => DataItem[]; onComple
   }, [cur]);
 
   const item = qs[cur];
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className="text-center">
-      <div className="text-3xl font-bold text-violet-400 mb-1">{item.q}</div>
-      {item.label && <div className="text-gray-500 text-xs mb-1">{item.label}</div>}
-      <div className="text-gray-500 text-sm">({item.hint})</div>
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <Progress cur={cur} total={qs.length} score={score} />
+      <div className="flex-1 flex flex-col items-center justify-center mb-6">
+        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tighter">{item.q}</h1>
+        {item.label && <div className="text-sm font-semibold text-gray-400 mb-1">{item.label}</div>}
+        <p className="text-base font-medium text-gray-400">({item.hint})</p>
+        <Correction show={sel !== null && sel !== item.answer} text={item.answer} />
+      </div>
+      <Reaction text={reaction} />
+      <div className="w-full grid grid-cols-2 gap-3 mb-4">
+        {options.map((o, j) =>
+          <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={item.answer}
+            onClick={() => answer(o.answer, item.answer)} className="py-4 text-lg" />
+        )}
+      </div>
     </div>
-    <Correction show={sel !== null && sel !== item.answer} text={item.answer} />
-    <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-      {options.map((o, j) =>
-        <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={item.answer}
-          onClick={() => answer(o.answer, item.answer)} className="px-4 py-3 text-lg" />
-      )}
-    </div>
-  </div>;
+  );
 }
 
 function makeNegDecoys(corr: string): string[] {
@@ -467,22 +520,39 @@ function NegEngine({ data, onComplete }: { data: () => DataItem[]; onComplete: (
   }, [cur]);
 
   const item = qs[cur];
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className="text-center">
-      <div className="text-sm text-gray-500 mb-1">Сделай отрицание:</div>
-      <div className="text-2xl font-bold text-white mb-1">{item.q}</div>
-      <div className="text-gray-500 text-sm">({item.hint})</div>
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <Progress cur={cur} total={qs.length} score={score} accent />
+      <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
+        <p className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: ACCENT }}>Задача</p>
+        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{item.q}</h1>
+        <p className="text-base font-medium text-gray-500">({item.hint})</p>
+      </div>
+      <Reaction text={reaction} />
+      <div className="w-full flex flex-col gap-3 mb-4">
+        {options.map((o, j) => {
+          let btnCls = "bg-white border-2 border-[#E9E9E9] text-[#111111] hover:border-[#111111] cursor-pointer";
+          let circleStyle = "border-gray-200";
+          if (sel !== null) {
+            if (o.answer === item.answer) { btnCls = "bg-emerald-500 text-white border-emerald-500 cursor-default"; circleStyle = "border-white bg-white/30"; }
+            else if (o.answer === sel)    { btnCls = `text-white border-[${ACCENT}] cursor-default`; circleStyle = "border-white bg-white/30"; }
+            else                           { btnCls = "bg-white text-gray-300 border-[#E9E9E9] cursor-default"; circleStyle = "border-gray-100"; }
+          }
+          return (
+            <button
+              key={o.answer + j}
+              onClick={sel === null ? () => answer(o.answer, item.answer) : undefined}
+              style={sel !== null && o.answer === sel && o.answer !== item.answer ? { backgroundColor: ACCENT } : undefined}
+              className={`w-full p-5 text-left text-base font-semibold flex items-center gap-3 rounded-[20px] transition-all ${btnCls}`}
+            >
+              <span className="flex-1">{o.answer}</span>
+              <div className={`w-5 h-5 rounded-full border-2 shrink-0 transition-all ${circleStyle}`} />
+            </button>
+          );
+        })}
+      </div>
     </div>
-    <Correction show={sel !== null && sel !== item.answer} text={item.answer} />
-    <div className="flex flex-col gap-3 w-full max-w-sm">
-      {options.map((o, j) =>
-        <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={item.answer}
-          onClick={() => answer(o.answer, item.answer)} className="px-4 py-3 text-base text-left" />
-      )}
-    </div>
-  </div>;
+  );
 }
 
 function BuildEngine({ data, onComplete }: { data: () => BuildItem[]; onComplete: (s: number, t: number, e: number) => void }) {
@@ -527,30 +597,39 @@ function BuildEngine({ data, onComplete }: { data: () => BuildItem[]; onComplete
     setPlaced(placed.filter((_, j) => j !== index));
   };
 
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className="text-gray-500 text-sm">{qs[cur].translation}</div>
-    <div className="flex flex-wrap gap-2 min-h-[56px] p-3 bg-gray-800 rounded-xl border-2 border-dashed border-gray-600 w-full max-w-sm justify-center items-center">
-      {placed.length === 0 && <span className="text-gray-600 text-sm">Нажми на слова ниже...</span>}
-      {placed.map((word, i) =>
-        <button key={word + i} onClick={() => removeWord(word, i)}
-          className={`px-3 py-2 rounded-lg font-bold text-lg transition-all cursor-pointer shadow-md ${done ? (i < target.length && word === target[i] ? "bg-emerald-500 text-white" : "bg-red-500 text-white") : "bg-violet-500 text-white hover:bg-violet-600"}`}>
-          {word}
-        </button>
-      )}
-      {placed.length > 0 && <span className="text-gray-500 font-bold text-xl">?</span>}
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+        <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
+      </div>
+      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-8">
+        <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
+        <p className="text-sm font-semibold text-gray-400 mb-4">{qs[cur].translation}</p>
+        <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">
+          {placed.length === 0 && <span className="text-gray-400 text-sm font-medium">Нажми на слова ниже...</span>}
+          {placed.map((word, i) =>
+            <button key={word + i} onClick={() => removeWord(word, i)}
+              className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${done ? (i < target.length && word === target[i] ? "bg-emerald-500 text-white" : "bg-[#E60023] text-white") : "bg-[#111111] text-white hover:bg-gray-800"}`}>
+              {word}
+            </button>
+          )}
+          {placed.length > 0 && <span className="text-gray-400 font-bold text-xl">?</span>}
+        </div>
+        <Correction show={done && placed.join(" ") + " ?" !== qs[cur].words.join(" ")} text={qs[cur].words.join(" ")} />
+      </div>
+      <Reaction text={reaction} />
+      <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
+        {pool.map((word, i) =>
+          <button key={word + i} onClick={() => addWord(word, i)}
+            className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all">
+            {word}
+          </button>
+        )}
+      </div>
     </div>
-    <Correction show={done && placed.join(" ") + " ?" !== qs[cur].words.join(" ")} text={qs[cur].words.join(" ")} />
-    <div className="flex flex-wrap gap-2 justify-center w-full max-w-sm min-h-[56px] items-start">
-      {pool.map((word, i) =>
-        <button key={word + i} onClick={() => addWord(word, i)}
-          className="px-4 py-3 bg-gray-800 text-white border border-gray-600 rounded-xl font-bold text-lg hover:bg-gray-700 cursor-pointer shadow-md transition-all">
-          {word}
-        </button>
-      )}
-    </div>
-  </div>;
+  );
 }
 
 function LiEngine({ data, onComplete }: { data: () => LiItem[]; onComplete: (s: number, t: number, e: number) => void }) {
@@ -576,29 +655,43 @@ function LiEngine({ data, onComplete }: { data: () => LiItem[]; onComplete: (s: 
   };
 
   const q = qs[cur];
-  return <div className="flex flex-col items-center gap-4">
-    <Progress cur={cur} total={qs.length} score={score} />
-    <Reaction text={reaction} />
-    <div className="text-gray-500 text-sm">{q.translation}</div>
-    <div className="text-sm text-gray-400">Нажми на место для <span className="text-amber-400 font-bold">ли</span></div>
-    <div className="flex flex-wrap items-center gap-1 justify-center w-full max-w-md">
-      {q.words.map((word, i) =>
-        <div key={i} className="flex items-center gap-1">
-          <span className="px-3 py-2 bg-gray-800 rounded-lg text-white font-bold text-lg border border-gray-700">{word}</span>
-          <button onClick={() => go(i)} className={`w-10 h-10 rounded-lg font-bold text-sm transition-all flex items-center justify-center border-2 border-dashed
-            ${sel === null ? "border-amber-500 text-amber-400 hover:bg-amber-500 hover:text-white cursor-pointer" : ""}
-            ${sel === i && i === q.liPosition ? "bg-emerald-500 text-white border-emerald-400" : ""}
-            ${sel === i && i !== q.liPosition ? "bg-red-500 text-white border-red-400" : ""}
-            ${sel !== null && sel !== i && i === q.liPosition ? "bg-emerald-500 text-white border-emerald-400 animate-pulse" : ""}
-            ${sel !== null && sel !== i && i !== q.liPosition ? "border-gray-700 text-gray-600" : ""}`}>
-            ли
-          </button>
+  return (
+    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+        <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
+      </div>
+      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-10">
+        <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center w-full mb-6">
+        <p className="text-sm font-semibold text-gray-400 mb-2">{q.translation}</p>
+        <p className="text-sm font-medium text-gray-500 mb-6">
+          Нажми на место для <span className="font-bold text-gray-900">ли</span>
+        </p>
+        <div className="flex flex-wrap items-center gap-2 justify-center w-full">
+          {q.words.map((word, i) =>
+            <div key={i} className="flex items-center gap-1">
+              <span className="px-3 py-2 bg-[#F2F2F2] rounded-[14px] text-gray-900 font-bold text-lg">{word}</span>
+              <button onClick={() => go(i)}
+                className={`w-10 h-10 rounded-[14px] font-bold text-sm transition-all flex items-center justify-center border-2 border-dashed
+                  ${sel === null ? "border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white cursor-pointer" : ""}
+                  ${sel === i && i === q.liPosition ? "bg-emerald-500 text-white border-emerald-500" : ""}
+                  ${sel === i && i !== q.liPosition ? `bg-[${ACCENT}] text-white border-[${ACCENT}]` : ""}
+                  ${sel !== null && sel !== i && i === q.liPosition ? "bg-emerald-500 text-white border-emerald-500 animate-pulse" : ""}
+                  ${sel !== null && sel !== i && i !== q.liPosition ? "border-gray-200 text-gray-300" : ""}`}>
+                ли
+              </button>
+            </div>
+          )}
+          <span className="text-gray-400 font-bold text-xl ml-1">?</span>
         </div>
-      )}
-      <span className="text-gray-500 font-bold text-xl ml-1">?</span>
+        <div className="mt-4">
+          <Correction show={sel !== null} text={q.result} />
+        </div>
+      </div>
+      <Reaction text={reaction} />
     </div>
-    <Correction show={sel !== null} text={q.result} />
-  </div>;
+  );
 }
 
 const ENGINES: Record<string, React.ComponentType<any>> = {
@@ -611,34 +704,57 @@ const ENGINES: Record<string, React.ComponentType<any>> = {
   li: LiEngine,
 };
 
-// === RESULTS & ANALYTICS ===
+// === RESULTS ===
 function Results({ score, time, errors, onRestart, onMenu }: {
   score: number; time: number; errors: number; onRestart: () => void; onMenu: () => void;
 }) {
   const seconds = Math.floor(time / 1000);
-  const emoji = score >= 80 ? "🏆" : score >= 40 ? "👍" : "💪";
   const accuracy = Math.max(0, Math.round((1 - errors / (errors + 8)) * 100));
-  return <div className="flex flex-col items-center gap-5 text-center">
-    <div className="text-6xl">{emoji}</div>
-    <div className="text-3xl font-bold text-white">Готово!</div>
-    <div className="text-5xl font-bold text-violet-400">{score}</div>
-    <div className="flex gap-6 text-gray-400 text-sm">
-      <span>⏱ {seconds}с</span><span>❌ {errors}</span><span>🎯 {accuracy}%</span>
+  const emoji = score >= 80 ? "🏆" : score >= 40 ? "👍" : "💪";
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 gap-6 text-center">
+      <div className="text-7xl">{emoji}</div>
+      <h1 className="text-3xl font-black text-gray-900 tracking-tight">Готово!</h1>
+      <div className="text-6xl font-black" style={{ color: ACCENT }}>{score}</div>
+      <div className="flex gap-6 text-gray-500 text-sm font-semibold">
+        <span>⏱ {seconds}с</span>
+        <span>❌ {errors}</span>
+        <span>🎯 {accuracy}%</span>
+      </div>
+      <div className="flex gap-3 mt-2 w-full max-w-xs">
+        <button
+          onClick={onRestart}
+          className="flex-1 py-4 rounded-full font-bold text-white text-base shadow-lg transition-all active:scale-[0.98]"
+          style={{ backgroundColor: ACCENT }}
+        >
+          Ещё раз
+        </button>
+        <button
+          onClick={onMenu}
+          className="flex-1 py-4 rounded-full font-bold text-gray-900 bg-[#F2F2F2] text-base transition-all active:scale-[0.98] active:bg-[#E0E0E0]"
+        >
+          Меню
+        </button>
+      </div>
     </div>
-    <div className="flex gap-3 mt-3">
-      <button onClick={onRestart} className="px-6 py-3 bg-violet-500 hover:bg-violet-600 text-white font-bold rounded-xl shadow-lg">Ещё раз</button>
-      <button onClick={onMenu} className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-xl shadow-lg">Меню</button>
-    </div>
-  </div>;
+  );
 }
 
+// === ANALYTICS ===
 function Analytics({ history, onBack, onClear }: {
   history: HistoryEntry[]; onBack: () => void; onClear: () => void;
 }) {
-  if (!history.length) return <div className="flex flex-col items-center gap-6">
-    <div className="text-gray-400 text-lg">Пока нет данных!</div>
-    <button onClick={onBack} className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-xl shadow-lg">← Меню</button>
-  </div>;
+  if (!history.length) return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+      <p className="text-gray-400 text-lg font-semibold">Пока нет данных!</p>
+      <button
+        onClick={onBack}
+        className="px-8 py-4 bg-[#F2F2F2] text-gray-900 font-bold rounded-full transition-all active:bg-[#E0E0E0]"
+      >
+        ← Меню
+      </button>
+    </div>
+  );
 
   const total = history.length;
   const average = Math.round(history.reduce((s, h) => s + h.score, 0) / total);
@@ -655,62 +771,89 @@ function Analytics({ history, onBack, onClear }: {
   }));
   const last20 = history.slice(-20).map((h, i) => ({ n: i + 1, score: h.score, errors: h.errors || 0 }));
 
-  return <div className="flex flex-col gap-5">
-    <div className="flex justify-between items-center">
-      <button onClick={onBack} className="text-gray-500 hover:text-white text-sm">← Меню</button>
-      <span className="text-lg font-bold text-white">📊 Аналитика</span>
-      <button onClick={onClear} className="text-red-400 hover:text-red-300 text-xs">Сбросить</button>
-    </div>
-    <div className="grid grid-cols-3 gap-2">
-      {([["🎮",total],["⭐",bestScore],["📈",average],["❌",totalErrors],["🎯",Math.max(0,Math.round((1-totalErrors/(totalErrors+total*8))*100))+"%"],["🏅",Object.keys(byMode).length]] as [string, string|number][]).map(([l,v],i)=>
-        <div key={i} className="bg-gray-800 rounded-xl p-2 text-center border border-gray-700">
-          <div className="text-xs text-gray-500">{l}</div><div className="text-lg font-bold text-white">{v}</div>
-        </div>
-      )}
-    </div>
-    <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-      <div className="text-sm text-gray-400 mb-2">Последние 20</div>
-      <ResponsiveContainer width="100%" height={130}>
-        <LineChart data={last20}>
-          <XAxis dataKey="n" tick={{ fill: "#6b7280", fontSize: 10 }} />
-          <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} />
-          <Tooltip contentStyle={{ background: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-          <Line type="monotone" dataKey="score" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name="Очки" />
-          <Line type="monotone" dataKey="errors" stroke="#f43f5e" strokeWidth={2} dot={{ r: 2 }} name="Ошибки" />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-    <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-      <div className="text-sm text-gray-400 mb-2">По режимам</div>
-      <div className="flex gap-3 items-center">
-        <ResponsiveContainer width="35%" height={100}>
-          <PieChart><Pie data={modeData} dataKey="value" cx="50%" cy="50%" outerRadius={40} innerRadius={18}>
-            {modeData.map((_, i) => <Cell key={i} fill={modeData[i].fill} />)}
-          </Pie></PieChart>
-        </ResponsiveContainer>
-        <div className="flex flex-col gap-0.5 text-xs flex-1">
-          {modeData.map((m, i) =>
-            <div key={m.name} className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
-              <span className="text-gray-300 truncate">{m.name}</span><span className="text-gray-500">×{m.games}</span>
+  const statCards = [
+    { icon: "🎮", value: total, label: "игр" },
+    { icon: "⭐", value: bestScore, label: "лучший" },
+    { icon: "📈", value: average, label: "средний" },
+    { icon: "❌", value: totalErrors, label: "ошибок" },
+    { icon: "🎯", value: Math.max(0, Math.round((1 - totalErrors / (totalErrors + total * 8)) * 100)) + "%", label: "точность" },
+    { icon: "🏅", value: Object.keys(byMode).length, label: "режимов" },
+  ];
+
+  return (
+    <div className="flex flex-col overflow-y-auto no-scrollbar">
+      <div className="p-6 flex flex-col gap-6">
+        <div className="grid grid-cols-3 gap-3">
+          {statCards.map((c, i) => (
+            <div key={i} className="bg-gray-50 rounded-2xl p-3 flex flex-col items-center justify-center aspect-[3/2] border border-gray-100">
+              <span className="text-lg mb-1">{c.icon}</span>
+              <span className="text-xl font-black text-gray-900">{c.value}</span>
             </div>
-          )}
+          ))}
+        </div>
+
+        <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">Последние 20</h3>
+          <ResponsiveContainer width="100%" height={130}>
+            <LineChart data={last20}>
+              <XAxis dataKey="n" tick={{ fill: "#9ca3af", fontSize: 10 }} />
+              <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} />
+              <Tooltip
+                contentStyle={{ background: "#ffffff", border: "1px solid #f0f0f0", borderRadius: 12, fontSize: 12 }}
+                itemStyle={{ color: "#111111" }}
+              />
+              <Line type="monotone" dataKey="score" stroke="#111111" strokeWidth={2} dot={{ r: 3, fill: "#111111" }} name="Очки" />
+              <Line type="monotone" dataKey="errors" stroke={ACCENT} strokeWidth={2} dot={{ r: 3, fill: ACCENT }} name="Ошибки" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">По режимам</h3>
+          <div className="flex gap-4 items-center">
+            <ResponsiveContainer width="40%" height={100}>
+              <PieChart>
+                <Pie data={modeData} dataKey="value" cx="50%" cy="50%" outerRadius={44} innerRadius={20}>
+                  {modeData.map((_, i) => <Cell key={i} fill={modeData[i].fill} />)}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex flex-col gap-1.5 text-xs flex-1">
+              {modeData.map((m, i) => (
+                <div key={m.name} className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
+                  <span className="text-gray-700 font-semibold truncate flex-1">{m.name}</span>
+                  <span className="text-gray-400 font-bold shrink-0">×{m.games}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm mb-6">
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">История</h3>
+          <div className="flex flex-col gap-0">
+            {history.slice(-15).reverse().map((h, i) => (
+              <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                <span className="text-xs font-bold text-gray-400">
+                  {new Date(h.ts).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-full bg-gray-100">
+                    <span className="text-xs">{(MODE_LABELS[h.mode] || h.mode).split(" ")[0]}</span>
+                  </div>
+                  <span className="text-xs font-bold text-gray-800 max-w-[100px] truncate">
+                    {(MODE_LABELS[h.mode] || h.mode).split(" ").slice(1).join(" ")}
+                  </span>
+                </div>
+                <span className="text-sm font-black" style={{ color: ACCENT }}>+{h.score}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
-    <div className="bg-gray-800 rounded-xl p-3 border border-gray-700">
-      <div className="text-sm text-gray-400 mb-2">История</div>
-      <div className="max-h-36 overflow-y-auto space-y-0.5">
-        {history.slice(-15).reverse().map((h, i) =>
-          <div key={i} className="flex justify-between text-xs py-0.5 border-b border-gray-700">
-            <span className="text-gray-400">{new Date(h.ts).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
-            <span className="text-gray-300 truncate max-w-[120px]">{MODE_LABELS[h.mode] || h.mode}</span>
-            <span className="text-white font-bold">{h.score}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>;
+  );
 }
 
 // === APP ===
@@ -732,68 +875,148 @@ export default function App() {
     setResult({ score, time, errors }); setScreen("results");
   }, [modeId, history]);
 
-  const startGame = (id: string) => { setModeId(id); setScreen("game"); setGameKey(k => k + 1); setShowRef(false); };
+  const startGame = (id: string) => {
+    setModeId(id); setScreen("game"); setGameKey(k => k + 1); setShowRef(false);
+  };
 
-  if (loading) return <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Загрузка...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-gray-400 font-semibold">Загрузка...</div>
+    </div>
+  );
 
   const currentMode = ALL_MODES.find(m => m.id === modeId);
   const Engine = currentMode ? ENGINES[currentMode.type] : null;
   const isVerb = modeId?.startsWith("sym") || modeId?.startsWith("imam") || modeId?.startsWith("iskam");
 
-  return <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center pt-12 p-4">
-    <div className="w-full max-w-lg">
-      {screen === "menu" && <div className="flex flex-col items-center gap-4">
-        <div className="text-5xl mb-1">🇧🇬</div>
-        <h1 className="text-3xl font-bold text-center mb-2">Тренажёр Болгарского A0</h1>
-        <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
-          {ALL_MODES.map(m =>
-            <button key={m.id} onClick={() => startGame(m.id)}
-              className="aspect-square flex flex-col items-center justify-center gap-1 bg-gray-800 hover:bg-gray-700 text-white rounded-2xl shadow-md transition-all border border-gray-700 p-2">
-              <div className="text-3xl">{m.icon}</div>
-              <div className="text-xs font-bold text-center leading-tight">{m.label}</div>
-            </button>
-          )}
-        </div>
-        <button onClick={() => setScreen("analytics")}
-          className="w-full max-w-sm mt-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-2xl shadow-md transition-all border border-gray-600 flex items-center justify-center gap-2">
-          <span className="text-xl">📊</span> Аналитика {history.length > 0 && <span className="text-gray-400 text-sm">({history.length})</span>}
-        </button>
-      </div>}
+  return (
+    <div className="min-h-screen bg-white flex flex-col items-center">
+      <div className="relative w-full h-screen max-w-md mx-auto flex flex-col overflow-hidden bg-white">
 
-      {screen === "game" && <div>
-        <div className="flex justify-between items-center mb-5">
-          <button onClick={() => setScreen("menu")} className="text-gray-500 hover:text-white text-sm">← Меню</button>
-          <span className="text-gray-400 text-sm font-medium">{currentMode?.label}</span>
-          {isVerb
-            ? <button onClick={() => setShowRef(s => !s)} className="text-gray-500 hover:text-white text-sm">{showRef ? "Скрыть 📖" : "📖"}</button>
-            : <div className="w-8" />}
-        </div>
-        {showRef && currentMode && (() => {
-          const verbData = currentMode.data() as DataItem[];
-          return <div className="w-full max-w-md mx-auto mb-4">
-            <div className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
-              <div className="grid grid-cols-3 gap-0 text-sm">
-                {verbData.map((form, i) =>
-                  <div key={form.q} className={`px-3 py-2 text-center ${i < verbData.length - 1 ? "border-b border-gray-700" : ""} ${i % 3 !== 2 ? "border-r border-gray-700" : ""}`}>
-                    <span className="text-violet-400 font-bold">{form.q}</span>{" "}
-                    <span className="text-white font-semibold">{form.answer}</span>
-                  </div>
-                )}
+        {/* === HOME/MENU === */}
+        {screen === "menu" && (
+          <div className="flex-1 flex flex-col px-4 pt-2 pb-6 overflow-y-auto no-scrollbar">
+            {/* Header */}
+            <div className="flex flex-col items-center justify-center mt-4 mb-8">
+              <div className="w-8 h-6 rounded overflow-hidden relative mb-3 shadow-sm ring-1 ring-black/5">
+                <div className="absolute top-0 w-full h-1/3 bg-white" />
+                <div className="absolute top-1/3 w-full h-1/3 bg-[#00966E]" />
+                <div className="absolute bottom-0 w-full h-1/3 bg-[#D62612]" />
               </div>
+              <h1 className="text-3xl font-black text-center text-gray-900 tracking-tight leading-tight">
+                Български
+              </h1>
+              <p className="text-sm font-semibold text-gray-400 mt-1">Ниво А0 • Тренажёр</p>
             </div>
-          </div>;
-        })()}
-        {Engine && <Engine key={gameKey} data={currentMode!.data} onComplete={handleComplete} />}
-      </div>}
 
-      {screen === "results" && result && <Results
-        score={result.score} time={result.time} errors={result.errors}
-        onRestart={() => { setGameKey(k => k + 1); setScreen("game"); }}
-        onMenu={() => setScreen("menu")} />}
+            {/* Mode grid */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {ALL_MODES.map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => startGame(m.id)}
+                  className="bg-[#F2F2F2] rounded-[28px] aspect-square flex flex-col items-center justify-center p-3 group transition-all active:scale-[0.96] active:bg-[#E0E0E0]"
+                >
+                  <div className="mb-2 p-3 rounded-full bg-white text-gray-900 shadow-sm group-hover:scale-110 transition-transform text-2xl leading-none flex items-center justify-center">
+                    {m.icon}
+                  </div>
+                  <span className="text-[11px] font-bold text-center leading-tight text-gray-800">
+                    {m.label}
+                  </span>
+                </button>
+              ))}
+            </div>
 
-      {screen === "analytics" && <Analytics
-        history={history} onBack={() => setScreen("menu")}
-        onClear={() => { clearHistory(); setHistory([]); }} />}
+            {/* Analytics button */}
+            <button
+              onClick={() => setScreen("analytics")}
+              className="w-full py-4 flex items-center justify-center gap-2 mt-auto mb-2 rounded-full font-bold text-white text-base shadow-lg transition-all active:scale-[0.98] active:opacity-90"
+              style={{ backgroundColor: ACCENT }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+              <span>Аналитика</span>
+              {history.length > 0 && <span className="text-white/70 text-sm font-semibold">({history.length})</span>}
+            </button>
+          </div>
+        )}
+
+        {/* === GAME === */}
+        {screen === "game" && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <NavHeader
+              title={currentMode?.label ?? ""}
+              onBack={() => setScreen("menu")}
+              right={isVerb ? (
+                <button
+                  onClick={() => setShowRef(s => !s)}
+                  className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors"
+                >
+                  📖
+                </button>
+              ) : undefined}
+            />
+
+            {/* Verb conjugation reference table */}
+            {showRef && currentMode && (() => {
+              const verbData = currentMode.data() as DataItem[];
+              return (
+                <div className="mx-4 mt-3 bg-gray-50 rounded-[20px] border border-gray-100 overflow-hidden">
+                  <div className="grid grid-cols-3">
+                    {verbData.map((form, i) => (
+                      <div key={form.q} className={`px-3 py-2 text-center text-sm ${i % 3 !== 2 ? "border-r border-gray-100" : ""} ${i < verbData.length - 3 ? "border-b border-gray-100" : ""}`}>
+                        <span className="text-gray-400 font-semibold">{form.q} </span>
+                        <span className="text-gray-900 font-black">{form.answer}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {Engine && <Engine key={gameKey} data={currentMode!.data} onComplete={handleComplete} />}
+          </div>
+        )}
+
+        {/* === RESULTS === */}
+        {screen === "results" && result && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <NavHeader title="Результат" onBack={() => setScreen("menu")} />
+            <Results
+              score={result.score} time={result.time} errors={result.errors}
+              onRestart={() => { setGameKey(k => k + 1); setScreen("game"); }}
+              onMenu={() => setScreen("menu")}
+            />
+          </div>
+        )}
+
+        {/* === ANALYTICS === */}
+        {screen === "analytics" && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <NavHeader
+              title="Аналитика"
+              onBack={() => setScreen("menu")}
+              right={
+                <button
+                  onClick={() => { clearHistory(); setHistory([]); }}
+                  className="text-xs font-bold text-gray-400 hover:text-[#E60023] transition-colors"
+                >
+                  Сброс
+                </button>
+              }
+            />
+            <Analytics
+              history={history}
+              onBack={() => setScreen("menu")}
+              onClear={() => { clearHistory(); setHistory([]); }}
+            />
+          </div>
+        )}
+
+      </div>
     </div>
-  </div>;
+  );
 }
