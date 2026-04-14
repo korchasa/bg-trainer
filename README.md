@@ -22,14 +22,14 @@ Entry screen lists 8 lessons. Tapping an available lesson opens a pace selector 
 | Category | Modes |
 |---|---|
 | Verb "съм" (to be) | Pick correct form, Timed quiz, Type the form |
-| "Имам" / "Искам" (have / want) | Pick correct form |
+| "Имам" / "Нямам" / "Искам" (have / haven't / want) | Pick correct form |
 | Articles | Select the correct suffix (-ът, -та, -то, -те, -а) |
 | Gender | Identify noun gender (masculine / feminine / neuter) |
 | Plurals | Form plural nouns with decoys |
 | Possessives | Full and short possessive forms |
 | Negation | Construct correct negation from shuffled words |
 | Question word order | Drag-to-order sentences; insert question particle "ли" |
-| Lesson 1 extras | Казвам се / говоря conjugation, country → language, nationality (m/f), profession (m → f), greetings, "нали" answers |
+| Lesson 1 extras | Казвам се / говоря conjugation, country → language, nationality (m/f), profession (m → f), greetings, reply formulas, "Как си/сте" responses, "Това е/са" + objects vocab, "и…и / нито…нито", "нали" answers |
 
 ## Tech Stack
 

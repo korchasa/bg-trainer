@@ -20,6 +20,16 @@ export const DATA_IMAM: DataItem[] = [
   { q: "Те", answer: "имат", hint: "они имеют", rule: IMAM_RULE },
 ];
 
+const NYAMAM_RULE = "Отрицание «имам» → «нямам». Спряжение: нямам/нямаш/няма · нямаме/нямате/нямат.";
+export const DATA_NYAMAM: DataItem[] = [
+  { q: "Аз", answer: "нямам", hint: "я не имею", rule: NYAMAM_RULE },
+  { q: "Ти", answer: "нямаш", hint: "ты не имеешь", rule: NYAMAM_RULE },
+  { q: "Той/Тя/То", answer: "няма", hint: "он не имеет", rule: NYAMAM_RULE },
+  { q: "Ние", answer: "нямаме", hint: "мы не имеем", rule: NYAMAM_RULE },
+  { q: "Вие", answer: "нямате", hint: "вы не имеете", rule: NYAMAM_RULE },
+  { q: "Те", answer: "нямат", hint: "они не имеют", rule: NYAMAM_RULE },
+];
+
 const ISKAM_RULE = "A-спряжение (как «имам»): -ам/-аш/-а · -аме/-ате/-ат.";
 export const DATA_ISKAM: DataItem[] = [
   { q: "Аз", answer: "искам", hint: "я хочу", rule: ISKAM_RULE },
@@ -285,6 +295,77 @@ export const DATA_NALI: DataItem[] = [
 ];
 export const NALI_OPTIONS = ["Да.", "Не."];
 
+const NITO_I_RULE = "Утверждение: «и … и». Отрицание: «нито … нито».";
+export const DATA_NITO_I: DataItem[] = [
+  { q: "Имам ___ учебник, ___ речник.", answer: "и", hint: "утверждение: и … и", rule: NITO_I_RULE },
+  { q: "Нямам ___ химикалка, ___ молив.", answer: "нито", hint: "отрицание: нито … нито", rule: NITO_I_RULE },
+  { q: "Говоря ___ български, ___ английски.", answer: "и", hint: "утверждение", rule: NITO_I_RULE },
+  { q: "Не говоря ___ испански, ___ френски.", answer: "нито", hint: "отрицание", rule: NITO_I_RULE },
+  { q: "Обичам ___ кафе, ___ чай.", answer: "и", hint: "утверждение", rule: NITO_I_RULE },
+  { q: "Нямам ___ време, ___ пари.", answer: "нито", hint: "отрицание", rule: NITO_I_RULE },
+  { q: "Имам ___ тетрадка, ___ бележник.", answer: "и", hint: "утверждение", rule: NITO_I_RULE },
+  { q: "Не знам ___ него, ___ нея.", answer: "нито", hint: "отрицание", rule: NITO_I_RULE },
+];
+export const NITO_I_OPTIONS = ["и", "нито"];
+
+export const DATA_KAK_SI: DataItem[] = [
+  { q: "настроение отличное", answer: "Много добре", hint: "очень хорошо" },
+  { q: "день прекрасный", answer: "Много добре", hint: "очень хорошо" },
+  { q: "всё в порядке", answer: "Добре", hint: "хорошо" },
+  { q: "в целом нормально", answer: "Добре", hint: "хорошо" },
+  { q: "так себе", answer: "Горе-долу", hint: "средне" },
+  { q: "терпимо", answer: "Горе-долу", hint: "средне" },
+  { q: "не очень", answer: "Не много добре", hint: "не очень хорошо" },
+  { q: "плохо себя чувствую", answer: "Не много добре", hint: "не очень хорошо" },
+];
+export const KAK_SI_OPTIONS = ["Много добре", "Добре", "Не много добре", "Горе-долу"];
+
+const TOVA_RULE = "«Това е» + ед.ч.; «Това са» + мн.ч.";
+export const DATA_TOVA: DataItem[] = [
+  { q: "тетрадка", answer: "Това е", hint: "тетрадь (ед.)", rule: TOVA_RULE },
+  { q: "тетрадки", answer: "Това са", hint: "тетради (мн.)", rule: TOVA_RULE },
+  { q: "бележник", answer: "Това е", hint: "блокнот (ед.)", rule: TOVA_RULE },
+  { q: "бележници", answer: "Това са", hint: "блокноты (мн.)", rule: TOVA_RULE },
+  { q: "книга", answer: "Това е", hint: "книга (ед.)", rule: TOVA_RULE },
+  { q: "книги", answer: "Това са", hint: "книги (мн.)", rule: TOVA_RULE },
+  { q: "речник", answer: "Това е", hint: "словарь (ед.)", rule: TOVA_RULE },
+  { q: "речници", answer: "Това са", hint: "словари (мн.)", rule: TOVA_RULE },
+  { q: "молив", answer: "Това е", hint: "карандаш (ед.)", rule: TOVA_RULE },
+  { q: "моливи", answer: "Това са", hint: "карандаши (мн.)", rule: TOVA_RULE },
+  { q: "химикалка", answer: "Това е", hint: "ручка (ед.)", rule: TOVA_RULE },
+  { q: "химикалки", answer: "Това са", hint: "ручки (мн.)", rule: TOVA_RULE },
+  { q: "чанта", answer: "Това е", hint: "сумка (ед.)", rule: TOVA_RULE },
+  { q: "чанти", answer: "Това са", hint: "сумки (мн.)", rule: TOVA_RULE },
+  { q: "шише с вода", answer: "Това е", hint: "бутылка с водой (ед.)", rule: TOVA_RULE },
+  { q: "шишета с вода", answer: "Това са", hint: "бутылки с водой (мн.)", rule: TOVA_RULE },
+];
+export const TOVA_OPTIONS = ["Това е", "Това са"];
+
+export const DATA_OBJECTS: DataItem[] = [
+  { q: "тетрадь", answer: "тетрадка", hint: "предмет на уроке", decoys: ["бележник", "книга", "химикалка"] },
+  { q: "блокнот", answer: "бележник", hint: "предмет на уроке", decoys: ["тетрадка", "речник", "молив"] },
+  { q: "книга", answer: "книга", hint: "предмет на уроке", decoys: ["тетрадка", "речник", "чанта"] },
+  { q: "словарь", answer: "речник", hint: "предмет на уроке", decoys: ["книга", "бележник", "молив"] },
+  { q: "карандаш", answer: "молив", hint: "предмет на уроке", decoys: ["химикалка", "речник", "чанта"] },
+  { q: "ручка", answer: "химикалка", hint: "предмет на уроке", decoys: ["молив", "чанта", "книга"] },
+  { q: "сумка", answer: "чанта", hint: "предмет на уроке", decoys: ["химикалка", "книга", "молив"] },
+  { q: "бутылка с водой", answer: "шише с вода", hint: "предмет на уроке", decoys: ["чанта", "речник", "бележник"] },
+];
+
+export const DATA_REPLY: DataItem[] = [
+  { q: "— Здравей!", answer: "Здравей!", hint: "ответ на приветствие (ты)", decoys: ["Здравейте!", "Лека нощ!", "Чао!"] },
+  { q: "— Здравейте!", answer: "Здравейте!", hint: "ответ на приветствие (Вы)", decoys: ["Здравей!", "Чао!", "Довиждане!"] },
+  { q: "— Как си?", answer: "Благодаря, добре.", hint: "как дела? (ты)", decoys: ["Приятно ми е.", "Довиждане!", "Лека нощ!"] },
+  { q: "— Как сте?", answer: "Благодаря, добре. А Вие?", hint: "как дела? (Вы)", decoys: ["Приятно ми е.", "Чао!", "Лека нощ!"] },
+  { q: "— Лека нощ!", answer: "Лека нощ!", hint: "пожелание на ночь", decoys: ["Добро утро!", "Здравей!", "Добър ден!"] },
+  { q: "— Чао!", answer: "Чао!", hint: "неформальное прощание", decoys: ["Здравей!", "Приятно ми е.", "Добро утро!"] },
+  { q: "— Довиждане!", answer: "Довиждане!", hint: "формальное прощание", decoys: ["Здравейте!", "Приятно ми е.", "Добър ден!"] },
+  { q: "— Добро утро!", answer: "Добро утро!", hint: "утреннее приветствие", decoys: ["Добър вечер!", "Лека нощ!", "Чао!"] },
+  { q: "— Добър ден!", answer: "Добър ден!", hint: "дневное приветствие", decoys: ["Добро утро!", "Лека нощ!", "Чао!"] },
+  { q: "— Добър вечер!", answer: "Добър вечер!", hint: "вечернее приветствие", decoys: ["Добро утро!", "Добър ден!", "Чао!"] },
+  { q: "— Приятно ми е.", answer: "Приятно ми е.", hint: "приятно познакомиться", decoys: ["Благодаря, добре.", "Чао!", "Довиждане!"] },
+];
+
 export const DATA_LI: LiItem[] = [
   { words: ["Говориш", "български"], liPosition: 0, result: "Говориш ли български?", translation: "Говоришь по-болгарски?" },
   { words: ["Искаш", "кафе"], liPosition: 0, result: "Искаш ли кафе?", translation: "Хочешь кофе?" },
@@ -310,6 +391,7 @@ export const CATEGORIES: Category[] = [
   ]},
   { id: "imam", name: "Имам / искам", modes: [
     { id: "imam_pick", icon: "🤲", label: "Имам", desc: "Спряжение «имам»", type: "pick", data: () => DATA_IMAM },
+    { id: "nyamam_pick", icon: "🚫", label: "Нямам", desc: "Спряжение «нямам»", type: "pick", data: () => DATA_NYAMAM },
     { id: "iskam_pick", icon: "🌟", label: "Искам", desc: "Спряжение «искам»", type: "pick", data: () => DATA_ISKAM },
   ]},
   { id: "article", name: "Артикли", modes: [
@@ -339,6 +421,11 @@ export const CATEGORIES: Category[] = [
     { id: "profession_pick", icon: "💼", label: "Профессия ж.р.", desc: "Мужская → женская форма", type: "pickFrom", data: () => DATA_PROFESSION },
     { id: "greeting_pick", icon: "👋", label: "Приветствия", desc: "Выбери приветствие по времени", type: "pickOpt", data: () => ({ items: DATA_GREETING, opts: GREETING_OPTIONS }) },
     { id: "nali_pick", icon: "❓", label: "Ответ на «нали»", desc: "Да / Не на вопрос с «нали»", type: "pickOpt", data: () => ({ items: DATA_NALI, opts: NALI_OPTIONS }) },
+    { id: "nito_i_pick", icon: "➕", label: "«и … и» / «нито … нито»", desc: "Выбери связку по утверждению/отрицанию", type: "pickOpt", data: () => ({ items: DATA_NITO_I, opts: NITO_I_OPTIONS }) },
+    { id: "kak_si_pick", icon: "🙂", label: "Как си? / Как сте?", desc: "Ответ по настроению", type: "pickOpt", data: () => ({ items: DATA_KAK_SI, opts: KAK_SI_OPTIONS }) },
+    { id: "tova_pick", icon: "👉", label: "Това е / Това са", desc: "Ед. или мн. число предмета", type: "pickOpt", data: () => ({ items: DATA_TOVA, opts: TOVA_OPTIONS }) },
+    { id: "objects_pick", icon: "🎒", label: "Предметы", desc: "Русское → болгарское слово", type: "pickFrom", data: () => DATA_OBJECTS },
+    { id: "reply_pick", icon: "💬", label: "Ответные реплики", desc: "Подбери ответ на реплику", type: "pickFrom", data: () => DATA_REPLY },
   ]},
 ];
 

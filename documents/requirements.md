@@ -35,11 +35,11 @@
 
 ### 3.10 FR-LESSONS
 - **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. Lesson 1 is fully playable in debug scope; lessons 2–8 show as "Скоро" placeholders.
-- **Scenario:** User picks lesson 1 → sees 11 games specific to lesson-1 content (съм, казвам се, говоря, страна→язык, национальность, профессия, приветствия, нали, ли-вопрос, отрицание).
+- **Scenario:** User picks lesson 1 → sees 19 games specific to lesson-1 content (съм, казвам се, говоря, имам/нямам, страна→язык, национальность, профессия, приветствия, ответные реплики, Как си, Това е/са, предметы, нито/и, нали, ли-вопрос, отрицание).
 - **Acceptance:**
-  - [x] `LESSONS` defined with 8 entries; only L1 `available=true`. Evidence: `src/data/lessons.ts:3-29`
-  - [x] L1 `modeIds` cover L1 grammar topics. Evidence: `src/data/lessons.ts:6-20`
-  - [x] Each new L1 mode backed by ≥6 data items. Evidence: `src/data/index.ts` (DATA_KAZVAM, DATA_GOVORYA, DATA_COUNTRY_LANG, DATA_NATIONALITY, DATA_PROFESSION, DATA_GREETING, DATA_NALI)
+  - [x] `LESSONS` defined with 8 entries; only L1 `available=true`. Evidence: `src/data/lessons.ts:3-38`
+  - [x] L1 `modeIds` cover L1 grammar topics. Evidence: `src/data/lessons.ts:9-29`
+  - [x] Each new L1 mode backed by ≥6 data items. Evidence: `src/data/index.ts` (DATA_KAZVAM, DATA_GOVORYA, DATA_IMAM, DATA_NYAMAM, DATA_COUNTRY_LANG, DATA_NATIONALITY, DATA_PROFESSION, DATA_GREETING, DATA_NALI, DATA_NITO_I, DATA_KAK_SI, DATA_TOVA, DATA_OBJECTS, DATA_REPLY)
 
 ### 3.11 FR-ROUND
 - **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
