@@ -385,47 +385,47 @@ export const DATA_LI: LiItem[] = [
 
 export const CATEGORIES: Category[] = [
   { id: "sym", name: "Глагол «съм»", modes: [
-    { id: "sym_pick", icon: "🎯", label: "Подбери форму", desc: "Выбери форму для местоимения", type: "pick", data: () => DATA_SYM },
-    { id: "sym_fill", icon: "⚡", label: "На скорость", desc: "Выбери форму с таймером", type: "timed", data: () => DATA_SYM },
-    { id: "sym_type", icon: "⌨️", label: "Впиши форму", desc: "Введи форму «съм» с клавиатуры", type: "type", data: () => DATA_SYM },
+    { id: "sym_pick", icon: "🎯", label: "Подбери форму", desc: "Выбери форму «съм» для местоимения", type: "pick", data: () => DATA_SYM },
+    { id: "sym_fill", icon: "⚡", label: "На скорость", desc: "Выбери форму «съм» для местоимения за отведённое время", type: "timed", data: () => DATA_SYM },
+    { id: "sym_type", icon: "⌨️", label: "Впиши форму", desc: "Впиши форму «съм» для местоимения", type: "type", data: () => DATA_SYM },
   ]},
   { id: "imam", name: "Имам / искам", modes: [
-    { id: "imam_pick", icon: "🤲", label: "Имам", desc: "Спряжение «имам»", type: "pick", data: () => DATA_IMAM },
-    { id: "nyamam_pick", icon: "🚫", label: "Нямам", desc: "Спряжение «нямам»", type: "pick", data: () => DATA_NYAMAM },
-    { id: "iskam_pick", icon: "🌟", label: "Искам", desc: "Спряжение «искам»", type: "pick", data: () => DATA_ISKAM },
+    { id: "imam_pick", icon: "🤲", label: "Имам", desc: "Выбери форму «имам» для местоимения", type: "pick", data: () => DATA_IMAM },
+    { id: "nyamam_pick", icon: "🚫", label: "Нямам", desc: "Выбери форму «нямам» для местоимения", type: "pick", data: () => DATA_NYAMAM },
+    { id: "iskam_pick", icon: "🌟", label: "Искам", desc: "Выбери форму «искам» для местоимения", type: "pick", data: () => DATA_ISKAM },
   ]},
   { id: "article", name: "Артикли", modes: [
-    { id: "art_pick", icon: "🏷️", label: "Добавь артикль", desc: "Выбери правильный суффикс", type: "pickOpt", data: () => ({ items: DATA_ARTICLE, opts: ARTICLE_OPTIONS }) },
+    { id: "art_pick", icon: "🏷️", label: "Добавь артикль", desc: "Выбери определённый артикль для слова", type: "pickOpt", data: () => ({ items: DATA_ARTICLE, opts: ARTICLE_OPTIONS }) },
   ]},
   { id: "gender", name: "Род существительных", modes: [
-    { id: "gen_pick", icon: "🔍", label: "Определи род", desc: "м.р., ж.р. или ср.р.?", type: "pickOpt", data: () => ({ items: DATA_GENDER, opts: GENDER_OPTIONS }) },
+    { id: "gen_pick", icon: "🔍", label: "Определи род", desc: "Определи род существительного: мужской, женский или средний", type: "pickOpt", data: () => ({ items: DATA_GENDER, opts: GENDER_OPTIONS }) },
   ]},
   { id: "plural", name: "Множественное число", modes: [
-    { id: "pl_pick", icon: "📚", label: "Образуй мн.ч.", desc: "Выбери правильную форму", type: "pickFrom", data: () => DATA_PLURAL },
+    { id: "pl_pick", icon: "📚", label: "Образуй мн.ч.", desc: "Выбери форму множественного числа", type: "pickFrom", data: () => DATA_PLURAL },
   ]},
   { id: "possess", name: "Притежательные", modes: [
-    { id: "poss_pick", icon: "🔑", label: "Чей? Чья?", desc: "Выбери притежательную форму", type: "pickFrom", data: () => DATA_POSSESS },
+    { id: "poss_pick", icon: "🔑", label: "Чей? Чья?", desc: "Выбери болгарскую притяжательную форму по указанному роду/числу", type: "pickFrom", data: () => DATA_POSSESS },
   ]},
   { id: "neg", name: "Отрицание", modes: [
-    { id: "neg_tf", icon: "❌", label: "Отрицание", desc: "Выбери правильное отрицание", type: "negation", data: () => DATA_NEGATION },
+    { id: "neg_tf", icon: "❌", label: "Отрицание", desc: "Построй отрицательное предложение из плиток", type: "negation", data: () => DATA_NEGATION },
   ]},
   { id: "ques", name: "Порядок слов в вопросах", modes: [
-    { id: "q_build", icon: "🧩", label: "Собери вопрос", desc: "Расставь слова по порядку", type: "build", data: () => DATA_BUILD },
-    { id: "q_li", icon: "💬", label: "Вставь «ли»", desc: "Найди место для «ли»", type: "li", data: () => DATA_LI },
+    { id: "q_build", icon: "🧩", label: "Собери вопрос", desc: "Расставь слова в правильном порядке, чтобы получился вопрос", type: "build", data: () => DATA_BUILD },
+    { id: "q_li", icon: "💬", label: "Вставь «ли»", desc: "Нажми на место, куда вставить «ли»", type: "li", data: () => DATA_LI },
   ]},
   { id: "l1_extra", name: "Урок 1 · дополнительно", modes: [
-    { id: "kazvam_pick", icon: "🪪", label: "Казвам се", desc: "Спряжение «казвам се»", type: "pick", data: () => DATA_KAZVAM },
-    { id: "govorya_pick", icon: "🗣️", label: "Говоря", desc: "Спряжение «говоря»", type: "pick", data: () => DATA_GOVORYA },
-    { id: "country_lang_pick", icon: "🌍", label: "Страна → язык", desc: "Язык страны", type: "pickFrom", data: () => DATA_COUNTRY_LANG },
-    { id: "nationality_pick", icon: "🧑‍🤝‍🧑", label: "Национальность", desc: "Страна + пол → национальность", type: "pickFrom", data: () => DATA_NATIONALITY },
-    { id: "profession_pick", icon: "💼", label: "Профессия ж.р.", desc: "Мужская → женская форма", type: "pickFrom", data: () => DATA_PROFESSION },
-    { id: "greeting_pick", icon: "👋", label: "Приветствия", desc: "Выбери приветствие по времени", type: "pickOpt", data: () => ({ items: DATA_GREETING, opts: GREETING_OPTIONS }) },
-    { id: "nali_pick", icon: "❓", label: "Ответ на «нали»", desc: "Да / Не на вопрос с «нали»", type: "pickOpt", data: () => ({ items: DATA_NALI, opts: NALI_OPTIONS }) },
-    { id: "nito_i_pick", icon: "➕", label: "«и … и» / «нито … нито»", desc: "Выбери связку по утверждению/отрицанию", type: "pickOpt", data: () => ({ items: DATA_NITO_I, opts: NITO_I_OPTIONS }) },
-    { id: "kak_si_pick", icon: "🙂", label: "Как си? / Как сте?", desc: "Ответ по настроению", type: "pickOpt", data: () => ({ items: DATA_KAK_SI, opts: KAK_SI_OPTIONS }) },
-    { id: "tova_pick", icon: "👉", label: "Това е / Това са", desc: "Ед. или мн. число предмета", type: "pickOpt", data: () => ({ items: DATA_TOVA, opts: TOVA_OPTIONS }) },
-    { id: "objects_pick", icon: "🎒", label: "Предметы", desc: "Русское → болгарское слово", type: "pickFrom", data: () => DATA_OBJECTS },
-    { id: "reply_pick", icon: "💬", label: "Ответные реплики", desc: "Подбери ответ на реплику", type: "pickFrom", data: () => DATA_REPLY },
+    { id: "kazvam_pick", icon: "🪪", label: "Казвам се", desc: "Выбери форму «казвам се» для местоимения", type: "pick", data: () => DATA_KAZVAM },
+    { id: "govorya_pick", icon: "🗣️", label: "Говоря", desc: "Выбери форму «говоря» для местоимения", type: "pick", data: () => DATA_GOVORYA },
+    { id: "country_lang_pick", icon: "🌍", label: "Страна → язык", desc: "Выбери язык, на котором говорят в этой стране", type: "pickFrom", data: () => DATA_COUNTRY_LANG },
+    { id: "nationality_pick", icon: "🧑‍🤝‍🧑", label: "Национальность", desc: "Выбери национальность по стране и полу", type: "pickFrom", data: () => DATA_NATIONALITY },
+    { id: "profession_pick", icon: "💼", label: "Профессия ж.р.", desc: "Выбери женскую форму профессии", type: "pickFrom", data: () => DATA_PROFESSION },
+    { id: "greeting_pick", icon: "👋", label: "Приветствия", desc: "Выбери приветствие, подходящее ко времени", type: "pickOpt", data: () => ({ items: DATA_GREETING, opts: GREETING_OPTIONS }) },
+    { id: "nali_pick", icon: "❓", label: "Ответ на «нали»", desc: "Ответь «Да» или «Не» на вопрос с «нали»", type: "pickOpt", data: () => ({ items: DATA_NALI, opts: NALI_OPTIONS }) },
+    { id: "nito_i_pick", icon: "➕", label: "«и … и» / «нито … нито»", desc: "Выбери «и» (утверждение) или «нито» (отрицание)", type: "pickOpt", data: () => ({ items: DATA_NITO_I, opts: NITO_I_OPTIONS }) },
+    { id: "kak_si_pick", icon: "🙂", label: "Как си? / Как сте?", desc: "Выбери ответ, подходящий по настроению", type: "pickOpt", data: () => ({ items: DATA_KAK_SI, opts: KAK_SI_OPTIONS }) },
+    { id: "tova_pick", icon: "👉", label: "Това е / Това са", desc: "Выбери «Това е» (ед.) или «Това са» (мн.)", type: "pickOpt", data: () => ({ items: DATA_TOVA, opts: TOVA_OPTIONS }) },
+    { id: "objects_pick", icon: "🎒", label: "Предметы", desc: "Выбери болгарский перевод слова", type: "pickFrom", data: () => DATA_OBJECTS },
+    { id: "reply_pick", icon: "💬", label: "Ответные реплики", desc: "Выбери подходящий ответ на реплику", type: "pickFrom", data: () => DATA_REPLY },
   ]},
 ];
 

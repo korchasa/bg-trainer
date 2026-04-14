@@ -40,7 +40,7 @@
 ## 3. Components
 
 ### 3.1 App.tsx
-- **Purpose:** Root component. Owns `screen`, `lessonId`, `modeId`, `round`, `result`, `history`. Dispatches to screens/engines. Round machine: queue of 3 random `modeIds`, per-game completion accumulates totals; final game emits aggregated `HistoryEntry` with `mode="round:<lessonId>"`.
+- **Purpose:** Root component. Owns `screen`, `lessonId`, `modeId`, `round`, `result`, `history`. Dispatches to screens/engines. Renders task-prompt banner (`currentMode.desc`) below `NavHeader` on game screen. Round machine: queue of 3 random `modeIds`, per-game completion accumulates totals; final game emits aggregated `HistoryEntry` with `mode="round:<lessonId>"`.
 - **Interfaces:** `screen: Screen`, lesson lookup via `data/lessons.ts`, mode lookup via `data/index.ts`, data slicing via `utils/sliceData.ts`, history r/w via `utils/history`.
 - **Deps:** All screens, all engines, `data/index.ts`, `data/lessons.ts`, `utils/sliceData.ts`, `utils/history.ts`, `utils/shuffle.ts`, `types.ts`.
 

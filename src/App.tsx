@@ -245,6 +245,12 @@ export default function App() {
               ) : undefined}
             />
 
+            {currentMode.desc && (
+              <div className="px-4 pt-3 pb-1 text-center text-xs font-semibold text-gray-500 shrink-0">
+                {currentMode.desc}
+              </div>
+            )}
+
             {showRef && currentMode && !round && (() => {
               const verbData = currentMode.data() as Array<{ q: string; answer: string }>;
               return (
