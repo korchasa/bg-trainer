@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ALL_MODES } from "./data";
 import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
+import { loadMastery, saveMastery, clearMastery, applyAnswer } from "./utils/mastery";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
 import { ENGINES } from "./components/engines";
@@ -11,7 +12,7 @@ import { ResultsScreen } from "./components/screens/ResultsScreen";
 import { AnalyticsScreen } from "./components/screens/AnalyticsScreen";
 import { LessonsScreen } from "./components/screens/LessonsScreen";
 import { LessonScreen } from "./components/screens/LessonScreen";
-import type { HistoryEntry, GameResult, Screen } from "./types";
+import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent } from "./types";
 
 interface RoundState {
   lessonId: string;
@@ -32,11 +33,39 @@ export default function App() {
   const [resultMode, setResultMode] = useState<string | null>(null);
   const [gameKey, setGameKey] = useState(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [mastery, setMastery] = useState<MasteryStore>({});
   const [loading, setLoading] = useState(true);
   const [showRef, setShowRef] = useState(false);
   const [showAbortBar, setShowAbortBar] = useState(false);
+  const pendingRef = useRef<MasteryEvent[]>([]);
+  const modeIdRef = useRef<string | null>(null);
+  modeIdRef.current = modeId;
 
-  useEffect(() => { setHistory(loadHistory()); setLoading(false); }, []);
+  useEffect(() => {
+    setHistory(loadHistory());
+    setMastery(loadMastery());
+    setLoading(false);
+  }, []);
+
+  const onItemAnswer = useCallback((itemId: string, ok: boolean, fast: boolean) => {
+    const mid = modeIdRef.current;
+    if (!mid) return;
+    pendingRef.current.push({ modeId: mid, itemId, ok, fast, ts: Date.now() });
+  }, []);
+
+  const flushMastery = useCallback(() => {
+    const events = pendingRef.current;
+    if (events.length === 0) return;
+    pendingRef.current = [];
+    setMastery(prev => {
+      let next = prev;
+      for (const e of events) {
+        next = applyAnswer(next, e.modeId, e.itemId, e.ok, e.fast, e.ts);
+      }
+      saveMastery(next);
+      return next;
+    });
+  }, []);
 
   const appendHistory = useCallback((entry: HistoryEntry) => {
     setHistory(prev => {
@@ -47,6 +76,10 @@ export default function App() {
   }, []);
 
   const handleComplete = useCallback((score: number, time: number, errors = 0) => {
+    if (pendingRef.current.length === 0) {
+      console.warn(`[mastery] engine ${modeIdRef.current} produced zero item events`);
+    }
+    flushMastery();
     if (round) {
       const nextTotals = {
         score: round.totals.score + score,
@@ -100,6 +133,7 @@ export default function App() {
   };
 
   const startGame = (id: string) => {
+    pendingRef.current = [];
     setRound(null);
     setModeId(id);
     setScreen("game");
@@ -112,6 +146,7 @@ export default function App() {
     if (!lessonId) return;
     const lesson = LESSON_BY_ID[lessonId];
     if (!lesson || lesson.modeIds.length === 0) return;
+    pendingRef.current = [];
     const count = Math.min(ROUND_GAMES, lesson.modeIds.length);
     const queue = shuffle(lesson.modeIds).slice(0, count);
     setRound({ lessonId, queue, idx: 0, totals: { score: 0, time: 0, errors: 0, qsTotal: 0 } });
@@ -127,10 +162,12 @@ export default function App() {
       setShowAbortBar(true);
       return;
     }
+    flushMastery();
     setScreen(lessonId ? "lesson" : "lessons");
   };
 
   const abortRound = () => {
+    flushMastery();
     setRound(null);
     setShowAbortBar(false);
     setScreen(lessonId ? "lesson" : "lessons");
@@ -166,6 +203,7 @@ export default function App() {
         {screen === "lessons" && (
           <LessonsScreen
             history={history}
+            mastery={mastery}
             onPickLesson={openLesson}
             onAnalytics={() => setScreen("analytics")}
           />
@@ -174,7 +212,7 @@ export default function App() {
         {screen === "lesson" && currentLesson && (
           <>
             <NavHeader title={`Урок ${currentLesson.num}`} onBack={() => { setLessonId(null); setScreen("lessons"); }} />
-            <LessonScreen lesson={currentLesson} onPickGame={startGame} onStartRound={startRound} />
+            <LessonScreen lesson={currentLesson} mastery={mastery} onPickGame={startGame} onStartRound={startRound} />
           </>
         )}
 
@@ -209,7 +247,7 @@ export default function App() {
               );
             })()}
 
-            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} />
+            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} />
 
             {showAbortBar && (
               <ConfirmBar
@@ -242,22 +280,12 @@ export default function App() {
 
         {screen === "analytics" && (
           <div className="flex-1 flex flex-col overflow-hidden">
-            <NavHeader
-              title="Аналитика"
-              onBack={() => setScreen("lessons")}
-              right={
-                <button
-                  onClick={() => { clearHistory(); setHistory([]); }}
-                  className="text-xs font-bold text-gray-400 hover:text-[#E60023] transition-colors"
-                >
-                  Сброс
-                </button>
-              }
-            />
+            <NavHeader title="Аналитика" onBack={() => setScreen("lessons")} />
             <AnalyticsScreen
               history={history}
               onBack={() => setScreen("lessons")}
-              onClear={() => { clearHistory(); setHistory([]); }}
+              onClearHistory={() => { clearHistory(); setHistory([]); }}
+              onClearMastery={() => { clearMastery(); setMastery({}); }}
             />
           </div>
         )}

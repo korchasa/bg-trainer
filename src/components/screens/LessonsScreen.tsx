@@ -1,14 +1,20 @@
 import { ACCENT } from "../../constants";
 import { LESSONS } from "../../data/lessons";
-import type { HistoryEntry } from "../../types";
+import { ALL_MODES } from "../../data";
+import { lessonStats } from "../../utils/mastery";
+import type { HistoryEntry, MasteryStore, Mode } from "../../types";
+
+const MODE_BY_ID: Record<string, Mode> = Object.fromEntries(ALL_MODES.map(m => [m.id, m]));
+const modeOf = (id: string) => MODE_BY_ID[id];
 
 interface Props {
   history: HistoryEntry[];
+  mastery: MasteryStore;
   onPickLesson: (lessonId: string) => void;
   onAnalytics: () => void;
 }
 
-export function LessonsScreen({ history, onPickLesson, onAnalytics }: Props) {
+export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: Props) {
   const available = LESSONS.filter(l => l.available);
   const upcoming = LESSONS.filter(l => !l.available);
   return (
@@ -28,22 +34,35 @@ export function LessonsScreen({ history, onPickLesson, onAnalytics }: Props) {
       <div className="mb-4">
         <h3 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Доступно</h3>
         <div className="flex flex-col gap-2">
-          {available.map(l => (
-            <button
-              key={l.id}
-              onClick={() => onPickLesson(l.id)}
-              className="w-full bg-[#F2F2F2] rounded-3xl p-4 flex items-center gap-3 active:scale-[0.98] active:bg-[#E0E0E0] transition-all"
-            >
-              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-lg font-black text-gray-900 shrink-0">
-                {l.num}
-              </div>
-              <div className="flex-1 text-left">
-                <div className="text-sm font-black text-gray-900">Урок {l.num}</div>
-                <div className="text-xs font-semibold text-gray-500 leading-tight">{l.title}</div>
-              </div>
-              <span className="text-xs font-bold text-gray-400 shrink-0">{l.modeIds.length} игр</span>
-            </button>
-          ))}
+          {available.map(l => {
+            const s = lessonStats(mastery, l, modeOf);
+            const pct = Math.round(s.ratio * 100);
+            return (
+              <button
+                key={l.id}
+                onClick={() => onPickLesson(l.id)}
+                className="w-full bg-[#F2F2F2] rounded-3xl p-4 flex items-center gap-3 active:scale-[0.98] active:bg-[#E0E0E0] transition-all"
+              >
+                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-lg font-black text-gray-900 shrink-0">
+                  {l.num}
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm font-black text-gray-900">Урок {l.num}</div>
+                    {s.mastered && <span className="text-xs font-bold" style={{ color: ACCENT }}>✓</span>}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-500 leading-tight truncate">{l.title}</div>
+                  <div className="mt-2 h-1.5 w-full bg-white rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
+                  </div>
+                </div>
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-xs font-black text-gray-900">{pct}%</span>
+                  <span className="text-[10px] font-bold text-gray-400">{s.atSeven}/{s.total}</span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 

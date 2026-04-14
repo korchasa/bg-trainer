@@ -21,13 +21,14 @@ function makeNegDecoys(corr: string): string[] {
 interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
 }
 
-export function NegEngine({ data, onComplete }: Props) {
+export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 15, 1200);
+  const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 15, 1200, onItemAnswer);
 
   useEffect(() => {
     const decoys = makeNegDecoys(qs[cur].answer).map(a => ({ ...qs[cur], answer: a }));

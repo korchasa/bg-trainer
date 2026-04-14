@@ -7,9 +7,10 @@ import { Correction } from "../ui/Correction";
 interface Props {
   data: () => BuildItem[];
   onComplete: (score: number, time: number, errors: number) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
 }
 
-export function BuildEngine({ data, onComplete }: Props) {
+export function BuildEngine({ data, onComplete, onItemAnswer }: Props) {
   const items = data();
   const [qs] = useState<BuildItem[]>(() => shuffle(items).slice(0, 12));
   const [cur, setCur] = useState(0);
@@ -48,6 +49,7 @@ export function BuildEngine({ data, onComplete }: Props) {
         eRef.current++;
         setReaction(pickFail());
       }
+      onItemAnswer?.(qs[cur].translation, ok, false);
       setTimeout(() => {
         if (cur + 1 < qs.length) setCur(c => c + 1);
         else onComplete(sRef.current, Date.now() - t0, eRef.current);

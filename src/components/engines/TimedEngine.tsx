@@ -14,9 +14,10 @@ interface TimedItem extends DataItem {
 interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
 }
 
-export function TimedEngine({ data, onComplete }: Props) {
+export function TimedEngine({ data, onComplete, onItemAnswer }: Props) {
   const items = data();
   const [qs] = useState<TimedItem[]>(() =>
     shuffle(items).map(item => {
@@ -24,7 +25,7 @@ export function TimedEngine({ data, onComplete }: Props) {
       return { ...item, options: shuffle([item, ...wrong]) };
     })
   );
-  const { cur, sel, corr, reaction, score, advance, answer } = useGame(qs, onComplete, 10, 1200);
+  const { cur, sel, corr, reaction, score, advance, answer } = useGame(qs, onComplete, 10, 1200, onItemAnswer);
 
   const { timeLeft, stop, reset } = useTimer(useCallback(() => {
     advance();

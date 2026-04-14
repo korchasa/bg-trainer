@@ -1,12 +1,14 @@
 import { useState, useCallback, useRef } from "react";
 import type { DataItem } from "../types";
 import { pickOK, pickFail } from "../utils/shuffle";
+import { itemKey } from "../utils/itemKey";
 
 export function useGame(
   qs: DataItem[],
   onComplete: (score: number, time: number, errors: number) => void,
   pts = 10,
   delay = 1000,
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void,
 ) {
   const [cur, setCur] = useState(0);
   const [sel, setSel] = useState<string | null>(null);
@@ -42,9 +44,16 @@ export function useGame(
       eRef.current++;
       setReaction(pickFail());
     }
+    if (onItemAnswer) {
+      try {
+        onItemAnswer(itemKey(qs[cur]), ok, extraPts > 0);
+      } catch {
+        // Unknown item shape — skip mastery update, keep gameplay running
+      }
+    }
     setTimeout(advance, delay);
     return ok;
-  }, [sel, score, pts, delay, advance]);
+  }, [sel, score, pts, delay, advance, onItemAnswer, qs, cur]);
 
   return { cur, sel, corr, reaction, score, advance, answer };
 }

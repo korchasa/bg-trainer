@@ -10,13 +10,14 @@ import { AnswerBtn } from "../ui/AnswerBtn";
 interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
 }
 
-export function PickFromEngine({ data, onComplete }: Props) {
+export function PickFromEngine({ data, onComplete, onItemAnswer }: Props) {
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 15));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 10, 1000);
+  const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 10, 1000, onItemAnswer);
 
   useEffect(() => {
     const item = qs[cur];

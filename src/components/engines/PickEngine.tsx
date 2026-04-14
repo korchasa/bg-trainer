@@ -9,20 +9,20 @@ import { AnswerBtn } from "../ui/AnswerBtn";
 interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   accent?: boolean;
 }
 
-export function PickEngine({ data, onComplete, accent = false }: Props) {
-  const items = data();
-  const [qs] = useState(() => shuffle(items));
+export function PickEngine({ data, onComplete, onItemAnswer, accent = false }: Props) {
+  const [qs] = useState(() => shuffle(data()));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, corr, reaction, score, answer } = useGame(qs, onComplete, 10, 1800);
+  const { cur, sel, corr, reaction, score, answer } = useGame(qs, onComplete, 10, 1800, onItemAnswer);
 
-  useEffect(() => { setOptions(shuffle(items)); }, [cur]);
+  useEffect(() => { setOptions(shuffle(qs)); }, [cur]);
 
   const item = qs[cur];
   const shownAnswer = corr || item.answer;
-  const shownHint = items.find(x => x.answer === shownAnswer)?.hint || item.hint;
+  const shownHint = qs.find(x => x.answer === shownAnswer)?.hint || item.hint;
 
   return (
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">

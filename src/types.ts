@@ -67,3 +67,20 @@ export interface GameResult {
 }
 
 export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics";
+
+export interface ItemMastery {
+  level: number;
+  lastTs: number;
+  attempts: number;
+}
+
+export type ModeMastery = Record<string, ItemMastery>;
+export type MasteryStore = Record<string, ModeMastery>;
+
+export interface MasteryEvent {
+  modeId: string;
+  itemId: string;
+  ok: boolean;
+  fast: boolean;
+  ts: number;
+}

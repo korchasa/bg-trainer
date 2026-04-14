@@ -8,9 +8,10 @@ import { Correction } from "../ui/Correction";
 interface Props {
   data: () => LiItem[];
   onComplete: (score: number, time: number, errors: number) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
 }
 
-export function LiEngine({ data, onComplete }: Props) {
+export function LiEngine({ data, onComplete, onItemAnswer }: Props) {
   const items = data();
   const [qs] = useState<LiItem[]>(() => shuffle(items).slice(0, 12));
   const [cur, setCur] = useState(0);
@@ -34,6 +35,7 @@ export function LiEngine({ data, onComplete }: Props) {
       eRef.current++;
       setReaction(pickFail());
     }
+    onItemAnswer?.(qs[cur].translation, ok, false);
     setTimeout(() => {
       if (cur + 1 < qs.length) {
         setCur(c => c + 1);

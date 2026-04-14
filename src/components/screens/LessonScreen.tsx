@@ -1,14 +1,16 @@
 import { ACCENT } from "../../constants";
 import { ALL_MODES } from "../../data";
-import type { Lesson } from "../../types";
+import { modeStats } from "../../utils/mastery";
+import type { Lesson, MasteryStore } from "../../types";
 
 interface Props {
   lesson: Lesson;
+  mastery: MasteryStore;
   onPickGame: (modeId: string) => void;
   onStartRound: () => void;
 }
 
-export function LessonScreen({ lesson, onPickGame, onStartRound }: Props) {
+export function LessonScreen({ lesson, mastery, onPickGame, onStartRound }: Props) {
   const modes = lesson.modeIds
     .map(id => ALL_MODES.find(m => m.id === id))
     .filter((m): m is NonNullable<typeof m> => !!m);
@@ -32,20 +34,28 @@ export function LessonScreen({ lesson, onPickGame, onStartRound }: Props) {
 
       <h3 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Игры урока</h3>
       <div className="grid grid-cols-3 gap-3">
-        {modes.map(m => (
-          <button
-            key={m.id}
-            onClick={() => onPickGame(m.id)}
-            className="bg-[#F2F2F2] rounded-[28px] aspect-square flex flex-col items-center justify-center p-3 group transition-all active:scale-[0.96] active:bg-[#E0E0E0]"
-          >
-            <div className="mb-2 p-3 rounded-full bg-white text-gray-900 shadow-sm text-2xl leading-none flex items-center justify-center">
-              {m.icon}
-            </div>
-            <span className="text-[11px] font-bold text-center leading-tight text-gray-800">
-              {m.label}
-            </span>
-          </button>
-        ))}
+        {modes.map(m => {
+          const s = modeStats(mastery, m);
+          const pct = Math.round(s.ratio * 100);
+          return (
+            <button
+              key={m.id}
+              onClick={() => onPickGame(m.id)}
+              className="bg-[#F2F2F2] rounded-[28px] aspect-square flex flex-col items-center justify-center p-3 group transition-all active:scale-[0.96] active:bg-[#E0E0E0]"
+            >
+              <div className="mb-2 p-3 rounded-full bg-white text-gray-900 shadow-sm text-2xl leading-none flex items-center justify-center">
+                {m.icon}
+              </div>
+              <span className="text-[11px] font-bold text-center leading-tight text-gray-800 mb-2">
+                {m.label}
+              </span>
+              <div className="w-full h-1 bg-white rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
+              </div>
+              <span className="text-[9px] font-bold text-gray-400 mt-1">{s.atSeven}/{s.total}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

@@ -21,10 +21,11 @@ function lessonOf(h: HistoryEntry): string | null {
 interface Props {
   history: HistoryEntry[];
   onBack: () => void;
-  onClear: () => void;
+  onClearHistory: () => void;
+  onClearMastery: () => void;
 }
 
-export function AnalyticsScreen({ history, onBack, onClear }: Props) {
+export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMastery }: Props) {
   if (!history.length) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
@@ -75,8 +76,6 @@ export function AnalyticsScreen({ history, onBack, onClear }: Props) {
     { icon: "🎯", value: Math.max(0, Math.round((1 - totalErrors / Math.max(totalQs, 1)) * 100)) + "%", label: "точность" },
     { icon: "📚", value: lessonRows.length, label: "уроков" },
   ];
-
-  void onClear; // exposed for parent but currently triggered via NavHeader
 
   return (
     <div className="flex flex-col overflow-y-auto no-scrollbar">
@@ -142,6 +141,25 @@ export function AnalyticsScreen({ history, onBack, onClear }: Props) {
               <Line type="monotone" dataKey="errors" stroke={ACCENT} strokeWidth={2} dot={{ r: 3, fill: ACCENT }} name="Ошибки" />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+
+        <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">Данные</h3>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={onClearHistory}
+              className="w-full px-4 py-3 text-sm font-bold text-gray-900 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-gray-100 active:scale-[0.98] transition-all"
+            >
+              Сбросить историю
+            </button>
+            <button
+              onClick={onClearMastery}
+              className="w-full px-4 py-3 text-sm font-bold text-white rounded-2xl active:scale-[0.98] transition-all"
+              style={{ backgroundColor: ACCENT }}
+            >
+              Сбросить освоение
+            </button>
+          </div>
         </div>
 
         <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm mb-6">
