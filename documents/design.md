@@ -93,14 +93,15 @@
   - `DataItem = { q, answer, hint, label?, decoys?, rule? }`
   - `BuildItem = { words, translation }`
   - `LiItem = { words, liPosition, result, translation }`
-  - `Mode = { id, icon, label, desc, type: EngineType, data: () => Item[], sessionSize? }`
+  - `Mode = { id, icon, label, desc, type: EngineType, data: () => Item[] }`
+  - `SessionPace = "quick" | "standard" | "deep"` → `SESSION_SIZE_BY_PACE = {quick:3, standard:5, deep:8}`
   - `Category = { id, name, modes: Mode[] }`
   - `Lesson = { id, num, title, modeIds: string[], available: boolean }`
   - `HistoryEntry = { mode, score, time, errors, ts, lessonId?, round?, qsTotal? }`
   - `ItemMastery = { level: 0..10, lastTs: ms, attempts }`
   - `ModeMastery = Record<itemId, ItemMastery>`; `MasteryStore = Record<modeId, ModeMastery>`
 - **ERD:** None (no relational data). `Category 1—n Mode 1—n Item` in-memory.
-- **Migration:** `localStorage` keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery). Bumping the `v*` suffix effectively resets; older keys are left orphaned. Mastery schema v1 is independent of history.
+- **Migration:** `localStorage` keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All three schemas are independent.
 
 ## 5. Logic
 - **Algos:**
@@ -112,13 +113,13 @@
   - **History cap:** `saveHistory` keeps only `h.slice(-200)`.
   - **sliceData(mode, size?, mastery?, now?)**: type-aware wrapper. When `mastery` is provided, selection goes through `pickDueItems(mastery, mode.id, items, n, now)`; otherwise `shuffle(items).slice(0, n)`. For `pickOpt`, `opts` is preserved.
   - **Scheduler (`pickDueItems`):** see §3.9. Used for both single-mode sessions and round sessions (round is the primary loop; skipping SRS there would nullify it in practice).
-  - **Round flow:** `startRound` → `shuffle(lesson.modeIds).slice(0, 3)` → play each with `sliceData(mode, 5, mastery)`. `handleComplete` in round branch accumulates `totals` and swaps `modeId` to next entry until queue drained, then writes single history entry and jumps to results. `qsTotal` of the aggregated round entry stays `ROUND_GAMES × ROUND_SIZE = 15`.
+  - **Round flow:** `startRound` → `shuffle(lesson.modeIds).slice(0, ROUND_GAMES=3)` → snapshot `size = SESSION_SIZE_BY_PACE[pace]` into `RoundState` → play each with `sliceData(mode, round.size, mastery)`. `handleComplete` in round branch accumulates `totals` and swaps `modeId` to next entry until queue drained, then writes single history entry and jumps to results. `qsTotal` of the aggregated round entry = `ROUND_GAMES × round.size` (3/9, 5/15, 8/24 for quick/standard/deep).
   - **Mastery update (`applyAnswer`):** `prev = store[modeId]?[itemId] ?? {level:0, lastTs:0, attempts:0}`. `stale = prev.lastTs > 0 AND now - prev.lastTs ≥ 7d`. If `ok`: if `hinted` → `next = prev.level` (no reward); else `base = stale ? max(0, prev.level - 1) : prev.level`; `next = min(10, base + (fast ? 2 : 1))`. Else: `next = max(0, prev.level - (hinted ? 1 : 3))`. Write `{level:next, lastTs:now, attempts:prev.attempts+1}`. `fast` is only `true` when `TimedEngine` reports `extraPts > 0` (never fires under the speed-gate).
   - **Mastery buffer:** `App` buffers per-answer events `{ modeId, itemId, ok, fast, ts, hinted? }` in a ref and flushes once — on `onComplete` and on round-abort — to avoid 1 write per answer.
   - **Lesson mastery (`lessonStats`):** `total = sum over modeIds of itemCount(mode)`. `sumLevel = sum over items of level`. `ratio = sumLevel / (10 × total)`. `mastered = atSeven/total ≥ 0.9 AND atTen/total ≥ 0.6`.
 - **Rules:**
-  - Default session length = full `data()` set (per-engine internal slice cap still applies).
-  - Round session size = 5 per game × 3 games = 15 questions total.
+  - Session length = `SESSION_SIZE_BY_PACE[pace]` for both single games and round sub-games. Pace defaults to `standard` (5). Persisted under `bg-trainer-pace-v1`.
+  - Round total = `ROUND_GAMES × size` = 9 (quick) / 15 (standard) / 24 (deep). Snapshotted at round start — changing pace mid-round has no effect.
   - Duplicate answer selections ignored (`sel !== null` guard).
   - `localStorage` failures caught and swallowed — app never throws due to storage.
 

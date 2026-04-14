@@ -1,20 +1,25 @@
-import { ACCENT } from "../../constants";
+import { ACCENT, SESSION_SIZE_BY_PACE, ROUND_GAMES, PACE_LABELS } from "../../constants";
 import { ALL_MODES } from "../../data";
 import { modeStats } from "../../utils/mastery";
-import type { Lesson, MasteryStore } from "../../types";
+import type { Lesson, MasteryStore, SessionPace } from "../../types";
 
 interface Props {
   lesson: Lesson;
   mastery: MasteryStore;
+  pace: SessionPace;
+  onChangePace: (p: SessionPace) => void;
   onPickGame: (modeId: string) => void;
   onStartRound: () => void;
 }
 
-export function LessonScreen({ lesson, mastery, onPickGame, onStartRound }: Props) {
+const PACES: SessionPace[] = ["quick", "standard", "deep"];
+
+export function LessonScreen({ lesson, mastery, pace, onChangePace, onPickGame, onStartRound }: Props) {
   const modes = lesson.modeIds
     .map(id => ALL_MODES.find(m => m.id === id))
     .filter((m): m is NonNullable<typeof m> => !!m);
   const canRound = modes.length >= 1;
+  const size = SESSION_SIZE_BY_PACE[pace];
 
   return (
     <div className="flex-1 flex flex-col px-4 pt-4 pb-6 overflow-y-auto no-scrollbar">
@@ -23,16 +28,38 @@ export function LessonScreen({ lesson, mastery, onPickGame, onStartRound }: Prop
         <h1 className="text-2xl font-black text-gray-900 leading-tight">{lesson.title}</h1>
       </div>
 
+      <div className="mb-4">
+        <div className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Темп</div>
+        <div className="grid grid-cols-3 gap-2">
+          {PACES.map(p => {
+            const active = p === pace;
+            const n = SESSION_SIZE_BY_PACE[p];
+            const lbl = PACE_LABELS[p];
+            return (
+              <button
+                key={p}
+                onClick={() => onChangePace(p)}
+                className={`py-2 rounded-full text-xs font-bold transition-all active:scale-[0.97] ${active ? "text-white shadow-md" : "bg-[#F2F2F2] text-gray-700"}`}
+                style={active ? { backgroundColor: ACCENT } : undefined}
+              >
+                <div>{lbl.short}</div>
+                <div className={`text-[10px] ${active ? "opacity-80" : "text-gray-400"}`}>{n} вопр.</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <button
         onClick={onStartRound}
         disabled={!canRound}
         className="w-full py-4 flex items-center justify-center gap-2 mb-6 rounded-full font-bold text-white text-base shadow-lg transition-all active:scale-[0.98] active:opacity-90 disabled:opacity-40"
         style={{ backgroundColor: ACCENT }}
       >
-        🎲 <span>Раунд · 3 игры × 5 вопросов</span>
+        🎲 <span>Раунд · {ROUND_GAMES} × {size} = {ROUND_GAMES * size} вопросов</span>
       </button>
 
-      <h3 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Игры урока</h3>
+      <h3 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Игры урока · {size} вопр.</h3>
       <div className="grid grid-cols-3 gap-3">
         {modes.map(m => {
           const s = modeStats(mastery, m);

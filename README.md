@@ -7,7 +7,8 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 ## Features
 
 - **8 textbook-aligned lessons** (L1 playable; L2–L8 marked "Скоро") with curated per-lesson game sets
-- **Round mode** — 3 random games × 5 questions from the selected lesson, one aggregated result
+- **Round mode** — 3 random games from the selected lesson, one aggregated result
+- **Session pace** — 3 presets (quick/standard/deep = 3/5/8 questions per game); persisted per-browser
 - **8 game engine types** — multiple choice, timed quiz, keyboard input, drag-and-drop, particle insertion, and more
 - **SRS-like item scheduling + error re-queue** — weak and due items surface first; wrong answers return later in the same session
 - **Analytics dashboard** — score history + per-lesson aggregated stats
@@ -16,7 +17,7 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 
 ## Game Modes
 
-Entry screen lists 8 lessons. Tapping an available lesson opens its curated game set plus a "Раунд" button (3 random games × 5 questions). Current grammar coverage:
+Entry screen lists 8 lessons. Tapping an available lesson opens a pace selector (Быстро/Обычно/Длинно — 3/5/8 questions per game), its curated game set, and a "Раунд" button (3 random games × pace size). Current grammar coverage:
 
 | Category | Modes |
 |---|---|

@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Desc:** bg-trainer — browser-based gamified grammar trainer for Bulgarian A0 learners. UI in Russian. Single-page React app hosted on GitHub Pages.
-- **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (default = full data set). Lesson = textbook unit grouping a curated list of modes. Round = 3 consecutive 5-question games from one lesson.
+- **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size).
 
 ## 2. General
 - **Context:** Self-study tool for Russian speakers at A0. No accounts, no backend. All state is client-side.
@@ -23,10 +23,10 @@
   - [x] Lesson screen lists its modes + primary "Раунд" button. Evidence: `src/components/screens/LessonScreen.tsx`
 
 ### 3.2 FR-GAME-SESSION
-- **Desc:** Session = N questions from the selected mode's data. `qsTotal` is fixed at session start (default N = full data set; round = 5 per game). Wrong answers are re-queued 3–5 positions later within the same session (`retryBuffer`, non-mutating). Progress UI and history use `answered / qsTotal`. `errors` counts unique wrong indices (repeat-fails on the same item do not increment).
+- **Desc:** Session = N questions from the selected mode's data, where N = `SESSION_SIZE_BY_PACE[pace]` (see FR-PACE). `qsTotal` is fixed at session start. Wrong answers are re-queued 3–5 positions later within the same session (`retryBuffer`, non-mutating). Progress UI and history use `answered / qsTotal`. `errors` counts unique wrong indices (repeat-fails on the same item do not increment).
 - **Scenario:** User plays → answers `qsTotal` questions (some repeated via re-queue) → `ResultsScreen` shows score/errors/time (single game) or round aggregates.
 - **Acceptance:**
-  - [x] Default session uses full data set; round override via `sliceData(mode, 5, mastery)`. Evidence: `src/utils/sliceData.ts:6-33`, `src/App.tsx:193-196`
+  - [x] Session size = `SESSION_SIZE_BY_PACE[pace]` for both single and round games. Evidence: `src/utils/sliceData.ts:6-33`, `src/App.tsx:199-201`, `src/constants.ts:10-14`
   - [x] `useGame` tracks `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`. Evidence: `src/hooks/useGame.ts:27-35,110-120`
   - [x] Wrong answers re-queued via `retryBuffer` without mutating `qs`. Evidence: `src/hooks/useGame.ts:39,85-89,43-55`
   - [x] Progress component reads `answered/qsTotal`. Evidence: `src/components/engines/PickEngine.tsx:32`, `src/components/engines/PickOptEngine.tsx:33`, `src/components/engines/PickFromEngine.tsx:38`, `src/components/engines/TimedEngine.tsx:60`, `src/components/engines/NegEngine.tsx:41`
@@ -42,12 +42,23 @@
   - [x] Each new L1 mode backed by ≥6 data items. Evidence: `src/data/index.ts` (DATA_KAZVAM, DATA_GOVORYA, DATA_COUNTRY_LANG, DATA_NATIONALITY, DATA_PROFESSION, DATA_GREETING, DATA_NALI)
 
 ### 3.11 FR-ROUND
-- **Desc:** Round = 3 random games from a lesson, 5 questions each, played consecutively without returning to menu. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal=15`. Single results screen shows summed score/time/errors.
-- **Scenario:** User taps "Раунд" → plays 3 games in sequence → results screen with sums → history shows one `round:l1` entry.
+- **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
+- **Scenario:** User picks pace → taps "Раунд" → plays 3 games in sequence → results screen with sums → history shows one `round:l1` entry.
 - **Acceptance:**
-  - [x] Round state machine advances through queue without screen change. Evidence: `src/App.tsx:44-77`
-  - [x] On completion writes single history entry with `round=true`, `qsTotal`, `lessonId`. Evidence: `src/App.tsx:59-69`
-  - [x] Abort via inline `ConfirmBar` (not `window.confirm`). Evidence: `src/components/ui/ConfirmBar.tsx`, `src/App.tsx:114-129,190-198`
+  - [x] Round state machine advances through queue without screen change. Evidence: `src/App.tsx`
+  - [x] `RoundState.size` snapshots pace at start; per-game qsTotal uses `round.size`. Evidence: `src/App.tsx` (`startRound`, `handleComplete`)
+  - [x] On completion writes single history entry with `round=true`, `qsTotal`, `lessonId`. Evidence: `src/App.tsx` (`handleComplete`)
+  - [x] Abort via inline `ConfirmBar` (not `window.confirm`). Evidence: `src/components/ui/ConfirmBar.tsx`, `src/App.tsx`
+
+### 3.16 FR-PACE
+- **Desc:** User selects session pace on `LessonScreen`: `quick`=3, `standard`=5 (default), `deep`=8 questions per game. Pace applies uniformly to single games and rounds (round total = `ROUND_GAMES × size`). Persisted in `localStorage` under `bg-trainer-pace-v1`. Scientific anchors: Cowan WM (4±1), Cepeda distributed practice, Duolingo 5-min microlearning norm, Bjork desirable difficulty (~80% success).
+- **Scenario:** User opens lesson → sees 3-button pace segment with per-pace question count → taps pace → choice persists across reloads → subsequent round/game uses selected size.
+- **Acceptance:**
+  - [x] `SessionPace` type = `"quick" | "standard" | "deep"`. Evidence: `src/types.ts`
+  - [x] `SESSION_SIZE_BY_PACE = {quick:3, standard:5, deep:8}`. Evidence: `src/constants.ts`
+  - [x] Pace persisted under `bg-trainer-pace-v1`, default `standard`. Evidence: `src/utils/pace.ts`, `src/constants.ts`
+  - [x] 3-button pace selector on `LessonScreen` shows question count. Evidence: `src/components/screens/LessonScreen.tsx`
+  - [x] Round button label reflects pace (`3 × N = 3N вопросов`). Evidence: `src/components/screens/LessonScreen.tsx`
 
 ### 3.3 FR-SCORING
 - **Desc:** Correct = +10 pts. Timed mode adds speed bonus. Wrong answer increments error count, 0 pts. Second answer on the same question ignored.

@@ -3,8 +3,10 @@ import { ALL_MODES } from "./data";
 import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
 import { loadMastery, saveMastery, clearMastery, applyAnswer } from "./utils/mastery";
+import { loadPace, savePace } from "./utils/pace";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
+import { SESSION_SIZE_BY_PACE, ROUND_GAMES, DEFAULT_PACE } from "./constants";
 import { ENGINES } from "./components/engines";
 import { NavHeader } from "./components/ui/NavHeader";
 import { ConfirmBar } from "./components/ui/ConfirmBar";
@@ -12,17 +14,15 @@ import { ResultsScreen } from "./components/screens/ResultsScreen";
 import { AnalyticsScreen } from "./components/screens/AnalyticsScreen";
 import { LessonsScreen } from "./components/screens/LessonsScreen";
 import { LessonScreen } from "./components/screens/LessonScreen";
-import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent } from "./types";
+import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent, SessionPace } from "./types";
 
 interface RoundState {
   lessonId: string;
   queue: string[];
   idx: number;
+  size: number;
   totals: { score: number; time: number; errors: number; qsTotal: number };
 }
-
-const ROUND_GAMES = 3;
-const ROUND_SIZE = 5;
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("lessons");
@@ -34,6 +34,7 @@ export default function App() {
   const [gameKey, setGameKey] = useState(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [mastery, setMastery] = useState<MasteryStore>({});
+  const [pace, setPace] = useState<SessionPace>(DEFAULT_PACE);
   const [loading, setLoading] = useState(true);
   const [showRef, setShowRef] = useState(false);
   const [showAbortBar, setShowAbortBar] = useState(false);
@@ -44,7 +45,13 @@ export default function App() {
   useEffect(() => {
     setHistory(loadHistory());
     setMastery(loadMastery());
+    setPace(loadPace());
     setLoading(false);
+  }, []);
+
+  const changePace = useCallback((p: SessionPace) => {
+    setPace(p);
+    savePace(p);
   }, []);
 
   const onItemAnswer = useCallback((itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => {
@@ -85,7 +92,7 @@ export default function App() {
         score: round.totals.score + score,
         time: round.totals.time + time,
         errors: round.totals.errors + errors,
-        qsTotal: round.totals.qsTotal + ROUND_SIZE,
+        qsTotal: round.totals.qsTotal + round.size,
       };
       const nextIdx = round.idx + 1;
       if (nextIdx < round.queue.length) {
@@ -149,7 +156,8 @@ export default function App() {
     pendingRef.current = [];
     const count = Math.min(ROUND_GAMES, lesson.modeIds.length);
     const queue = shuffle(lesson.modeIds).slice(0, count);
-    setRound({ lessonId, queue, idx: 0, totals: { score: 0, time: 0, errors: 0, qsTotal: 0 } });
+    const size = SESSION_SIZE_BY_PACE[pace];
+    setRound({ lessonId, queue, idx: 0, size, totals: { score: 0, time: 0, errors: 0, qsTotal: 0 } });
     setModeId(queue[0]);
     setScreen("game");
     setGameKey(k => k + 1);
@@ -191,8 +199,9 @@ export default function App() {
   const isVerb = modeId?.startsWith("sym") || modeId?.startsWith("imam") ||
     modeId?.startsWith("iskam") || modeId === "kazvam_pick" || modeId === "govorya_pick";
   const currentLesson = lessonId ? LESSON_BY_ID[lessonId] : null;
+  const sessionSize = currentMode ? (round?.size ?? SESSION_SIZE_BY_PACE[pace]) : undefined;
   const gameDataFn = currentMode
-    ? sliceData(currentMode, round ? ROUND_SIZE : currentMode.sessionSize, mastery)
+    ? sliceData(currentMode, sessionSize, mastery)
     : null;
   const levelLookup = currentMode
     ? (itemId: string) => mastery[currentMode.id]?.[itemId]?.level ?? 0
@@ -217,7 +226,7 @@ export default function App() {
         {screen === "lesson" && currentLesson && (
           <>
             <NavHeader title={`Урок ${currentLesson.num}`} onBack={() => { setLessonId(null); setScreen("lessons"); }} />
-            <LessonScreen lesson={currentLesson} mastery={mastery} onPickGame={startGame} onStartRound={startRound} />
+            <LessonScreen lesson={currentLesson} mastery={mastery} pace={pace} onChangePace={changePace} onPickGame={startGame} onStartRound={startRound} />
           </>
         )}
 

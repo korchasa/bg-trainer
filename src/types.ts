@@ -52,7 +52,6 @@ export interface Mode {
   desc: string;
   type: EngineType;
   data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[];
-  sessionSize?: number;
 }
 
 export interface Category {
@@ -68,6 +67,8 @@ export interface GameResult {
 }
 
 export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics";
+
+export type SessionPace = "quick" | "standard" | "deep";
 
 export interface ItemMastery {
   level: number;
