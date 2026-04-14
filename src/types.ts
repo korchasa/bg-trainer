@@ -4,6 +4,17 @@ export interface HistoryEntry {
   time: number;
   errors: number;
   ts: number;
+  lessonId?: string;
+  round?: boolean;
+  qsTotal?: number;
+}
+
+export interface Lesson {
+  id: string;
+  num: number;
+  title: string;
+  modeIds: string[];
+  available: boolean;
 }
 
 export interface DataItem {
@@ -40,6 +51,7 @@ export interface Mode {
   desc: string;
   type: EngineType;
   data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[];
+  sessionSize?: number;
 }
 
 export interface Category {
@@ -54,4 +66,4 @@ export interface GameResult {
   errors: number;
 }
 
-export type Screen = "menu" | "game" | "results" | "analytics";
+export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics";

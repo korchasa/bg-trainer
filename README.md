@@ -6,13 +6,16 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 
 ## Features
 
-- **8 grammar topic categories** with 15 interactive game modes
+- **8 textbook-aligned lessons** (L1 playable; L2–L8 marked "Скоро") with curated per-lesson game sets
+- **Round mode** — 3 random games × 5 questions from the selected lesson, one aggregated result
 - **7 game engine types** — multiple choice, timed quiz, drag-and-drop, particle insertion, and more
-- **Analytics dashboard** — score history, accuracy stats, mode distribution chart
+- **Analytics dashboard** — score history + per-lesson aggregated stats
 - **Persistent progress** — game history saved to browser local storage (up to 200 sessions)
 - **Mobile-first** responsive design
 
 ## Game Modes
+
+Entry screen lists 8 lessons. Tapping an available lesson opens its curated game set plus a "Раунд" button (3 random games × 5 questions). Current grammar coverage:
 
 | Category | Modes |
 |---|---|
@@ -24,6 +27,7 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 | Possessives | Full and short possessive forms |
 | Negation | Construct correct negation from shuffled words |
 | Question word order | Drag-to-order sentences; insert question particle "ли" |
+| Lesson 1 extras | Казвам се / говоря conjugation, country → language, nationality (m/f), profession (m → f), greetings, "нали" answers |
 
 ## Tech Stack
 

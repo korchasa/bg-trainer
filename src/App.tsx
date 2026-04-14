@@ -1,38 +1,144 @@
 import { useState, useEffect, useCallback } from "react";
-import { ACCENT } from "./constants";
 import { ALL_MODES } from "./data";
+import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
+import { shuffle } from "./utils/shuffle";
+import { sliceData } from "./utils/sliceData";
 import { ENGINES } from "./components/engines";
 import { NavHeader } from "./components/ui/NavHeader";
+import { ConfirmBar } from "./components/ui/ConfirmBar";
 import { ResultsScreen } from "./components/screens/ResultsScreen";
 import { AnalyticsScreen } from "./components/screens/AnalyticsScreen";
+import { LessonsScreen } from "./components/screens/LessonsScreen";
+import { LessonScreen } from "./components/screens/LessonScreen";
 import type { HistoryEntry, GameResult, Screen } from "./types";
 
+interface RoundState {
+  lessonId: string;
+  queue: string[];
+  idx: number;
+  totals: { score: number; time: number; errors: number; qsTotal: number };
+}
+
+const ROUND_GAMES = 3;
+const ROUND_SIZE = 5;
+
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("menu");
+  const [screen, setScreen] = useState<Screen>("lessons");
+  const [lessonId, setLessonId] = useState<string | null>(null);
   const [modeId, setModeId] = useState<string | null>(null);
+  const [round, setRound] = useState<RoundState | null>(null);
   const [result, setResult] = useState<GameResult | null>(null);
+  const [resultMode, setResultMode] = useState<string | null>(null);
   const [gameKey, setGameKey] = useState(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRef, setShowRef] = useState(false);
+  const [showAbortBar, setShowAbortBar] = useState(false);
 
   useEffect(() => { setHistory(loadHistory()); setLoading(false); }, []);
 
+  const appendHistory = useCallback((entry: HistoryEntry) => {
+    setHistory(prev => {
+      const next = [...prev, entry];
+      saveHistory(next);
+      return next;
+    });
+  }, []);
+
   const handleComplete = useCallback((score: number, time: number, errors = 0) => {
-    const entry: HistoryEntry = { mode: modeId!, score, time, errors, ts: Date.now() };
-    const nh = [...history, entry];
-    setHistory(nh);
-    saveHistory(nh);
+    if (round) {
+      const nextTotals = {
+        score: round.totals.score + score,
+        time: round.totals.time + time,
+        errors: round.totals.errors + errors,
+        qsTotal: round.totals.qsTotal + ROUND_SIZE,
+      };
+      const nextIdx = round.idx + 1;
+      if (nextIdx < round.queue.length) {
+        setRound({ ...round, idx: nextIdx, totals: nextTotals });
+        setModeId(round.queue[nextIdx]);
+        setGameKey(k => k + 1);
+        return;
+      }
+      const roundMode = `round:${round.lessonId}`;
+      appendHistory({
+        mode: roundMode,
+        score: nextTotals.score,
+        time: nextTotals.time,
+        errors: nextTotals.errors,
+        ts: Date.now(),
+        lessonId: round.lessonId,
+        round: true,
+        qsTotal: nextTotals.qsTotal,
+      });
+      setResult({ score: nextTotals.score, time: nextTotals.time, errors: nextTotals.errors });
+      setResultMode(roundMode);
+      setRound(null);
+      setScreen("results");
+      return;
+    }
+    const mid = modeId!;
+    appendHistory({
+      mode: mid,
+      score,
+      time,
+      errors,
+      ts: Date.now(),
+      lessonId: lessonId ?? undefined,
+    });
     setResult({ score, time, errors });
+    setResultMode(mid);
     setScreen("results");
-  }, [modeId, history]);
+  }, [round, modeId, lessonId, appendHistory]);
+
+  const openLesson = (id: string) => {
+    const lesson = LESSON_BY_ID[id];
+    if (!lesson?.available) return;
+    setLessonId(id);
+    setScreen("lesson");
+  };
 
   const startGame = (id: string) => {
+    setRound(null);
     setModeId(id);
     setScreen("game");
     setGameKey(k => k + 1);
     setShowRef(false);
+    setShowAbortBar(false);
+  };
+
+  const startRound = () => {
+    if (!lessonId) return;
+    const lesson = LESSON_BY_ID[lessonId];
+    if (!lesson || lesson.modeIds.length === 0) return;
+    const count = Math.min(ROUND_GAMES, lesson.modeIds.length);
+    const queue = shuffle(lesson.modeIds).slice(0, count);
+    setRound({ lessonId, queue, idx: 0, totals: { score: 0, time: 0, errors: 0, qsTotal: 0 } });
+    setModeId(queue[0]);
+    setScreen("game");
+    setGameKey(k => k + 1);
+    setShowRef(false);
+    setShowAbortBar(false);
+  };
+
+  const backFromGame = () => {
+    if (round) {
+      setShowAbortBar(true);
+      return;
+    }
+    setScreen(lessonId ? "lesson" : "lessons");
+  };
+
+  const abortRound = () => {
+    setRound(null);
+    setShowAbortBar(false);
+    setScreen(lessonId ? "lesson" : "lessons");
+  };
+
+  const backFromResults = () => {
+    setResultMode(null);
+    setScreen(lessonId ? "lesson" : "lessons");
   };
 
   if (loading) {
@@ -45,80 +151,39 @@ export default function App() {
 
   const currentMode = ALL_MODES.find(m => m.id === modeId);
   const Engine = currentMode ? ENGINES[currentMode.type] : null;
-  const isVerb = modeId?.startsWith("sym") || modeId?.startsWith("imam") || modeId?.startsWith("iskam");
+  const isVerb = modeId?.startsWith("sym") || modeId?.startsWith("imam") ||
+    modeId?.startsWith("iskam") || modeId === "kazvam_pick" || modeId === "govorya_pick";
+  const currentLesson = lessonId ? LESSON_BY_ID[lessonId] : null;
+  const gameDataFn = currentMode ? sliceData(currentMode, round ? ROUND_SIZE : currentMode.sessionSize) : null;
+  const gameTitle = round && currentMode
+    ? `${currentMode.label} · ${round.idx + 1}/${round.queue.length}`
+    : (currentMode?.label ?? "");
 
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col items-center">
       <div className="relative w-full h-screen max-w-md mx-auto flex flex-col overflow-hidden bg-white">
 
-        {/* HOME / MENU */}
-        {screen === "menu" && (
-          <div className="flex-1 flex flex-col px-4 pt-2 pb-6 overflow-y-auto no-scrollbar">
-            <div className="flex flex-col items-center justify-center mt-4 mb-8">
-              <div className="w-8 h-6 rounded overflow-hidden relative mb-3 shadow-sm ring-1 ring-black/5">
-                <div className="absolute top-0 w-full h-1/3 bg-white" />
-                <div className="absolute top-1/3 w-full h-1/3 bg-[#00966E]" />
-                <div className="absolute bottom-0 w-full h-1/3 bg-[#D62612]" />
-              </div>
-              <h1 className="text-3xl font-black text-center text-gray-900 tracking-tight leading-tight">
-                Български
-              </h1>
-              <p className="text-sm font-semibold text-gray-400 mt-1">Ниво А0 • Тренажёр</p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              {ALL_MODES.map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => startGame(m.id)}
-                  className="bg-[#F2F2F2] rounded-[28px] aspect-square flex flex-col items-center justify-center p-3 group transition-all active:scale-[0.96] active:bg-[#E0E0E0]"
-                >
-                  <div className="mb-2 p-3 rounded-full bg-white text-gray-900 shadow-sm group-hover:scale-110 transition-transform text-2xl leading-none flex items-center justify-center">
-                    {m.icon}
-                  </div>
-                  <span className="text-[11px] font-bold text-center leading-tight text-gray-800">
-                    {m.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => startGame(ALL_MODES[Math.floor(Math.random() * ALL_MODES.length)].id)}
-              className="w-full py-4 flex items-center justify-center gap-2 mt-auto mb-3 rounded-full font-bold text-white text-base transition-all active:scale-[0.98] active:opacity-90 bg-[#111111]"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="16 3 21 3 21 8" />
-                <line x1="4" y1="20" x2="21" y2="3" />
-                <polyline points="21 16 21 21 16 21" />
-                <line x1="15" y1="15" x2="21" y2="21" />
-              </svg>
-              <span>Случайное упражнение</span>
-            </button>
-
-            <button
-              onClick={() => setScreen("analytics")}
-              className="w-full py-4 flex items-center justify-center gap-2 mb-2 rounded-full font-bold text-white text-base shadow-lg transition-all active:scale-[0.98] active:opacity-90"
-              style={{ backgroundColor: ACCENT }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-              <span>Аналитика</span>
-              {history.length > 0 && <span className="text-white/70 text-sm font-semibold">({history.length})</span>}
-            </button>
-          </div>
+        {screen === "lessons" && (
+          <LessonsScreen
+            history={history}
+            onPickLesson={openLesson}
+            onAnalytics={() => setScreen("analytics")}
+          />
         )}
 
-        {/* GAME */}
-        {screen === "game" && (
-          <div className="flex-1 flex flex-col overflow-hidden">
+        {screen === "lesson" && currentLesson && (
+          <>
+            <NavHeader title={`Урок ${currentLesson.num}`} onBack={() => { setLessonId(null); setScreen("lessons"); }} />
+            <LessonScreen lesson={currentLesson} onPickGame={startGame} onStartRound={startRound} />
+          </>
+        )}
+
+        {screen === "game" && currentMode && gameDataFn && Engine && (
+          <div className="flex-1 flex flex-col overflow-hidden relative">
             <NavHeader
-              title={currentMode?.label ?? ""}
-              onBack={() => setScreen("menu")}
-              right={isVerb ? (
+              title={gameTitle}
+              onBack={backFromGame}
+              right={isVerb && !round ? (
                 <button
                   onClick={() => setShowRef(s => !s)}
                   className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors"
@@ -128,7 +193,7 @@ export default function App() {
               ) : undefined}
             />
 
-            {showRef && currentMode && (() => {
+            {showRef && currentMode && !round && (() => {
               const verbData = currentMode.data() as Array<{ q: string; answer: string }>;
               return (
                 <div className="mx-4 mt-3 bg-gray-50 rounded-[20px] border border-gray-100 overflow-hidden">
@@ -144,30 +209,42 @@ export default function App() {
               );
             })()}
 
-            {Engine && <Engine key={gameKey} data={currentMode!.data} onComplete={handleComplete} />}
+            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} />
+
+            {showAbortBar && (
+              <ConfirmBar
+                text="Прервать раунд?"
+                confirmLabel="Прервать"
+                cancelLabel="Продолжить"
+                onConfirm={abortRound}
+                onCancel={() => setShowAbortBar(false)}
+              />
+            )}
           </div>
         )}
 
-        {/* RESULTS */}
         {screen === "results" && result && (
           <div className="flex-1 flex flex-col overflow-hidden">
-            <NavHeader title="Результат" onBack={() => setScreen("menu")} />
+            <NavHeader title={resultMode?.startsWith("round:") ? "Раунд завершён" : "Результат"} onBack={backFromResults} />
             <ResultsScreen
               score={result.score}
               time={result.time}
               errors={result.errors}
-              onRestart={() => { setGameKey(k => k + 1); setScreen("game"); }}
-              onMenu={() => setScreen("menu")}
+              onRestart={() => {
+                if (resultMode?.startsWith("round:")) { startRound(); return; }
+                setGameKey(k => k + 1);
+                setScreen("game");
+              }}
+              onMenu={backFromResults}
             />
           </div>
         )}
 
-        {/* ANALYTICS */}
         {screen === "analytics" && (
           <div className="flex-1 flex flex-col overflow-hidden">
             <NavHeader
               title="Аналитика"
-              onBack={() => setScreen("menu")}
+              onBack={() => setScreen("lessons")}
               right={
                 <button
                   onClick={() => { clearHistory(); setHistory([]); }}
@@ -179,7 +256,7 @@ export default function App() {
             />
             <AnalyticsScreen
               history={history}
-              onBack={() => setScreen("menu")}
+              onBack={() => setScreen("lessons")}
               onClear={() => { clearHistory(); setHistory([]); }}
             />
           </div>
@@ -189,3 +266,4 @@ export default function App() {
     </div>
   );
 }
+
