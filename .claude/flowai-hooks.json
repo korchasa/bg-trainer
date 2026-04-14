@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "flowai-skill-structure-validate": {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit",
+      "installedAt": "2026-04-14T17:22:23.618Z"
+    },
+    "flowai-mermaid-validate": {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit",
+      "installedAt": "2026-04-14T17:22:23.618Z"
+    }
+  }
+}
