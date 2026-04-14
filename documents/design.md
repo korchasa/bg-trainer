@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Purpose:** Describe the client-side architecture of bg-trainer: how screens, hooks, engines, and data combine to deliver quiz sessions and analytics.
-- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY.
+- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE.
 
 ## 2. Arch
 - **Diagram:**
@@ -45,19 +45,22 @@
 - **Deps:** All screens, all engines, `data/index.ts`, `data/lessons.ts`, `utils/sliceData.ts`, `utils/history.ts`, `utils/shuffle.ts`, `types.ts`.
 
 ### 3.2 useGame hook
-- **Purpose:** Encapsulate per-session state: `cur`, `sel`, `corr`, `reaction`, `score` + `answer()` + `advance()`.
-- **Interfaces:** `useGame(qs, onComplete, pts=10, delay=1000)`.
-- **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`, `pickFail`).
+- **Purpose:** Encapsulate per-session state: `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal` + `answer()` + `advance()`. Owns `indexPlan`, `retryBuffer`, `errSet` to drive non-mutating re-queue of wrong answers and unique-index error counting.
+- **Interfaces:** `useGame(qs, onComplete, pts=10, delay=1000, onItemAnswer?)`. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`.
+- **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`, `pickFail`), `utils/itemKey`.
 
 ### 3.3 useTimer hook
 - **Purpose:** Countdown for `TimedEngine`, exposes remaining time and bonus calculation hook.
 - **Deps:** None.
 
-### 3.4 Engines (7)
+### 3.4 Engines (8)
 - **Purpose:** Render one question and produce answer events for `useGame.answer()`.
-- **Interfaces:** Props `{ qs, onComplete }` (shape varies slightly per engine). Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`).
+- **Interfaces:** Props `{ data, onComplete, onItemAnswer?, levelLookup? }` (shape varies slightly per engine). Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`, `PickOptData`).
+- **Hint toggle:** Multiple-choice engines (`pick`, `pickOpt`, `pickFrom`, `timed`, `type`) hide the L1 hint by default behind a "Подсказка" button; revealing sets a local `hintedRef` that is forwarded to `useGame.answer({ hinted: true })` and then to `onItemAnswer(..., hinted=true)`.
+- **Speed-gate:** `TimedEngine` receives `levelLookup(itemId)` and disables the timer + speed bonus when `level < 5`.
+- **Normalization:** `TypeEngine` normalizes user input with a strict whitelist (trim + lowercase + whitespace collapse). No character substitutions.
 - **Deps:** `useGame` (all), `useTimer` (timed only), UI atoms.
-- **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`.
+- **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`.
 
 ### 3.5 ResultsScreen
 - **Purpose:** Show session outcome: score, errors, time. Offer "play again" / "menu".
@@ -76,9 +79,10 @@
 - **Deps:** `data/lessons.ts`, `data/index.ts` (`ALL_MODES`), `utils/mastery.ts`.
 
 ### 3.9 utils/mastery.ts
-- **Purpose:** Persist per-item mastery levels. Pure functions `loadMastery`, `saveMastery`, `clearMastery`, `applyAnswer(store, modeId, itemId, ok, fast, now)`, `lessonStats(store, lesson, itemCount)`.
+- **Purpose:** Persist per-item mastery levels and provide the SRS-like scheduler. Pure functions: `loadMastery`, `saveMastery`, `clearMastery`, `applyAnswer(store, modeId, itemId, ok, fast, now, hinted=false)`, `lessonStats`, `modeStats`, `pickDueItems(store, modeId, items, n, now)`.
 - **Interfaces:** `MasteryStore = Record<modeId, Record<itemId, ItemMastery>>`; `ItemMastery = { level, lastTs, attempts }`.
-- **Deps:** `types.ts`, `localStorage`.
+- **Scheduler:** `pickDueItems` scores each item by `(overdue + weakBonus if level<7)`, where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. Top-K (K = 2n) is shuffled and sliced to n. When all scores are zero, fallback to `shuffle(items).slice(0, n)`.
+- **Deps:** `types.ts`, `utils/itemKey`, `utils/shuffle`, `localStorage`.
 
 ### 3.10 utils/itemKey.ts
 - **Purpose:** Stable natural key for any engine item + mode item-count resolution. `itemKey(item)` → `q` / `translation`. `itemCount(mode)` handles 3 data shapes.
@@ -86,7 +90,7 @@
 
 ## 4. Data
 - **Entities:**
-  - `DataItem = { q, answer, hint, label?, decoys? }`
+  - `DataItem = { q, answer, hint, label?, decoys?, rule? }`
   - `BuildItem = { words, translation }`
   - `LiItem = { words, liPosition, result, translation }`
   - `Mode = { id, icon, label, desc, type: EngineType, data: () => Item[], sessionSize? }`
@@ -100,15 +104,17 @@
 
 ## 5. Logic
 - **Algos:**
-  - **Session flow:** `advance()` increments `cur` until `cur+1 === qs.length`, then fires `onComplete(score, time, errors)`.
-  - **Answer handling:** first selection locks input; correct → `score += pts + extraPts`; incorrect → `errors++`, correct value stored in `corr`. Auto-advance after `delay`.
-  - **Timed bonus:** `TimedEngine` passes `extraPts` proportional to remaining time.
+  - **Session flow:** `useGame` owns `indexPlan` (initial order), `planPos`, `retryBuffer[{ idx, dueAt }]`, `answered` (counter), `qsTotalRef` (fixed at mount). `advance()` picks the next physical index via `pickNext(answered)`: prefer any due retry (`dueAt ≤ answered`), else `indexPlan[planPos++]`, else earliest-due retry. Session completes when `answered ≥ qsTotal` and `retryBuffer` is empty, or when `pickNext` returns `-1`.
+  - **Re-queue:** On a wrong answer, push `{ idx: cur, dueAt: answered + 1 + 3 + rand(0..2) }` (3–5 positions later). `qs` is never mutated. `errSet` records unique wrong indices; `errors` at completion = `errSet.size`.
+  - **Answer handling:** first selection locks input; correct → `score += pts + extraPts`; incorrect → correct value stored in `corr`, item re-queued. `answer(val, correctVal, { extraPts, hinted })`; legacy numeric third arg still supported. Auto-advance after `delay`.
+  - **Timed bonus + speed-gate:** `TimedEngine` passes `extraPts = max(0, timeLeft · 2)` on correct. When `levelLookup(itemId) < 5` the timer is disabled, `extraPts = 0`, and `fast` is reported as `false` to mastery.
   - **Shuffle:** Fisher-Yates (`utils/shuffle.ts`) for answer options and reaction picks.
   - **History cap:** `saveHistory` keeps only `h.slice(-200)`.
-  - **sliceData(mode, size)**: type-aware wrapper. For `pickOpt` slices `items` only, preserves `opts`. For other engines, shuffles + slices the array. Returns original `mode.data` when `size` is undefined.
-  - **Round flow:** `startRound` → `shuffle(lesson.modeIds).slice(0, 3)` → play each with `sliceData(mode, 5)`. `handleComplete` in round branch accumulates `totals` and swaps `modeId` to next entry until queue drained, then writes single history entry and jumps to results.
-  - **Mastery update (`applyAnswer`):** `prev = store[modeId]?[itemId] ?? {level:0, lastTs:0, attempts:0}`. `stale = prev.lastTs > 0 AND now - prev.lastTs ≥ 7d`. If `ok`: `base = stale ? max(0, prev.level - 1) : prev.level`; `next = min(10, base + (fast ? 2 : 1))`. Else: `next = max(0, prev.level - 3)`. Write `{level:next, lastTs:now, attempts:prev.attempts+1}`. `fast` only true when `TimedEngine` reports `extraPts > 0`.
-  - **Mastery buffer:** `App` buffers per-answer events in a ref and flushes once — on `onComplete` and on round-abort — to avoid 1 write per answer.
+  - **sliceData(mode, size?, mastery?, now?)**: type-aware wrapper. When `mastery` is provided, selection goes through `pickDueItems(mastery, mode.id, items, n, now)`; otherwise `shuffle(items).slice(0, n)`. For `pickOpt`, `opts` is preserved.
+  - **Scheduler (`pickDueItems`):** see §3.9. Used for both single-mode sessions and round sessions (round is the primary loop; skipping SRS there would nullify it in practice).
+  - **Round flow:** `startRound` → `shuffle(lesson.modeIds).slice(0, 3)` → play each with `sliceData(mode, 5, mastery)`. `handleComplete` in round branch accumulates `totals` and swaps `modeId` to next entry until queue drained, then writes single history entry and jumps to results. `qsTotal` of the aggregated round entry stays `ROUND_GAMES × ROUND_SIZE = 15`.
+  - **Mastery update (`applyAnswer`):** `prev = store[modeId]?[itemId] ?? {level:0, lastTs:0, attempts:0}`. `stale = prev.lastTs > 0 AND now - prev.lastTs ≥ 7d`. If `ok`: if `hinted` → `next = prev.level` (no reward); else `base = stale ? max(0, prev.level - 1) : prev.level`; `next = min(10, base + (fast ? 2 : 1))`. Else: `next = max(0, prev.level - (hinted ? 1 : 3))`. Write `{level:next, lastTs:now, attempts:prev.attempts+1}`. `fast` is only `true` when `TimedEngine` reports `extraPts > 0` (never fires under the speed-gate).
+  - **Mastery buffer:** `App` buffers per-answer events `{ modeId, itemId, ok, fast, ts, hinted? }` in a ref and flushes once — on `onComplete` and on round-abort — to avoid 1 write per answer.
   - **Lesson mastery (`lessonStats`):** `total = sum over modeIds of itemCount(mode)`. `sumLevel = sum over items of level`. `ratio = sumLevel / (10 × total)`. `mastered = atSeven/total ≥ 0.9 AND atTen/total ≥ 0.6`.
 - **Rules:**
   - Default session length = full `data()` set (per-engine internal slice cap still applies).

@@ -28,7 +28,7 @@ export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, reaction, score, answer } = useGame(qs, onComplete, 15, 1200, onItemAnswer);
+  const { cur, sel, reaction, score, answered, qsTotal, answer } = useGame(qs, onComplete, 15, 1200, onItemAnswer);
 
   useEffect(() => {
     const decoys = makeNegDecoys(qs[cur].answer).map(a => ({ ...qs[cur], answer: a }));
@@ -38,7 +38,7 @@ export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
   const item = qs[cur];
   return (
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
-      <Progress cur={cur} total={qs.length} score={score} accent />
+      <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
         <p className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: ACCENT }}>Задача</p>
         <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{item.q}</h1>

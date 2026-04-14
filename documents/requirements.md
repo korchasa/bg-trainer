@@ -23,12 +23,15 @@
   - [x] Lesson screen lists its modes + primary "Раунд" button. Evidence: `src/components/screens/LessonScreen.tsx`
 
 ### 3.2 FR-GAME-SESSION
-- **Desc:** Session = N questions from the selected mode's data. Default N = mode's full data set (per-engine internal cap still applies). Round sessions use N = 5 per game.
-- **Scenario:** User plays → N questions answered → `ResultsScreen` shows score/errors/time (single game) or round aggregates.
+- **Desc:** Session = N questions from the selected mode's data. `qsTotal` is fixed at session start (default N = full data set; round = 5 per game). Wrong answers are re-queued 3–5 positions later within the same session (`retryBuffer`, non-mutating). Progress UI and history use `answered / qsTotal`. `errors` counts unique wrong indices (repeat-fails on the same item do not increment).
+- **Scenario:** User plays → answers `qsTotal` questions (some repeated via re-queue) → `ResultsScreen` shows score/errors/time (single game) or round aggregates.
 - **Acceptance:**
-  - [x] Default session uses full data set; round override via `sliceData(mode, 5)`. Evidence: `src/utils/sliceData.ts`, `src/App.tsx:151-154`
-  - [x] `useGame` tracks `cur`, `sel`, `corr`, `reaction`, `score`. Evidence: `src/hooks/useGame.ts:5-49`
-  - [x] On last answer → `onComplete(score, time, errors)` fires. Evidence: `src/hooks/useGame.ts:26-28`
+  - [x] Default session uses full data set; round override via `sliceData(mode, 5, mastery)`. Evidence: `src/utils/sliceData.ts:6-33`, `src/App.tsx:193-196`
+  - [x] `useGame` tracks `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`. Evidence: `src/hooks/useGame.ts:27-35,110-120`
+  - [x] Wrong answers re-queued via `retryBuffer` without mutating `qs`. Evidence: `src/hooks/useGame.ts:39,85-89,43-55`
+  - [x] Progress component reads `answered/qsTotal`. Evidence: `src/components/engines/PickEngine.tsx:32`, `src/components/engines/PickOptEngine.tsx:33`, `src/components/engines/PickFromEngine.tsx:38`, `src/components/engines/TimedEngine.tsx:60`, `src/components/engines/NegEngine.tsx:41`
+  - [x] Unique-index error counting via `errSet: Set<number>`. Evidence: `src/hooks/useGame.ts:29,87`
+  - [x] On completion → `onComplete(score, time, errors)` fires once. Evidence: `src/hooks/useGame.ts:59-63`
 
 ### 3.10 FR-LESSONS
 - **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. Lesson 1 is fully playable in debug scope; lessons 2–8 show as "Скоро" placeholders.
@@ -54,15 +57,39 @@
   - [x] Duplicate selections rejected. Evidence: `src/hooks/useGame.ts:32`
 
 ### 3.4 FR-ENGINES
-- **Desc:** 7 engine types implement distinct interaction patterns.
+- **Desc:** 8 engine types implement distinct interaction patterns. Multiple-choice engines hide L1 hints by default and expose a "Подсказка" reveal button; reveal sets `hinted=true` which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
 - **Acceptance:**
-  - [x] `pick` — 3 shuffled options. Evidence: `src/components/engines/PickEngine.tsx`
-  - [x] `timed` — timed quiz + speed bonus. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useTimer.ts`
-  - [x] `pickOpt` — fixed option set (articles, gender). Evidence: `src/components/engines/PickOptEngine.tsx`
-  - [x] `pickFrom` — pick correct form from decoys. Evidence: `src/components/engines/PickFromEngine.tsx`
+  - [x] `pick` — 3 shuffled options, hint-on-demand. Evidence: `src/components/engines/PickEngine.tsx:11,18,39-45`
+  - [x] `timed` — timed quiz + speed bonus, hint-on-demand. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useTimer.ts`
+  - [x] `pickOpt` — fixed option set (articles, gender), hint-on-demand. Evidence: `src/components/engines/PickOptEngine.tsx`
+  - [x] `pickFrom` — pick correct form from decoys, hint-on-demand. Evidence: `src/components/engines/PickFromEngine.tsx`
   - [x] `negation` — build negation from word tiles. Evidence: `src/components/engines/NegEngine.tsx`
   - [x] `build` — drag-to-order sentence. Evidence: `src/components/engines/BuildEngine.tsx`
   - [x] `li` — tap position to insert particle "ли". Evidence: `src/components/engines/LiEngine.tsx`
+  - [x] `type` — keyboard input with whitelist normalization (trim, lowercase, whitespace collapse — no char substitutions). Evidence: `src/components/engines/TypeEngine.tsx:13-16`
+
+### 3.13 FR-SCHED
+- **Desc:** Session item selection uses an SRS-like scheduler (`pickDueItems`) over the mastery store. Items are scored by `(overdue + weakBonus_if_level<7)` where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. The top-K (K = 2n) are shuffled and sliced to n to avoid monotone order. When mastery is empty or all scores are zero → fallback to `shuffle(items).slice(0, n)`. The scheduler is applied by `sliceData` when mastery is provided; Round sessions also use it.
+- **Acceptance:**
+  - [x] `pickDueItems(store, modeId, items, n, now)` selects by due/weak score with shuffled top-K. Evidence: `src/utils/mastery.ts:74-99`
+  - [x] Shuffle fallback when all scores are zero. Evidence: `src/utils/mastery.ts:93`
+  - [x] `sliceData(mode, size, mastery, now?)` uses scheduler when `mastery` is defined. Evidence: `src/utils/sliceData.ts:10-33`
+  - [x] `App.tsx` passes current `mastery` to `sliceData` for both single-mode and round sessions. Evidence: `src/App.tsx:193-196`
+
+### 3.14 FR-TYPE
+- **Desc:** `TypeEngine` accepts keyboard input. Normalization is **whitelist-only**: `trim`, `toLowerCase`, collapse internal whitespace. No character substitutions — `ѝ` vs `и`, stress marks, punctuation kept intact to preserve orthographic distinctions. Submit blocked when normalized input is empty.
+- **Acceptance:**
+  - [x] Whitelist normalization only. Evidence: `src/components/engines/TypeEngine.tsx:13-16`
+  - [x] Empty-after-normalize submit blocked. Evidence: `src/components/engines/TypeEngine.tsx:41-45`
+  - [x] Registered in engine dispatch. Evidence: `src/components/engines/index.ts:10,22`
+  - [x] At least one mode uses `type`: `sym_type`. Evidence: `src/data/index.ts:298`
+
+### 3.15 FR-FEEDBACK-RULE
+- **Desc:** Elaborative feedback: `DataItem.rule?` may carry a short rule explanation. On wrong answer, engines show the rule under the correct form in `Correction` (or inline for `PickEngine`). Required: rule strings defined for `DATA_SYM`, `DATA_IMAM`, `DATA_ISKAM`, `DATA_ARTICLE` (minimum).
+- **Acceptance:**
+  - [x] `DataItem.rule?: string` field exists. Evidence: `src/types.ts:26`
+  - [x] `Correction` renders `rule` when provided. Evidence: `src/components/ui/Correction.tsx:1-10`
+  - [x] Rules defined for core paradigms/articles. Evidence: `src/data/index.ts:3-10,12-19,21-28,30-54`
 
 ### 3.5 FR-REACTION
 - **Desc:** After each answer, show a Russian-language reaction (OK or FAIL) and, on wrong, reveal the correct answer.
@@ -94,11 +121,13 @@
   - [x] Appends `HistoryEntry` on completion. Evidence: `src/App.tsx`, `src/utils/history.ts`
 
 ### 3.12 FR-MASTERY
-- **Desc:** Per-item mastery level (0–10) persisted in `localStorage` (key `bg-trainer-mastery-v1`). Independent from history. Update rule: correct `+1`, fast-correct (timed, within timer bonus) `+2`, wrong `−3`. Lazy decay: correct answers on items untouched ≥7 days first drop 1 level, then apply reward. Lesson-level aggregation: `ratio = sum(level) / (10 × totalItems)`. Lesson "полностью изучено" = ≥90% items at level ≥7 AND ≥60% at level 10.
+- **Desc:** Per-item mastery level (0–10) persisted in `localStorage` (key `bg-trainer-mastery-v1`). Independent from history. Update rule: correct `+1`, fast-correct (timed, within timer bonus) `+2`, wrong `−3`. Hinted answers soften the update: `ok+hinted = +0`, `fail+hinted = −1`. Lazy decay: correct answers on items untouched ≥7 days first drop 1 level, then apply reward. Speed-gate: `TimedEngine` disables the timer and speed bonus when the current item's level `< 5` to prevent System-1 guessing on undermastered items. Session item selection uses FR-SCHED (`pickDueItems`). Lesson-level aggregation: `ratio = sum(level) / (10 × totalItems)`. Lesson "полностью изучено" = ≥90% items at level ≥7 AND ≥60% at level 10.
 - **Scenario:** User plays a mode → every answered item updates its level → `LessonsScreen` shows per-lesson progress bar + "K/M освоено · X%" → `LessonScreen` shows per-mode mini bar → `AnalyticsScreen` has separate reset for mastery.
 - **Acceptance:**
   - [x] Mastery persisted under `bg-trainer-mastery-v1`, independent of `bg-trainer-v3`. Evidence: `src/utils/mastery.ts:4`, `src/constants.ts:7`
-  - [x] Level bounded `[0, 10]`; correct `+1`, timed-fast `+2`, wrong `−3`. Evidence: `src/utils/mastery.ts:43-51`
+  - [x] Level bounded `[0, 10]`; correct `+1`, timed-fast `+2`, wrong `−3`. Evidence: `src/utils/mastery.ts:43-63`
+  - [x] Hinted softening: `ok+hinted = +0`, `fail+hinted = −1`. Evidence: `src/utils/mastery.ts:51-62`
+  - [x] Speed-gate: `TimedEngine` disables timer+bonus when item level < 5. Evidence: `src/components/engines/TimedEngine.tsx:25,32-43`
   - [x] Decay: stale-correct path reduces 1 level before reward. Evidence: `src/utils/mastery.ts:44,47`
   - [x] All 7 engines forward item identity via `onItemAnswer(itemId, ok, fast)`. Evidence: `src/hooks/useGame.ts:47-55`, `src/components/engines/PickEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/NegEngine.tsx`, `src/components/engines/BuildEngine.tsx`, `src/components/engines/LiEngine.tsx`
   - [x] Mastery persisted once per session (on complete + on abort), not per answer. Evidence: `src/App.tsx:56-66,78-82,165,170`

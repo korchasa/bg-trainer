@@ -1,21 +1,36 @@
-import type { Mode, DataItem, BuildItem, LiItem, PickOptData } from "../types";
+import type { Mode, DataItem, BuildItem, LiItem, PickOptData, MasteryStore } from "../types";
 import { shuffle } from "./shuffle";
+import { pickDueItems } from "./mastery";
 
-export function sliceData(mode: Mode, size?: number): Mode["data"] {
-  if (!size) return mode.data;
+// FR-SCHED: scheduler picks items by due/weak score. If mastery is absent, falls back to shuffle.
+export function sliceData(
+  mode: Mode,
+  size?: number,
+  mastery?: MasteryStore,
+  now: number = Date.now(),
+): Mode["data"] {
+  if (!size && !mastery) return mode.data;
+  const pickN = <T>(items: T[], n: number): T[] => {
+    if (mastery) return pickDueItems(mastery, mode.id, items, n, now);
+    return shuffle(items).slice(0, n);
+  };
   return () => {
     const raw = mode.data();
+    const len = Array.isArray(raw)
+      ? raw.length
+      : (raw as PickOptData).items.length;
+    const n = size ?? len;
     switch (mode.type) {
       case "pickOpt": {
         const d = raw as PickOptData;
-        return { items: shuffle(d.items).slice(0, size), opts: d.opts };
+        return { items: pickN(d.items, n), opts: d.opts };
       }
       case "build":
-        return shuffle(raw as BuildItem[]).slice(0, size);
+        return pickN(raw as BuildItem[], n);
       case "li":
-        return shuffle(raw as LiItem[]).slice(0, size);
+        return pickN(raw as LiItem[], n);
       default:
-        return shuffle(raw as DataItem[]).slice(0, size);
+        return pickN(raw as DataItem[], n);
     }
   };
 }

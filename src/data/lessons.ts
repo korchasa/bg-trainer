@@ -9,6 +9,7 @@ export const LESSONS: Lesson[] = [
     modeIds: [
       "sym_pick",
       "sym_fill",
+      "sym_type",
       "kazvam_pick",
       "govorya_pick",
       "country_lang_pick",

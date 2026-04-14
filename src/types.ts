@@ -23,6 +23,7 @@ export interface DataItem {
   hint: string;
   label?: string;
   decoys?: string[];
+  rule?: string;
 }
 
 export interface BuildItem {
@@ -37,7 +38,7 @@ export interface LiItem {
   translation: string;
 }
 
-export type EngineType = "pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li";
+export type EngineType = "pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type";
 
 export interface PickOptData {
   items: DataItem[];
@@ -83,4 +84,5 @@ export interface MasteryEvent {
   ok: boolean;
   fast: boolean;
   ts: number;
+  hinted?: boolean;
 }

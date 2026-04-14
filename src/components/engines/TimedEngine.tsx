@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
@@ -6,6 +6,7 @@ import { useTimer } from "../../hooks/useTimer";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
+import { itemKey } from "../../utils/itemKey";
 
 interface TimedItem extends DataItem {
   options: DataItem[];
@@ -14,10 +15,16 @@ interface TimedItem extends DataItem {
 interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
-  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
+  onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
+  levelLookup?: (itemId: string) => number;
 }
 
-export function TimedEngine({ data, onComplete, onItemAnswer }: Props) {
+// FR-ENGINES: timed multiple-choice with speed bonus.
+// FR-MASTERY speed-gate: if the current item's mastery level < 5, the timer is disabled
+// and no speed bonus is awarded. New learners should not be pushed into System-1 guessing.
+const SPEED_GATE_LEVEL = 5;
+
+export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup }: Props) {
   const items = data();
   const [qs] = useState<TimedItem[]>(() =>
     shuffle(items).map(item => {
@@ -25,30 +32,51 @@ export function TimedEngine({ data, onComplete, onItemAnswer }: Props) {
       return { ...item, options: shuffle([item, ...wrong]) };
     })
   );
-  const { cur, sel, corr, reaction, score, advance, answer } = useGame(qs, onComplete, 10, 1200, onItemAnswer);
+  const [showHint, setShowHint] = useState(false);
+  const hintedRef = useRef(false);
+  const { cur, sel, corr, reaction, score, answered, qsTotal, advance, answer } =
+    useGame(qs, onComplete, 10, 1200, onItemAnswer);
 
   const { timeLeft, stop, reset } = useTimer(useCallback(() => {
     advance();
   }, [advance]));
 
-  useEffect(() => { reset(); }, [cur]);
+  const curItem = qs[cur];
+  const curLevel = levelLookup ? (() => { try { return levelLookup(itemKey(curItem)); } catch { return 0; } })() : 0;
+  const gated = curLevel < SPEED_GATE_LEVEL;
+
+  useEffect(() => {
+    setShowHint(false);
+    hintedRef.current = false;
+    if (gated) { stop(); } else { reset(); }
+  }, [cur, gated]);
 
   const go = (o: DataItem) => {
     stop();
-    const bonus = Math.max(0, timeLeft * 2);
-    answer(o.answer, qs[cur].answer, bonus);
+    const bonus = gated ? 0 : Math.max(0, timeLeft * 2);
+    answer(o.answer, qs[cur].answer, { extraPts: bonus, hinted: hintedRef.current });
   };
+
+  const revealHint = () => { setShowHint(true); hintedRef.current = true; };
 
   const item = qs[cur];
   return (
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
-      <Progress cur={cur} total={qs.length} score={score} />
+      <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
-        <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>
-          ⏱ {timeLeft}с
-        </div>
+        {gated
+          ? <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Без таймера — новый айтем</div>
+          : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>
+              ⏱ {timeLeft}с
+            </div>}
         <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{item.q} ___</h1>
-        <p className="text-base font-medium text-gray-400">({item.hint})</p>
+        {showHint || sel !== null
+          ? <p className="text-base font-medium text-gray-400">({item.hint})</p>
+          : (
+            <button onClick={revealHint} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">
+              Подсказка
+            </button>
+          )}
       </div>
       <Reaction text={reaction} />
       <div className="w-full grid grid-cols-2 gap-3 mb-4">

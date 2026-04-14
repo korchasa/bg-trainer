@@ -47,10 +47,10 @@ export default function App() {
     setLoading(false);
   }, []);
 
-  const onItemAnswer = useCallback((itemId: string, ok: boolean, fast: boolean) => {
+  const onItemAnswer = useCallback((itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => {
     const mid = modeIdRef.current;
     if (!mid) return;
-    pendingRef.current.push({ modeId: mid, itemId, ok, fast, ts: Date.now() });
+    pendingRef.current.push({ modeId: mid, itemId, ok, fast, ts: Date.now(), hinted });
   }, []);
 
   const flushMastery = useCallback(() => {
@@ -60,7 +60,7 @@ export default function App() {
     setMastery(prev => {
       let next = prev;
       for (const e of events) {
-        next = applyAnswer(next, e.modeId, e.itemId, e.ok, e.fast, e.ts);
+        next = applyAnswer(next, e.modeId, e.itemId, e.ok, e.fast, e.ts, e.hinted ?? false);
       }
       saveMastery(next);
       return next;
@@ -191,7 +191,12 @@ export default function App() {
   const isVerb = modeId?.startsWith("sym") || modeId?.startsWith("imam") ||
     modeId?.startsWith("iskam") || modeId === "kazvam_pick" || modeId === "govorya_pick";
   const currentLesson = lessonId ? LESSON_BY_ID[lessonId] : null;
-  const gameDataFn = currentMode ? sliceData(currentMode, round ? ROUND_SIZE : currentMode.sessionSize) : null;
+  const gameDataFn = currentMode
+    ? sliceData(currentMode, round ? ROUND_SIZE : currentMode.sessionSize, mastery)
+    : null;
+  const levelLookup = currentMode
+    ? (itemId: string) => mastery[currentMode.id]?.[itemId]?.level ?? 0
+    : undefined;
   const gameTitle = round && currentMode
     ? `${currentMode.label} · ${round.idx + 1}/${round.queue.length}`
     : (currentMode?.label ?? "");
@@ -247,7 +252,7 @@ export default function App() {
               );
             })()}
 
-            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} />
+            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} levelLookup={levelLookup} />
 
             {showAbortBar && (
               <ConfirmBar

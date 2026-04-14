@@ -1,5 +1,6 @@
 import type { MasteryStore, Lesson, Mode } from "../types";
-import { itemCount } from "./itemKey";
+import { itemCount, itemKey } from "./itemKey";
+import { shuffle } from "./shuffle";
 
 export const MASTERY_KEY = "bg-trainer-mastery-v1";
 export const DECAY_DAYS = 7;
@@ -39,15 +40,22 @@ export function applyAnswer(
   ok: boolean,
   fast: boolean,
   now: number,
+  hinted = false,
 ): MasteryStore {
   const prev = store[modeId]?.[itemId] ?? { level: 0, lastTs: 0, attempts: 0 };
   const stale = prev.lastTs > 0 && now - prev.lastTs >= DECAY_DAYS * DAY_MS;
   let next: number;
   if (ok) {
-    const base = stale ? Math.max(0, prev.level - 1) : prev.level;
-    next = Math.min(MAX_LEVEL, base + (fast ? 2 : 1));
+    if (hinted) {
+      // Hinted correct answers are less diagnostic — no level increase, still reset lastTs.
+      next = prev.level;
+    } else {
+      const base = stale ? Math.max(0, prev.level - 1) : prev.level;
+      next = Math.min(MAX_LEVEL, base + (fast ? 2 : 1));
+    }
   } else {
-    next = Math.max(0, prev.level - 3);
+    // Hinted failure is a softer signal than blind failure.
+    next = Math.max(0, prev.level - (hinted ? 1 : 3));
   }
   return {
     ...store,
@@ -56,6 +64,36 @@ export function applyAnswer(
       [itemId]: { level: next, lastTs: now, attempts: prev.attempts + 1 },
     },
   };
+}
+
+// FR-SCHED: due-based selection with weak-item bonus; shuffles top-K for variety.
+export function pickDueItems<T>(
+  store: MasteryStore,
+  modeId: string,
+  items: T[],
+  n: number,
+  now: number,
+): T[] {
+  if (items.length === 0 || n <= 0) return [];
+  const entries = store[modeId] ?? {};
+  const DUE_BASE_MS = DAY_MS;
+  const WEAK_BONUS = 7 * DAY_MS; // on par with ~3 levels of due interval
+  const scored = items.map(it => {
+    let key: string;
+    try { key = itemKey(it); } catch { return { it, score: 0, fresh: true }; }
+    const m = entries[key];
+    if (!m || m.lastTs === 0) return { it, score: WEAK_BONUS * 2, fresh: true }; // never seen → top priority
+    const dueAt = m.lastTs + DUE_BASE_MS * Math.pow(2, m.level);
+    const overdue = Math.max(0, now - dueAt);
+    const weak = m.level < MASTERY_THRESHOLD ? WEAK_BONUS : 0;
+    return { it, score: overdue + weak, fresh: false };
+  });
+  const allZero = scored.every(s => s.score === 0);
+  if (allZero) return shuffle(items).slice(0, n);
+  const sorted = [...scored].sort((a, b) => b.score - a.score);
+  const k = Math.min(Math.max(n * 2, n), sorted.length);
+  const topK = sorted.slice(0, k).map(s => s.it);
+  return shuffle(topK).slice(0, Math.min(n, topK.length));
 }
 
 export interface LessonStats {

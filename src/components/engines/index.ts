@@ -6,6 +6,7 @@ import { PickFromEngine } from "./PickFromEngine";
 import { NegEngine } from "./NegEngine";
 import { BuildEngine } from "./BuildEngine";
 import { LiEngine } from "./LiEngine";
+import { TypeEngine } from "./TypeEngine";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ENGINES: Record<EngineType, React.ComponentType<any>> = {
@@ -16,4 +17,5 @@ export const ENGINES: Record<EngineType, React.ComponentType<any>> = {
   negation: NegEngine,
   build: BuildEngine,
   li: LiEngine,
+  type: TypeEngine,
 };

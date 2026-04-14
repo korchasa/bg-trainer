@@ -8,7 +8,8 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 
 - **8 textbook-aligned lessons** (L1 playable; L2–L8 marked "Скоро") with curated per-lesson game sets
 - **Round mode** — 3 random games × 5 questions from the selected lesson, one aggregated result
-- **7 game engine types** — multiple choice, timed quiz, drag-and-drop, particle insertion, and more
+- **8 game engine types** — multiple choice, timed quiz, keyboard input, drag-and-drop, particle insertion, and more
+- **SRS-like item scheduling + error re-queue** — weak and due items surface first; wrong answers return later in the same session
 - **Analytics dashboard** — score history + per-lesson aggregated stats
 - **Persistent progress** — game history saved to browser local storage (up to 200 sessions)
 - **Mobile-first** responsive design
@@ -19,7 +20,7 @@ Entry screen lists 8 lessons. Tapping an available lesson opens its curated game
 
 | Category | Modes |
 |---|---|
-| Verb "съм" (to be) | Pick correct form, Timed quiz |
+| Verb "съм" (to be) | Pick correct form, Timed quiz, Type the form |
 | "Имам" / "Искам" (have / want) | Pick correct form |
 | Articles | Select the correct suffix (-ът, -та, -то, -те, -а) |
 | Gender | Identify noun gender (masculine / feminine / neuter) |
