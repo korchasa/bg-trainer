@@ -11,6 +11,7 @@
 - Provide evidence for your claims — link to code, docs, or tool output. Unsupported assertions erode trust.
 - Use standard tools (jq, yq, jc) to process and manage structured output — they are portable and well-understood.
 - Do not add fallbacks, default behaviors, or error recovery silently — if the user didn't ask for it, it's an assumption. If you believe a fallback is genuinely needed, ask the user first.
+- Do not enable security/privacy hardening flags (CSP, app-bound domains, CORS restrictions, sandboxing) unsolicited — they often require matching configuration elsewhere (manifest entries, allowlists) that may not be obvious, and can introduce latent bugs harder to debug than the risks they mitigate.
 - Do not use tables in chat output — use two-level lists instead. Tables render poorly in terminal and are harder to scan.
 
 ---
@@ -280,9 +281,10 @@ implements:
 The goal is to identify the root cause, not to suppress the symptom. A quick workaround that hides the root cause is worse than an unresolved issue with a correct diagnosis.
 
 1. Read the relevant code and error output before making any changes.
-2. Apply "5 WHY" analysis to find the root cause.
-3. Root cause is fixable → apply the fix, retry.
-4. Second fix attempt failed → STOP. Output "STOP-ANALYSIS REPORT" (state, expected, 5-why chain, root cause, hypotheses). Wait for user help.
+2. Grep console/log output for documented framework warnings (deprecation notices, lifecycle requirements, permission prompts) and treat them as primary signals. Do not de-prioritize them as "deprecation noise" — on iOS, Android, and browser frameworks they are often the direct cause of perceived performance/UX issues. Investigate the warning before optimizing adjacent concerns (bundle size, network, fonts, caches).
+3. Apply "5 WHY" analysis to find the root cause.
+4. Root cause is fixable → apply the fix, retry.
+5. Second fix attempt failed → STOP. Output "STOP-ANALYSIS REPORT" (state, expected, 5-why chain, root cause, hypotheses). Wait for user help.
 
 When the root cause is outside your control (missing API keys/URLs, missing generator scripts, unavailable external services, wrong environment configuration) → STOP immediately and ask the user for the correct values. Do not guess, do not invent replacements, do not create workarounds.
 

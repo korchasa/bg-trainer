@@ -102,6 +102,14 @@
 - **Startup:** Inline HTML splash in `index.html` shown until React mounts (`main.tsx` hides via `requestAnimationFrame`). `AnalyticsScreen` lazy-loaded via `React.lazy` → main chunk 360 KB / gzip 94 KB.
 - **Scripts:** `npm run build:ios` (`VITE_BASE_PATH=./` for relative paths) → `ios:sync` → `ios:open`.
 - **Deps:** Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/ios`), Swift Package Manager (no CocoaPods runtime deps).
+- **Known gotchas:**
+  - iOS 17+ stalls ~20s at launch on Capacitor apps without UIScene adoption (symptom: `UIScene lifecycle will soon be required` in console, black screen ~20s). Fix requires `SceneDelegate.swift` + `UIApplicationSceneManifest` in Info.plist + 4 entries in `project.pbxproj` (PBXBuildFile, PBXFileReference, PBXGroup, PBXSourcesBuildPhase).
+  - Capacitor 8 uses SPM exclusively. `pod install` never runs. `ios/App/Pods/` gitignores are defensive-only.
+  - Using `100vh` on WKWebView breaks with safe-area padding on `body` (double-counts insets). Always use `height: 100%` chain.
+  - `limitsNavigationsToAppBoundDomains: true` requires matching `WKAppBoundDomains` array in Info.plist — without it iOS applies strict defaults that may block/slow resources. Do NOT enable without the Info.plist entry.
+  - Capacitor's default cold-start frame is black; mask with inline HTML splash in `index.html` shown until React mounts.
+  - WKWebView `localStorage` path (simulator): `~/Library/Developer/CoreSimulator/Devices/<DEVICE>/data/Containers/Data/Application/<APP>/Library/WebKit/WebsiteData/LocalStorage/capacitor_localhost_0.localstorage`. Locate via `xcrun simctl get_app_container booted <bundle-id> data`.
+  - `VITE_BASE_PATH=./` is mandatory for iOS build (relative paths for `capacitor://localhost`). Web build stays on `/bg-trainer/` for GH Pages.
 
 ## 4. Data
 - **Entities:**
