@@ -20,7 +20,7 @@
 - Live demo: https://korchasa.github.io/bg-trainer/
 
 ## Project Vision
-Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (8 categories, 15 modes, 7 engine types) with persistent progress and analytics.
+Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (13 categories, 34 modes, 11 engine types) with persistent progress and analytics.
 
 ## Project tooling Stack
 - **Runtime/UI:** React 18, TypeScript 5

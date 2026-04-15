@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Purpose:** Describe the client-side architecture of bg-trainer: how screens, hooks, engines, and data combine to deliver quiz sessions and analytics.
-- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE.
+- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE.
 
 ## 2. Arch
 - **Diagram:**
@@ -54,14 +54,18 @@
 - **Purpose:** Countdown for `TimedEngine`, exposes remaining time and bonus calculation hook.
 - **Deps:** None.
 
-### 3.4 Engines (8)
-- **Purpose:** Render one question and produce answer events for `useGame.answer()`.
-- **Interfaces:** Props `{ data, onComplete, onItemAnswer?, levelLookup? }` (shape varies slightly per engine). Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`, `PickOptData`).
+### 3.4 Engines (11)
+- **Purpose:** Render one question and produce answer events for `useGame.answer()` (or directly, for engines with custom session shapes).
+- **Interfaces:** Props `{ data, onComplete, onItemAnswer?, levelLookup?, prompt? }` (shape varies slightly per engine). Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`, `MatchItem`, `OddItem`, `ParadigmItem`, `PickOptData`).
 - **Hint toggle:** Multiple-choice engines (`pick`, `pickOpt`, `pickFrom`, `timed`, `type`) hide the L1 hint by default behind a "Подсказка" button; revealing sets a local `hintedRef` that is forwarded to `useGame.answer({ hinted: true })` and then to `onItemAnswer(..., hinted=true)`.
 - **Speed-gate:** `TimedEngine` receives `levelLookup(itemId)` and disables the timer + speed bonus when `level < 5`.
 - **Normalization:** `TypeEngine` normalizes user input with a strict whitelist (trim + lowercase + whitespace collapse). No character substitutions.
-- **Deps:** `useGame` (all), `useTimer` (timed only), UI atoms.
-- **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`.
+- **Custom session shapes:**
+  - `MatchEngine` — single board with all pairs; session ends when matched count == pairs.length. Score = +10 per first-try correct pair; errors counted as unique wrong-left ids.
+  - `ParadigmEngine` — one item = one 6-slot paradigm; +5 per correct slot; advances on full fill.
+  - `OddOneOutEngine` — uses `useGame` with a `DataItem[]` cast over `OddItem[]` to inherit retry/scoring.
+- **Deps:** `useGame` (most), `useTimer` (timed only), UI atoms.
+- **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`, `MatchEngine`, `OddOneOutEngine`, `ParadigmEngine`.
 
 ### 3.5 ResultsScreen
 - **Purpose:** Show session outcome: score, errors, time. Offer "play again" / "menu".
@@ -94,6 +98,9 @@
   - `DataItem = { q, answer, hint, label?, decoys?, rule? }`
   - `BuildItem = { words, translation }`
   - `LiItem = { words, liPosition, result, translation }`
+  - `MatchItem = { left, right, hint }`
+  - `OddItem = { words, odd, hint, rule? }`
+  - `ParadigmItem = { verb, pronouns, forms, hint, rule? }`
   - `Mode = { id, icon, label, desc, type: EngineType, data: () => Item[] }`
   - `SessionPace = "quick" | "standard" | "deep"` → `SESSION_SIZE_BY_PACE = {quick:3, standard:5, deep:8}`
   - `Category = { id, name, modes: Mode[] }`

@@ -1,4 +1,4 @@
-import type { Mode, DataItem, BuildItem, LiItem, PickOptData, MasteryStore } from "../types";
+import type { Mode, DataItem, BuildItem, LiItem, MatchItem, OddItem, ParadigmItem, PickOptData, MasteryStore } from "../types";
 import { shuffle } from "./shuffle";
 import { pickDueItems } from "./mastery";
 

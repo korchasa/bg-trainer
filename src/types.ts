@@ -40,7 +40,31 @@ export interface LiItem {
   translation: Localized<string>;
 }
 
-export type EngineType = "pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type";
+export interface MatchItem {
+  left: string;
+  right: string;
+  hint: Localized<string>;
+}
+
+export interface OddItem {
+  words: string[];
+  odd: string;
+  hint: Localized<string>;
+  rule?: Localized<string>;
+}
+
+export interface ParadigmItem {
+  verb: string;
+  pronouns: string[];
+  forms: string[];
+  hint: Localized<string>;
+  rule?: Localized<string>;
+}
+
+export type EngineType =
+  | "pick" | "timed" | "pickOpt" | "pickFrom"
+  | "negation" | "build" | "li" | "type"
+  | "match" | "odd" | "paradigm";
 
 export interface PickOptData {
   items: DataItem[];
@@ -53,7 +77,7 @@ export interface Mode {
   label: Localized<string>;
   desc: Localized<string>;
   type: EngineType;
-  data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[];
+  data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[] | MatchItem[] | OddItem[] | ParadigmItem[];
 }
 
 export interface Category {

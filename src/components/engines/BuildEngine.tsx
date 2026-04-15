@@ -29,14 +29,17 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const sRef = useRef(0);
   const eRef = useRef(0);
 
+  const endsWithQuestion = qs[cur].words[qs[cur].words.length - 1] === "?";
+
   useEffect(() => {
-    setPool(shuffle(qs[cur].words.filter(w => w !== "?")));
+    const ws = qs[cur].words;
+    setPool(shuffle(endsWithQuestion ? ws.slice(0, -1) : ws));
     setPlaced([]);
     setDone(false);
     setReaction("");
   }, [cur]);
 
-  const target = qs[cur].words.filter(w => w !== "?");
+  const target = endsWithQuestion ? qs[cur].words.slice(0, -1) : qs[cur].words;
 
   const addWord = (word: string, index: number) => {
     if (done) return;
@@ -88,9 +91,9 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
               {word}
             </button>
           )}
-          {placed.length > 0 && <span className="text-gray-400 font-bold text-xl">?</span>}
+          {placed.length > 0 && endsWithQuestion && <span className="text-gray-400 font-bold text-xl">?</span>}
         </div>
-        <Correction show={done && placed.join(" ") + " ?" !== qs[cur].words.join(" ")} text={qs[cur].words.join(" ")} />
+        <Correction show={done && placed.join(" ") !== target.join(" ")} text={qs[cur].words.join(" ")} />
       </div>
       <Reaction text={reaction} />
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">

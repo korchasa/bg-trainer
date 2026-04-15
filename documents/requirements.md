@@ -69,7 +69,7 @@
   - [x] Duplicate selections rejected. Evidence: `src/hooks/useGame.ts:32`
 
 ### 3.4 FR-ENGINES
-- **Desc:** 8 engine types implement distinct interaction patterns. Multiple-choice engines hide L1 hints by default and expose a "Подсказка" reveal button; reveal sets `hinted=true` which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
+- **Desc:** 11 engine types implement distinct interaction patterns. Multiple-choice engines hide L1 hints by default and expose a "Подсказка" reveal button; reveal sets `hinted=true` which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
 - **Acceptance:**
   - [x] `pick` — 3 shuffled options, hint-on-demand. Evidence: `src/components/engines/PickEngine.tsx:11,18,39-45`
   - [x] `timed` — timed quiz + speed bonus, hint-on-demand. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useTimer.ts`
@@ -79,6 +79,29 @@
   - [x] `build` — drag-to-order sentence. Evidence: `src/components/engines/BuildEngine.tsx`
   - [x] `li` — tap position to insert particle "ли". Evidence: `src/components/engines/LiEngine.tsx`
   - [x] `type` — keyboard input with whitelist normalization (trim, lowercase, whitespace collapse — no char substitutions). Evidence: `src/components/engines/TypeEngine.tsx:13-16`
+  - [x] `match` — tap-pair 2-column matching, relational encoding. Evidence: `src/components/engines/MatchEngine.tsx`
+  - [x] `odd` — tap the intruder word, category-boundary drill. Evidence: `src/components/engines/OddOneOutEngine.tsx`
+  - [x] `paradigm` — 6-slot paradigm completion via tile bank. Evidence: `src/components/engines/ParadigmEngine.tsx`
+
+### 3.4.1 FR-MATCH
+- **Desc:** Relational encoding: user taps a left-column tile then a right-column tile to pair them. Correct pairs lock green; wrong attempts flash red on the two tapped cells and reset. Session ends when all pairs matched. Data: `MatchItem[]` = `{ left, right, hint }`. Score = +10 per first-try correct pair.
+- **Acceptance:**
+  - [x] Separate left/right state so flash-fail only lights the two tapped cells. Evidence: `src/components/engines/MatchEngine.tsx`
+  - [x] Item answer event fired per attempt via `itemKey(pairs[selLeft])`. Evidence: `src/components/engines/MatchEngine.tsx`
+  - [x] At least one mode: `match_country_lang`, `match_country_nat`, `match_profession`. Evidence: `src/data/index.ts`
+
+### 3.4.2 FR-ODD
+- **Desc:** Category-boundary drill. User sees 4 tiles and taps the one that does not belong. Correct → green, wrong → red + highlights correct. Session = `SESSION_SIZE_BY_PACE[pace]` items. Data: `OddItem[]` = `{ words, odd, hint, rule? }`.
+- **Acceptance:**
+  - [x] Engine reuses `useGame` via `DataItem[]` cast for scoring/retry parity. Evidence: `src/components/engines/OddOneOutEngine.tsx`
+  - [x] At least one mode: `odd_mixed`. Evidence: `src/data/index.ts`
+
+### 3.4.3 FR-PARADIGM
+- **Desc:** Schema formation via whole-paradigm completion. User sees a verb + 6 pronoun rows + a shuffled form bank, taps a form to fill the next empty slot (taps a filled slot to return the form). When all 6 filled, engine marks each row green/red, reveals correct form under wrong rows, and advances. Score = +5 per correct slot. Data: `ParadigmItem[]` = `{ verb, pronouns, forms, hint, rule? }`.
+- **Acceptance:**
+  - [x] 6 pronoun slots, tile bank below, tap-fill + tap-unfill. Evidence: `src/components/engines/ParadigmEngine.tsx`
+  - [x] Per-slot check + correct-form reveal on wrong rows. Evidence: `src/components/engines/ParadigmEngine.tsx`
+  - [x] `paradigm_fill` mode over 6 verbs (съм, имам, нямам, искам, казвам се, говоря). Evidence: `src/data/index.ts`
 
 ### 3.13 FR-SCHED
 - **Desc:** Session item selection uses an SRS-like scheduler (`pickDueItems`) over the mastery store. Items are scored by `(overdue + weakBonus_if_level<7)` where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. The top-K (K = 2n) are shuffled and sliced to n to avoid monotone order. When mastery is empty or all scores are zero → fallback to `shuffle(items).slice(0, n)`. The scheduler is applied by `sliceData` when mastery is provided; Round sessions also use it.
@@ -141,7 +164,7 @@
   - [x] Hinted softening: `ok+hinted = +0`, `fail+hinted = −1`. Evidence: `src/utils/mastery.ts:51-62`
   - [x] Speed-gate: `TimedEngine` disables timer+bonus when item level < 5. Evidence: `src/components/engines/TimedEngine.tsx:25,32-43`
   - [x] Decay: stale-correct path reduces 1 level before reward. Evidence: `src/utils/mastery.ts:44,47`
-  - [x] All 7 engines forward item identity via `onItemAnswer(itemId, ok, fast)`. Evidence: `src/hooks/useGame.ts:47-55`, `src/components/engines/PickEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/NegEngine.tsx`, `src/components/engines/BuildEngine.tsx`, `src/components/engines/LiEngine.tsx`
+  - [x] All 11 engines forward item identity via `onItemAnswer(itemId, ok, fast)`. Evidence: `src/hooks/useGame.ts:47-55`, `src/components/engines/PickEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/NegEngine.tsx`, `src/components/engines/BuildEngine.tsx`, `src/components/engines/LiEngine.tsx`, `src/components/engines/TypeEngine.tsx`, `src/components/engines/MatchEngine.tsx`, `src/components/engines/OddOneOutEngine.tsx`, `src/components/engines/ParadigmEngine.tsx`
   - [x] Mastery persisted once per session (on complete + on abort), not per answer. Evidence: `src/App.tsx:56-66,78-82,165,170`
   - [x] `LessonsScreen` shows progress bar + `K/M · X%`; mastered badge when criteria met. Evidence: `src/components/screens/LessonsScreen.tsx`
   - [x] `LessonScreen` shows per-mode mastery bars. Evidence: `src/components/screens/LessonScreen.tsx`

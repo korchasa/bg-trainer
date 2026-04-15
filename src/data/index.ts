@@ -1,4 +1,4 @@
-import type { DataItem, BuildItem, LiItem, Category } from "../types";
+import type { DataItem, BuildItem, LiItem, MatchItem, OddItem, ParadigmItem, Category } from "../types";
 import type { Localized } from "../i18n/types";
 
 const SYM_RULE: Localized<string> = {
@@ -259,22 +259,30 @@ export const DATA_BUILD: BuildItem[] = [
   { words: ["откъде", "е", "тя", "?"], translation: { ru: "Откуда она?", uk: "Звідки вона?" } },
 ];
 
+const KAZVAM_RULE: Localized<string> = {
+  ru: "A-спряжение + возвратная частица «се»: -ам/-аш/-а · -аме/-ате/-ат.",
+  uk: "A-дієвідміна + зворотна частка «се»: -ам/-аш/-а · -аме/-ате/-ат.",
+};
 export const DATA_KAZVAM: DataItem[] = [
-  { q: "Аз (се)", answer: "казвам", hint: { ru: "я зовусь", uk: "я звуся" } },
-  { q: "Ти (се)", answer: "казваш", hint: { ru: "ты зовёшься", uk: "ти звешся" } },
-  { q: "Той/Тя/То (се)", answer: "казва", hint: { ru: "он зовётся", uk: "він зветься" } },
-  { q: "Ние (се)", answer: "казваме", hint: { ru: "мы зовёмся", uk: "ми звемося" } },
-  { q: "Вие (се)", answer: "казвате", hint: { ru: "вы зовётесь", uk: "ви зветеся" } },
-  { q: "Те (се)", answer: "казват", hint: { ru: "они зовутся", uk: "вони звуться" } },
+  { q: "Аз (се)", answer: "казвам", hint: { ru: "я зовусь", uk: "я звуся" }, rule: KAZVAM_RULE },
+  { q: "Ти (се)", answer: "казваш", hint: { ru: "ты зовёшься", uk: "ти звешся" }, rule: KAZVAM_RULE },
+  { q: "Той/Тя/То (се)", answer: "казва", hint: { ru: "он зовётся", uk: "він зветься" }, rule: KAZVAM_RULE },
+  { q: "Ние (се)", answer: "казваме", hint: { ru: "мы зовёмся", uk: "ми звемося" }, rule: KAZVAM_RULE },
+  { q: "Вие (се)", answer: "казвате", hint: { ru: "вы зовётесь", uk: "ви зветеся" }, rule: KAZVAM_RULE },
+  { q: "Те (се)", answer: "казват", hint: { ru: "они зовутся", uk: "вони звуться" }, rule: KAZVAM_RULE },
 ];
 
+const GOVORYA_RULE: Localized<string> = {
+  ru: "I-спряжение (и-тип): -я/-иш/-и · -им/-ите/-ят.",
+  uk: "I-дієвідміна (и-тип): -я/-иш/-и · -им/-ите/-ят.",
+};
 export const DATA_GOVORYA: DataItem[] = [
-  { q: "Аз", answer: "говоря", hint: { ru: "я говорю", uk: "я говорю" } },
-  { q: "Ти", answer: "говориш", hint: { ru: "ты говоришь", uk: "ти говориш" } },
-  { q: "Той/Тя/То", answer: "говори", hint: { ru: "он говорит", uk: "він говорить" } },
-  { q: "Ние", answer: "говорим", hint: { ru: "мы говорим", uk: "ми говоримо" } },
-  { q: "Вие", answer: "говорите", hint: { ru: "вы говорите", uk: "ви говорите" } },
-  { q: "Те", answer: "говорят", hint: { ru: "они говорят", uk: "вони говорять" } },
+  { q: "Аз", answer: "говоря", hint: { ru: "я говорю", uk: "я говорю" }, rule: GOVORYA_RULE },
+  { q: "Ти", answer: "говориш", hint: { ru: "ты говоришь", uk: "ти говориш" }, rule: GOVORYA_RULE },
+  { q: "Той/Тя/То", answer: "говори", hint: { ru: "он говорит", uk: "він говорить" }, rule: GOVORYA_RULE },
+  { q: "Ние", answer: "говорим", hint: { ru: "мы говорим", uk: "ми говоримо" }, rule: GOVORYA_RULE },
+  { q: "Вие", answer: "говорите", hint: { ru: "вы говорите", uk: "ви говорите" }, rule: GOVORYA_RULE },
+  { q: "Те", answer: "говорят", hint: { ru: "они говорят", uk: "вони говорять" }, rule: GOVORYA_RULE },
 ];
 
 export const DATA_COUNTRY_LANG: DataItem[] = [
@@ -449,6 +457,160 @@ export const DATA_LI: LiItem[] = [
   { words: ["Работиш", "тук"], liPosition: 0, result: "Работиш ли тук?", translation: { ru: "Работаешь здесь?", uk: "Працюєш тут?" } },
 ];
 
+// ========================= MATCH =========================
+// FR-MATCH: 3-way relational encoding via paired tapping (страна ↔ език).
+const HINT_COUNTRY_LANG: Localized<string> = { ru: "страна ↔ язык", uk: "країна ↔ мова" };
+export const DATA_MATCH_COUNTRY_LANG: MatchItem[] = [
+  { left: "България", right: "български", hint: HINT_COUNTRY_LANG },
+  { left: "Русия", right: "руски", hint: HINT_COUNTRY_LANG },
+  { left: "Германия", right: "немски", hint: HINT_COUNTRY_LANG },
+  { left: "Франция", right: "френски", hint: HINT_COUNTRY_LANG },
+  { left: "Испания", right: "испански", hint: HINT_COUNTRY_LANG },
+  { left: "Италия", right: "италиански", hint: HINT_COUNTRY_LANG },
+  { left: "Гърция", right: "гръцки", hint: HINT_COUNTRY_LANG },
+  { left: "Турция", right: "турски", hint: HINT_COUNTRY_LANG },
+  { left: "Полша", right: "полски", hint: HINT_COUNTRY_LANG },
+  { left: "Чехия", right: "чешки", hint: HINT_COUNTRY_LANG },
+  { left: "Япония", right: "японски", hint: HINT_COUNTRY_LANG },
+  { left: "Китай", right: "китайски", hint: HINT_COUNTRY_LANG },
+  { left: "Унгария", right: "унгарски", hint: HINT_COUNTRY_LANG },
+  { left: "Сърбия", right: "сръбски", hint: HINT_COUNTRY_LANG },
+];
+
+const HINT_COUNTRY_NAT_M: Localized<string> = { ru: "страна ↔ мужчина", uk: "країна ↔ чоловік" };
+export const DATA_MATCH_COUNTRY_NAT_M: MatchItem[] = [
+  { left: "България", right: "българин", hint: HINT_COUNTRY_NAT_M },
+  { left: "Русия", right: "руснак", hint: HINT_COUNTRY_NAT_M },
+  { left: "Англия", right: "англичанин", hint: HINT_COUNTRY_NAT_M },
+  { left: "Германия", right: "германец", hint: HINT_COUNTRY_NAT_M },
+  { left: "Италия", right: "италианец", hint: HINT_COUNTRY_NAT_M },
+  { left: "Гърция", right: "грък", hint: HINT_COUNTRY_NAT_M },
+  { left: "Полша", right: "поляк", hint: HINT_COUNTRY_NAT_M },
+  { left: "Турция", right: "турчин", hint: HINT_COUNTRY_NAT_M },
+  { left: "Япония", right: "японец", hint: HINT_COUNTRY_NAT_M },
+  { left: "Сърбия", right: "сърбин", hint: HINT_COUNTRY_NAT_M },
+];
+
+const HINT_PROF_MF: Localized<string> = { ru: "профессия м. ↔ ж.", uk: "професія ч. ↔ ж." };
+export const DATA_MATCH_PROFESSION: MatchItem[] = [
+  { left: "студент", right: "студентка", hint: HINT_PROF_MF },
+  { left: "преподавател", right: "преподавателка", hint: HINT_PROF_MF },
+  { left: "журналист", right: "журналистка", hint: HINT_PROF_MF },
+  { left: "писател", right: "писателка", hint: HINT_PROF_MF },
+  { left: "актьор", right: "актриса", hint: HINT_PROF_MF },
+  { left: "фотограф", right: "фотограф", hint: HINT_PROF_MF },
+];
+
+// ========================= ODD-ONE-OUT =========================
+// FR-ODD: category-boundary drill; user spots the intruder form/gender/category.
+const ODD_HINT_PARADIGM: Localized<string> = { ru: "одна форма не из этой парадигмы", uk: "одна форма не з цієї парадигми" };
+const ODD_HINT_GENDER_M: Localized<string> = { ru: "одно слово — не мужского рода", uk: "одне слово — не чоловічого роду" };
+const ODD_HINT_GENDER_F: Localized<string> = { ru: "одно слово — не женского рода", uk: "одне слово — не жіночого роду" };
+const ODD_HINT_GENDER_N: Localized<string> = { ru: "одно слово — не среднего рода", uk: "одне слово — не середнього роду" };
+const ODD_HINT_NAT: Localized<string> = { ru: "одно — не национальность (это язык)", uk: "одне — не національність (це мова)" };
+const ODD_HINT_LANG: Localized<string> = { ru: "одно — не язык", uk: "одне — не мова" };
+
+export const DATA_ODD_MIXED: OddItem[] = [
+  { words: ["съм", "си", "е", "имам"], odd: "имам", hint: ODD_HINT_PARADIGM },
+  { words: ["имам", "имаш", "има", "съм"], odd: "съм", hint: ODD_HINT_PARADIGM },
+  { words: ["искам", "искаш", "иска", "имаш"], odd: "имаш", hint: ODD_HINT_PARADIGM },
+  { words: ["нямам", "нямаш", "няма", "имам"], odd: "имам", hint: ODD_HINT_PARADIGM },
+  { words: ["казвам се", "казваш се", "казва се", "говоря"], odd: "говоря", hint: ODD_HINT_PARADIGM },
+  { words: ["говоря", "говориш", "говори", "искам"], odd: "искам", hint: ODD_HINT_PARADIGM },
+  { words: ["сме", "сте", "са", "има"], odd: "има", hint: ODD_HINT_PARADIGM },
+  { words: ["мъж", "стол", "град", "жена"], odd: "жена", hint: ODD_HINT_GENDER_M },
+  { words: ["нос", "зъб", "хляб", "книга"], odd: "книга", hint: ODD_HINT_GENDER_M },
+  { words: ["жена", "улица", "вода", "стол"], odd: "стол", hint: ODD_HINT_GENDER_F },
+  { words: ["майка", "нощ", "книга", "море"], odd: "море", hint: ODD_HINT_GENDER_F },
+  { words: ["дете", "море", "село", "град"], odd: "град", hint: ODD_HINT_GENDER_N },
+  { words: ["яйце", "небе", "дърво", "жена"], odd: "жена", hint: ODD_HINT_GENDER_N },
+  { words: ["българин", "българка", "български", "руснак"], odd: "български", hint: ODD_HINT_NAT },
+  { words: ["германец", "германка", "немски", "испанец"], odd: "немски", hint: ODD_HINT_NAT },
+  { words: ["немски", "руски", "български", "грък"], odd: "грък", hint: ODD_HINT_LANG },
+  { words: ["полски", "чешки", "японски", "японец"], odd: "японец", hint: ODD_HINT_LANG },
+];
+
+// ========================= PARADIGM =========================
+// FR-PARADIGM: schema formation via whole-paradigm completion.
+const PRONOUNS: string[] = ["Аз", "Ти", "Той/Тя/То", "Ние", "Вие", "Те"];
+export const DATA_PARADIGM: ParadigmItem[] = [
+  { verb: "съм", pronouns: PRONOUNS, forms: ["съм", "си", "е", "сме", "сте", "са"], hint: { ru: "быть (наст. вр.)", uk: "бути (теп. ч.)" }, rule: SYM_RULE },
+  { verb: "имам", pronouns: PRONOUNS, forms: ["имам", "имаш", "има", "имаме", "имате", "имат"], hint: { ru: "иметь (A-спряж.)", uk: "мати (A-дієвідм.)" }, rule: IMAM_RULE },
+  { verb: "нямам", pronouns: PRONOUNS, forms: ["нямам", "нямаш", "няма", "нямаме", "нямате", "нямат"], hint: { ru: "не иметь", uk: "не мати" }, rule: NYAMAM_RULE },
+  { verb: "искам", pronouns: PRONOUNS, forms: ["искам", "искаш", "иска", "искаме", "искате", "искат"], hint: { ru: "хотеть", uk: "хотіти" }, rule: ISKAM_RULE },
+  { verb: "казвам се", pronouns: PRONOUNS, forms: ["казвам се", "казваш се", "казва се", "казваме се", "казвате се", "казват се"], hint: { ru: "зваться", uk: "зватися" }, rule: KAZVAM_RULE },
+  { verb: "говоря", pronouns: PRONOUNS, forms: ["говоря", "говориш", "говори", "говорим", "говорите", "говорят"], hint: { ru: "говорить (I-спряж.)", uk: "говорити (I-дієвідм.)" }, rule: GOVORYA_RULE },
+];
+
+// ========================= TRANSFORMATION (aff → neg) =========================
+// FR-TRANS-NEG: discriminate correct negation placement from typical L1 interference.
+const TRANS_NEG_RULE: Localized<string> = {
+  ru: "«не» ставится непосредственно перед спрягаемой формой «съм»/глагола.",
+  uk: "«не» ставиться безпосередньо перед відмінюваною формою «съм»/дієслова.",
+};
+const HINT_NEG: Localized<string> = { ru: "сделай отрицательным", uk: "зроби заперечним" };
+export const DATA_TRANSFORM_NEG: DataItem[] = [
+  { q: "Аз съм студент.", answer: "Аз не съм студент.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Аз съм не студент.", "Не аз съм студент.", "Аз не студент съм."] },
+  { q: "Ти си от България.", answer: "Ти не си от България.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Ти си не от България.", "Не ти си от България.", "Ти от България не си."] },
+  { q: "Той е фотограф.", answer: "Той не е фотограф.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Той е не фотограф.", "Не той е фотограф.", "Той фотограф не е."] },
+  { q: "Ние сме приятели.", answer: "Ние не сме приятели.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Ние сме не приятели.", "Не ние сме приятели.", "Ние не приятели сме."] },
+  { q: "Те са от Гърция.", answer: "Те не са от Гърция.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Те са не от Гърция.", "Не те са от Гърция.", "Те от Гърция не са."] },
+  { q: "Говоря английски.", answer: "Не говоря английски.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Говоря не английски.", "Говоря английски не.", "Не английски говоря."] },
+  { q: "Имам време.", answer: "Нямам време.", hint: { ru: "«имам» → «нямам»", uk: "«имам» → «нямам»" }, rule: TRANS_NEG_RULE, decoys: ["Не имам време.", "Имам не време.", "Не съм имам време."] },
+  { q: "Тя е българка.", answer: "Тя не е българка.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Тя е не българка.", "Не тя е българка.", "Тя българка не е."] },
+  { q: "Вие сте журналист.", answer: "Вие не сте журналист.", hint: HINT_NEG, rule: TRANS_NEG_RULE, decoys: ["Вие сте не журналист.", "Не вие сте журналист.", "Вие не журналист сте."] },
+  { q: "Разбираш ме.", answer: "Не ме разбираш.", hint: { ru: "«ме» перед глаголом после «не»", uk: "«ме» перед дієсловом після «не»" }, rule: TRANS_NEG_RULE, decoys: ["Разбираш не ме.", "Не разбираш ме.", "Ме не разбираш."] },
+];
+
+// ========================= TRANSFORMATION (aff → Q with ли) =========================
+// FR-TRANS-Q: subject-focus «ли» right after the subject pronoun.
+const TRANS_Q_RULE: Localized<string> = {
+  ru: "«Ли» ставится сразу после выделяемого слова. Фокус на подлежащем → «Ти ли си …».",
+  uk: "«Ли» ставиться відразу після виділеного слова. Фокус на підметі → «Ти ли си …».",
+};
+const HINT_Q_SUBJ: Localized<string> = { ru: "вопрос с фокусом на подлежащем (ты ли?)", uk: "питання з фокусом на підметі (ти ли?)" };
+export const DATA_TRANSFORM_Q: DataItem[] = [
+  { q: "Ти си студент.", answer: "Ти ли си студент?", hint: HINT_Q_SUBJ, rule: TRANS_Q_RULE, decoys: ["Ти си ли студент?", "Ли ти си студент?", "Ти си студент ли?"] },
+  { q: "Ти си от Словакия.", answer: "Ти ли си от Словакия?", hint: HINT_Q_SUBJ, rule: TRANS_Q_RULE, decoys: ["Ти от Словакия ли си?", "Ли ти си от Словакия?", "Ти си от Словакия ли?"] },
+  { q: "Той е журналист.", answer: "Той ли е журналист?", hint: { ru: "фокус на подлежащем (он ли?)", uk: "фокус на підметі (він ли?)" }, rule: TRANS_Q_RULE, decoys: ["Той е ли журналист?", "Той е журналист ли?", "Ли той е журналист?"] },
+  { q: "Тя е преподавателка.", answer: "Тя ли е преподавателка?", hint: { ru: "фокус на подлежащем (она ли?)", uk: "фокус на підметі (вона ли?)" }, rule: TRANS_Q_RULE, decoys: ["Тя е ли преподавателка?", "Тя е преподавателка ли?", "Ли тя е преподавателка?"] },
+  { q: "Те са от Италия.", answer: "Те ли са от Италия?", hint: { ru: "фокус на подлежащем (они ли?)", uk: "фокус на підметі (вони ли?)" }, rule: TRANS_Q_RULE, decoys: ["Те са ли от Италия?", "Те са от Италия ли?", "Ли те са от Италия?"] },
+  { q: "Ти говориш български.", answer: "Ти ли говориш български?", hint: HINT_Q_SUBJ, rule: TRANS_Q_RULE, decoys: ["Ти говориш ли български?", "Ти говориш български ли?", "Ли ти говориш български?"] },
+  { q: "Вие сте журналист.", answer: "Вие ли сте журналист?", hint: HINT_Q_SUBJ, rule: TRANS_Q_RULE, decoys: ["Вие сте ли журналист?", "Вие сте журналист ли?", "Ли вие сте журналист?"] },
+  { q: "Те говорят испански.", answer: "Те ли говорят испански?", hint: HINT_Q_SUBJ, rule: TRANS_Q_RULE, decoys: ["Те говорят ли испански?", "Те говорят испански ли?", "Ли те говорят испански?"] },
+];
+
+// ========================= REGISTER ти → Вие =========================
+// FR-REGISTER: socio-linguistic switch from informal ти to formal Вие.
+const REGISTER_RULE: Localized<string> = {
+  ru: "Вежливое «Вы» требует форм 2 л. мн. ч.: си→сте, казваш→казвате, говориш→говорите.",
+  uk: "Ввічливе «Ви» вимагає форм 2 ос. мн.: си→сте, казваш→казвате, говориш→говорите.",
+};
+const HINT_REGISTER: Localized<string> = { ru: "перестрой на «Вие» (вежливое)", uk: "перебудуй на «Вие» (ввічливе)" };
+export const DATA_REGISTER_TIVIE: DataItem[] = [
+  { q: "Как се казваш?", answer: "Как се казвате?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Как се казвам?", "Как се казват?", "Как сте казваш?"] },
+  { q: "Откъде си?", answer: "Откъде сте?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Откъде съм?", "Откъде са?", "Откъде сме?"] },
+  { q: "Как си?", answer: "Как сте?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Как съм?", "Как са?", "Как е?"] },
+  { q: "Говориш ли български?", answer: "Говорите ли български?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Говори ли български?", "Говорят ли български?", "Говорим ли български?"] },
+  { q: "Имаш ли време?", answer: "Имате ли време?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Има ли време?", "Имат ли време?", "Имаме ли време?"] },
+  { q: "Ти си от Полша.", answer: "Вие сте от Полша.", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Вие си от Полша.", "Ти сте от Полша.", "Вие са от Полша."] },
+  { q: "Ти ли си Мартин?", answer: "Вие ли сте Мартин?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Вие ли си Мартин?", "Ти ли сте Мартин?", "Вие ли са Мартин?"] },
+  { q: "С какво се занимаваш?", answer: "С какво се занимавате?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["С какво се занимавам?", "С какво се занимават?", "С какво се занимава?"] },
+  { q: "Разбираш ли ме?", answer: "Разбирате ли ме?", hint: HINT_REGISTER, rule: REGISTER_RULE, decoys: ["Разбирам ли ме?", "Разбират ли ме?", "Разбираме ли ме?"] },
+];
+
+// ========================= PROFILE → SENTENCES =========================
+// FR-PROFILE: integrative multi-sentence construction from a profile card.
+// Words form 3 concatenated sentences separated by «.». Exercise 7 of lesson 1.
+export const DATA_PROFILE_BUILD: BuildItem[] = [
+  { words: ["Той", "се", "казва", "Ханс", ".", "Той", "е", "от", "Германия", ".", "Говори", "немски"], translation: { ru: "Его зовут Ханс. Он из Германии. Говорит по-немецки.", uk: "Його звати Ганс. Він з Німеччини. Розмовляє німецькою." } },
+  { words: ["Тя", "се", "казва", "Саеко", ".", "Тя", "е", "от", "Япония", ".", "Говори", "японски"], translation: { ru: "Её зовут Саеко. Она из Японии. Говорит по-японски.", uk: "Її звати Саеко. Вона з Японії. Розмовляє японською." } },
+  { words: ["Той", "се", "казва", "Янис", ".", "Той", "е", "от", "Гърция", ".", "Говори", "гръцки"], translation: { ru: "Его зовут Янис. Он из Греции. Говорит по-гречески.", uk: "Його звати Яніс. Він з Греції. Розмовляє грецькою." } },
+  { words: ["Тя", "се", "казва", "Ева", ".", "Тя", "е", "от", "Полша", ".", "Говори", "полски"], translation: { ru: "Её зовут Эва. Она из Польши. Говорит по-польски.", uk: "Її звати Єва. Вона з Польщі. Розмовляє польською." } },
+  { words: ["Той", "се", "казва", "Али", ".", "Той", "е", "от", "Турция", ".", "Говори", "турски"], translation: { ru: "Его зовут Али. Он из Турции. Говорит по-турецки.", uk: "Його звати Алі. Він з Туреччини. Розмовляє турецькою." } },
+  { words: ["Тя", "се", "казва", "Ирена", ".", "Тя", "е", "от", "Сърбия", ".", "Говори", "сръбски"], translation: { ru: "Её зовут Ирена. Она из Сербии. Говорит по-сербски.", uk: "Її звати Ірена. Вона з Сербії. Розмовляє сербською." } },
+];
+
 export const CATEGORIES: Category[] = [
   {
     id: "sym",
@@ -527,6 +689,39 @@ export const CATEGORIES: Category[] = [
       { id: "tova_pick", icon: "👉", label: { ru: "Това е / Това са", uk: "Това е / Това са" }, desc: { ru: "Выбери «Това е» (ед.) или «Това са» (мн.)", uk: "Обери «Това е» (одн.) або «Това са» (мн.)" }, type: "pickOpt", data: () => ({ items: DATA_TOVA, opts: TOVA_OPTIONS }) },
       { id: "objects_pick", icon: "🎒", label: { ru: "Предметы", uk: "Предмети" }, desc: { ru: "Выбери болгарский перевод слова", uk: "Обери болгарський переклад слова" }, type: "pickFrom", data: () => DATA_OBJECTS },
       { id: "reply_pick", icon: "💬", label: { ru: "Ответные реплики", uk: "Відповідні репліки" }, desc: { ru: "Выбери подходящий ответ на реплику", uk: "Обери відповідь на репліку" }, type: "pickFrom", data: () => DATA_REPLY },
+    ],
+  },
+  {
+    id: "schema",
+    name: { ru: "Парадигмы", uk: "Парадигми" },
+    modes: [
+      { id: "paradigm_fill", icon: "🧱", label: { ru: "Собери парадигму", uk: "Склади парадигму" }, desc: { ru: "Расставь формы по лицам: аз/ти/той/ние/вие/те", uk: "Розстав форми за особами: аз/ти/той/ние/вие/те" }, type: "paradigm", data: () => DATA_PARADIGM },
+      { id: "odd_mixed", icon: "🙅", label: { ru: "Найди лишнее", uk: "Знайди зайве" }, desc: { ru: "Выбери слово, которое не подходит к остальным", uk: "Обери слово, що не підходить до решти" }, type: "odd", data: () => DATA_ODD_MIXED },
+    ],
+  },
+  {
+    id: "match",
+    name: { ru: "Сопоставление", uk: "Зіставлення" },
+    modes: [
+      { id: "match_country_lang", icon: "🔗", label: { ru: "Страна ↔ язык", uk: "Країна ↔ мова" }, desc: { ru: "Соедини страну с её языком", uk: "З'єднай країну з її мовою" }, type: "match", data: () => DATA_MATCH_COUNTRY_LANG },
+      { id: "match_country_nat", icon: "🤝", label: { ru: "Страна ↔ житель (м.)", uk: "Країна ↔ мешканець (ч.)" }, desc: { ru: "Соедини страну с мужской формой национальности", uk: "З'єднай країну з чоловічою формою національності" }, type: "match", data: () => DATA_MATCH_COUNTRY_NAT_M },
+      { id: "match_profession", icon: "💁", label: { ru: "Профессия м. ↔ ж.", uk: "Професія ч. ↔ ж." }, desc: { ru: "Соедини мужскую и женскую формы профессии", uk: "З'єднай чоловічу і жіночу форми професії" }, type: "match", data: () => DATA_MATCH_PROFESSION },
+    ],
+  },
+  {
+    id: "transform",
+    name: { ru: "Трансформации", uk: "Трансформації" },
+    modes: [
+      { id: "transform_neg", icon: "➖", label: { ru: "Сделай отрицательным", uk: "Зроби заперечним" }, desc: { ru: "Преобразуй утвердительное в отрицательное", uk: "Перетвори ствердне на заперечне" }, type: "pickFrom", data: () => DATA_TRANSFORM_NEG },
+      { id: "transform_q", icon: "❔", label: { ru: "Сделай вопросом", uk: "Зроби питанням" }, desc: { ru: "Преобразуй утверждение в вопрос «ли» (фокус на подлежащем)", uk: "Перетвори ствердне на питання «ли» (фокус на підметі)" }, type: "pickFrom", data: () => DATA_TRANSFORM_Q },
+      { id: "register_tivie", icon: "🎩", label: { ru: "ти → Вие", uk: "ти → Вие" }, desc: { ru: "Перестрой фразу на вежливое «Вие»", uk: "Перебудуй фразу на ввічливе «Вие»" }, type: "pickFrom", data: () => DATA_REGISTER_TIVIE },
+    ],
+  },
+  {
+    id: "profile",
+    name: { ru: "Карточки людей", uk: "Картки людей" },
+    modes: [
+      { id: "profile_build", icon: "🪪", label: { ru: "Расскажи о человеке", uk: "Розкажи про людину" }, desc: { ru: "Собери 3 предложения: имя, страна, язык", uk: "Склади 3 речення: ім'я, країна, мова" }, type: "build", data: () => DATA_PROFILE_BUILD },
     ],
   },
 ];
