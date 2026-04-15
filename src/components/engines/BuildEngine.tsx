@@ -6,14 +6,16 @@ import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
+import { TaskPrompt } from "../ui/TaskPrompt";
 
 interface Props {
   data: () => BuildItem[];
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
+  prompt?: string;
 }
 
-export function BuildEngine({ data, onComplete, onItemAnswer }: Props) {
+export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const { t, L } = useI18n();
   const items = data();
   const [qs] = useState<BuildItem[]>(() => shuffle(items).slice(0, 12));
@@ -76,6 +78,7 @@ export function BuildEngine({ data, onComplete, onItemAnswer }: Props) {
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
+        <TaskPrompt text={prompt} />
         <p className="text-sm font-semibold text-gray-400 mb-4">{L(qs[cur].translation)}</p>
         <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">
           {placed.length === 0 && <span className="text-gray-400 text-sm font-medium">{t("tapWordsBelow")}</span>}

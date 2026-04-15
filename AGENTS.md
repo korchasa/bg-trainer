@@ -67,7 +67,7 @@ src/
 │   ├── screens/
 │   │   ├── ResultsScreen.tsx    # End-of-game results + stats
 │   │   └── AnalyticsScreen.tsx  # History dashboard + charts
-│   └── ui/                  # Reusable atoms (AnswerBtn, Progress, Reaction, Correction, NavHeader, BackButton)
+│   └── ui/                  # Reusable atoms (AnswerBtn, Progress, Reaction, Correction, NavHeader, BackButton, TaskPrompt)
 └── utils/
     ├── history.ts           # localStorage read/write
     └── shuffle.ts           # Fisher-Yates shuffle

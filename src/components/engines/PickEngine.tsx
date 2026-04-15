@@ -7,15 +7,17 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
+import { TaskPrompt } from "../ui/TaskPrompt";
 
 interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   accent?: boolean;
+  prompt?: string;
 }
 
-export function PickEngine({ data, onComplete, onItemAnswer, accent = false }: Props) {
+export function PickEngine({ data, onComplete, onItemAnswer, accent = false, prompt }: Props) {
   const { t, L } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const [qs] = useState(() => shuffle(data()));
@@ -41,6 +43,7 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false }: P
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
       <div className="flex-1 flex flex-col items-center justify-center mb-8">
+        <TaskPrompt text={prompt} />
         <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter">{item.q}</h1>
         {showHint || sel !== null
           ? <p className="text-lg font-semibold text-gray-400">({L(item.hint)})</p>

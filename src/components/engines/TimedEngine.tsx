@@ -8,6 +8,7 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
+import { TaskPrompt } from "../ui/TaskPrompt";
 import { itemKey } from "../../utils/itemKey";
 
 interface TimedItem extends DataItem {
@@ -19,6 +20,7 @@ interface Props {
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   levelLookup?: (itemId: string) => number;
+  prompt?: string;
 }
 
 // FR-ENGINES: timed multiple-choice with speed bonus.
@@ -26,7 +28,7 @@ interface Props {
 // and no speed bonus is awarded. New learners should not be pushed into System-1 guessing.
 const SPEED_GATE_LEVEL = 5;
 
-export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup }: Props) {
+export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, prompt }: Props) {
   const { t, L } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
@@ -73,6 +75,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup }: Pro
           : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>
               ⏱ {timeLeft}с
             </div>}
+        <TaskPrompt text={prompt} />
         <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{item.q} ___</h1>
         {showHint || sel !== null
           ? <p className="text-base font-medium text-gray-400">({L(item.hint)})</p>

@@ -6,14 +6,16 @@ import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
+import { TaskPrompt } from "../ui/TaskPrompt";
 
 interface Props {
   data: () => LiItem[];
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
+  prompt?: string;
 }
 
-export function LiEngine({ data, onComplete, onItemAnswer }: Props) {
+export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const { t, L } = useI18n();
   const items = data();
   const [qs] = useState<LiItem[]>(() => shuffle(items).slice(0, 12));
@@ -60,6 +62,7 @@ export function LiEngine({ data, onComplete, onItemAnswer }: Props) {
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-6">
+        <TaskPrompt text={prompt} />
         <p className="text-sm font-semibold text-gray-400 mb-2">{L(q.translation)}</p>
         <p className="text-sm font-medium text-gray-500 mb-6">
           {t("tapPositionFor")} <span className="font-bold text-gray-900">ли</span>

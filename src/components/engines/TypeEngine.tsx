@@ -7,6 +7,7 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
+import { TaskPrompt } from "../ui/TaskPrompt";
 
 // FR-TYPE: keyboard-input engine.
 // Whitelist normalization ONLY: trim, lowercase, collapse internal whitespace.
@@ -19,9 +20,10 @@ interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
+  prompt?: string;
 }
 
-export function TypeEngine({ data, onComplete, onItemAnswer }: Props) {
+export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const { t, L } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const [qs] = useState<DataItem[]>(() => shuffle(data()));
@@ -52,6 +54,7 @@ export function TypeEngine({ data, onComplete, onItemAnswer }: Props) {
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
+        <TaskPrompt text={prompt} />
         <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter">{item.q}</h1>
         {item.label && <div className="text-sm font-semibold text-gray-400 mb-1">{L(item.label)}</div>}
         {showHint || sel !== null

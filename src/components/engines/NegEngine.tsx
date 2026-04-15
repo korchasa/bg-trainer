@@ -6,6 +6,7 @@ import { ACCENT, OK, FAIL } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
+import { TaskPrompt } from "../ui/TaskPrompt";
 
 function makeNegDecoys(corr: string): string[] {
   const words = corr.split(" ");
@@ -23,10 +24,11 @@ interface Props {
   data: () => DataItem[];
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
+  prompt?: string;
 }
 
-export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
-  const { t, L } = useI18n();
+export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
+  const { L } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
@@ -43,7 +45,7 @@ export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
-        <p className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: ACCENT }}>{t("taskLabel")}</p>
+        <TaskPrompt text={prompt} />
         <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{item.q}</h1>
         <p className="text-base font-medium text-gray-500">({L(item.hint)})</p>
       </div>

@@ -248,12 +248,6 @@ export default function App() {
               ) : undefined}
             />
 
-            {currentMode.desc && (
-              <div className="px-4 pt-3 pb-1 text-center text-xs font-semibold text-gray-500 shrink-0">
-                {L(currentMode.desc)}
-              </div>
-            )}
-
             {showRef && currentMode && !round && (() => {
               const verbData = currentMode.data() as Array<{ q: string; answer: string }>;
               return (
@@ -270,7 +264,7 @@ export default function App() {
               );
             })()}
 
-            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} levelLookup={levelLookup} />
+            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} levelLookup={levelLookup} prompt={currentMode.desc ? L(currentMode.desc) : undefined} />
 
             {showAbortBar && (
               <ConfirmBar
