@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { ALL_MODES } from "./data";
 import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
@@ -11,7 +11,7 @@ import { ENGINES } from "./components/engines";
 import { NavHeader } from "./components/ui/NavHeader";
 import { ConfirmBar } from "./components/ui/ConfirmBar";
 import { ResultsScreen } from "./components/screens/ResultsScreen";
-import { AnalyticsScreen } from "./components/screens/AnalyticsScreen";
+const AnalyticsScreen = lazy(() => import("./components/screens/AnalyticsScreen").then(m => ({ default: m.AnalyticsScreen })));
 import { LessonsScreen } from "./components/screens/LessonsScreen";
 import { LessonScreen } from "./components/screens/LessonScreen";
 import { useI18n } from "./i18n/context";
@@ -191,7 +191,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="h-full bg-white flex items-center justify-center">
         <div className="text-gray-400 font-semibold">{t("loading")}</div>
       </div>
     );
@@ -216,14 +216,14 @@ export default function App() {
 
   return (
     <div
-      className="h-screen overflow-hidden bg-white flex flex-col items-center"
+      className="h-full overflow-hidden bg-white flex flex-col items-center"
       onWheel={(e) => {
         if (scrollRef.current && !scrollRef.current.contains(e.target as Node)) {
           scrollRef.current.scrollTop += e.deltaY;
         }
       }}
     >
-      <div ref={scrollRef} className="relative w-full h-screen max-w-md mx-auto flex flex-col overflow-y-auto no-scrollbar bg-white">
+      <div ref={scrollRef} className="relative w-full h-full max-w-md mx-auto flex flex-col overflow-y-auto no-scrollbar bg-white">
 
         {screen === "lessons" && (
           <LessonsScreen
@@ -306,12 +306,14 @@ export default function App() {
         {screen === "analytics" && (
           <div className="flex-1 flex flex-col overflow-hidden">
             <NavHeader title={t("analytics")} onBack={() => setScreen("lessons")} />
-            <AnalyticsScreen
-              history={history}
-              onBack={() => setScreen("lessons")}
-              onClearHistory={() => { clearHistory(); setHistory([]); }}
-              onClearMastery={() => { clearMastery(); setMastery({}); }}
-            />
+            <Suspense fallback={<div className="flex-1 flex items-center justify-center text-gray-400 font-semibold">{t("loading")}</div>}>
+              <AnalyticsScreen
+                history={history}
+                onBack={() => setScreen("lessons")}
+                onClearHistory={() => { clearHistory(); setHistory([]); }}
+                onClearMastery={() => { clearMastery(); setMastery({}); }}
+              />
+            </Suspense>
           </div>
         )}
 

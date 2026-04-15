@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Purpose:** Describe the client-side architecture of bg-trainer: how screens, hooks, engines, and data combine to deliver quiz sessions and analytics.
-- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE.
+- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE, FR-IOS-SHELL.
 
 ## 2. Arch
 - **Diagram:**
@@ -94,6 +94,15 @@
 - **Purpose:** Stable natural key for any engine item + mode item-count resolution. `itemKey(item)` → `q` / `translation`. `itemCount(mode)` handles 3 data shapes.
 - **Deps:** `types.ts`.
 
+### 3.11 iOS shell (Capacitor 8)
+- **Purpose:** Wrap the React SPA in a native iOS app (WKWebView at `capacitor://localhost`). Same JS bundle as web, relative asset base `./`.
+- **Layout:** `capacitor.config.ts` (root) + `ios/App/` Xcode project. `cap sync` copies `dist/` → `ios/App/App/public/` (gitignored).
+- **Lifecycle:** `AppDelegate` + `SceneDelegate` (UIScene adopted — avoids ~20s iOS 17+ stall). `UIApplicationSceneManifest` in `Info.plist` points `UISceneStoryboardFile=Main`, `UISceneDelegateClassName=App.SceneDelegate`.
+- **Viewport:** `contentInset: 'never'` + CSS `env(safe-area-inset-*)` padding on `body`; layout uses `height: 100%` chain (no `100vh`).
+- **Startup:** Inline HTML splash in `index.html` shown until React mounts (`main.tsx` hides via `requestAnimationFrame`). `AnalyticsScreen` lazy-loaded via `React.lazy` → main chunk 360 KB / gzip 94 KB.
+- **Scripts:** `npm run build:ios` (`VITE_BASE_PATH=./` for relative paths) → `ios:sync` → `ios:open`.
+- **Deps:** Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/ios`), Swift Package Manager (no CocoaPods runtime deps).
+
 ## 4. Data
 - **Entities:**
   - `DataItem = { q, answer, hint, label?, decoys?, rule? }`
@@ -144,8 +153,13 @@
   - No linter (ESLint not installed).
   - i18n covers only `ru` and `uk`. Bulgarian content shared. `DATA_GENDER` answers/options remain Russian (`мужской`/`женский`/`средний`) for v1 — Ukrainian users see Russian gender labels there.
   - No accessibility audit formalized.
+  - iOS deployment target 15.0+, portrait+landscape allowed (to be locked portrait for App Store — FR-IOS-APPSTORE).
 - **Deferred:**
   - Test harness (Vitest/Playwright) — to add when regressions appear.
   - ESLint + Prettier — for consistent code quality.
   - Mode-level settings (session length, difficulty).
   - Export/import history.
+  - iOS App Store submission assets (AppIcon, LaunchScreen, Privacy Manifest) — FR-IOS-APPSTORE.
+  - Native integrations (splash, haptics, status-bar) — FR-IOS-UX.
+  - Storage migration `localStorage` → `@capacitor/preferences` — FR-IOS-STORAGE.
+  - iOS CI/CD to TestFlight — FR-IOS-CICD.

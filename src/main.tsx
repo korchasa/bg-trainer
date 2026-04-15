@@ -11,3 +11,7 @@ createRoot(document.getElementById('root')!).render(
     </LocaleProvider>
   </StrictMode>,
 )
+
+requestAnimationFrame(() => {
+  document.getElementById('splash')?.classList.add('hidden')
+})

@@ -5,11 +5,12 @@
 - **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size).
 
 ## 2. General
-- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side.
+- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages) and native iOS (Capacitor WKWebView shell).
 - **Assumptions/Constraints:**
   - Modern evergreen browser with `localStorage` and ES2020+.
   - Mobile-first, max-width `md`, portrait-friendly.
-  - Static hosting only (GitHub Pages at base `/bg-trainer/`).
+  - Static hosting for web (GitHub Pages at base `/bg-trainer/`); iOS build uses relative base `./`.
+  - iOS deployment target 15.0+, Bundle ID `dev.korchasa.bgtrainer`, Capacitor 8.
   - No server, no analytics backend.
   - i18n: 2 locales (`ru`, `uk`), client-side only, no external i18n library.
 
@@ -192,6 +193,73 @@
   - [x] Glossary maintained. Evidence: `documents/i18n-glossary.md`
   - [x] `npm run build` passes. Evidence: build output zero TS errors.
 
+### 3.18 FR-IOS-SHELL
+- **Desc:** Native iOS shell via Capacitor 8 wrapping the same React SPA. Target iOS 15.0+. Bundle ID `dev.korchasa.bgtrainer`. Shared codebase with web; iOS build uses relative asset base (`./`). WKWebView hosts the app at `capacitor://localhost`.
+- **Scenario:** `npm run ios:sync` rebuilds web assets with relative base and copies them into `ios/App/App/public/`. Xcode opens the project, runs it on simulator or device.
+- **Acceptance:**
+  - [x] Capacitor core/cli/ios v8 installed. Evidence: `package.json:17-19`
+  - [x] `capacitor.config.ts` with `appId`, `appName`, `webDir=dist`. Evidence: `capacitor.config.ts`
+  - [x] `build:ios`, `ios:sync`, `ios:open` npm scripts. Evidence: `package.json:10-12`
+  - [x] iOS Xcode project generated at `ios/App/`. Evidence: `ios/App/App.xcodeproj/project.pbxproj`
+  - [x] UIScene lifecycle adopted (eliminates ~20s cold-start stall on iOS 17+). Evidence: `ios/App/App/SceneDelegate.swift`, `ios/App/App/AppDelegate.swift:48-52`, `ios/App/App/Info.plist:29-46`
+  - [x] Safe-area insets respected via `env(safe-area-inset-*)` + `contentInset: 'never'`. Evidence: `src/index.css:10-21`, `capacitor.config.ts:7-10`
+  - [x] Container sized via `height: 100%` chain (no `100vh`). Evidence: `src/index.css:5-8`, `src/App.tsx:194,218,226`
+  - [x] Inline splash in HTML shown until React mounts. Evidence: `index.html:11-22`, `src/main.tsx:15-17`
+  - [x] Analytics screen code-split via `React.lazy` (main bundle 360 KB / gzip 94 KB). Evidence: `src/App.tsx:1,14,309-315`
+
+### 3.19 FR-IOS-APPSTORE
+- **Desc:** Assets and metadata required for App Store submission. Blockers for `xcodebuild archive` + review.
+- **Acceptance:**
+  - [ ] AppIcon set (1024×1024 + 17 size variants) in `ios/App/App/Assets.xcassets/AppIcon.appiconset/`.
+  - [ ] `LaunchScreen.storyboard` replaced with branded white screen (prevents black flash pre-WebView).
+  - [ ] `PrivacyInfo.xcprivacy` with API usage reasons (`UserDefaults` CA92.1; `FileTimestamp` C617.1 if applicable).
+  - [ ] `ITSAppUsesNonExemptEncryption: false` in Info.plist.
+  - [ ] Orientation locked to `UIInterfaceOrientationPortrait` only. Evidence target: `ios/App/App/Info.plist:35-40`
+  - [ ] Apple Developer account active ($99/year); Bundle ID `dev.korchasa.bgtrainer` registered.
+  - [ ] Code signing configured (automatic signing with team).
+  - [ ] Publicly hosted Privacy Policy (localStorage-only, no data transmission).
+  - [ ] App Store Connect listing: title, description (RU/UK/EN), keywords, Education category, 4+ rating, support URL.
+  - [ ] Screenshots for iPhone 6.7" (1290×2796); optional 6.5" and 5.5" for older devices.
+  - [ ] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` or `fastlane pilot`.
+
+### 3.20 FR-IOS-UX
+- **Desc:** Native-feel tweaks on top of the web UX.
+- **Acceptance:**
+  - [ ] `@capacitor/splash-screen` plugin for native splash during WebView load (replaces HTML splash for true cold start).
+  - [ ] `@capacitor/status-bar` for programmatic status-bar style control (light/dark per screen).
+  - [ ] `@capacitor/haptics` — light impact on correct/wrong answer; notification feedback on round completion.
+  - [ ] Inter font self-hosted in `public/fonts/Inter-*.woff2` (removes runtime Google Fonts fetch; works offline).
+  - [ ] Back-swipe gesture: either wire app navigation to `window.history` so WKWebView edge-swipe works, or disable `allowsBackForwardNavigationGestures` in `CAPBridgeViewController` config.
+  - [ ] `prefers-reduced-motion` honored (disable auto-advance animations).
+
+### 3.21 FR-IOS-STORAGE
+- **Desc:** Migrate persistent state off `localStorage` to survive iOS "Offload Unused Apps" and WebKit cache eviction. Keys unchanged; adapter provides fallback for web build.
+- **Scenario:** On first launch after upgrade, app reads legacy `localStorage` keys, writes them into `@capacitor/preferences`, deletes legacy keys. Subsequent reads/writes hit Preferences (native) or `localStorage` (web).
+- **Acceptance:**
+  - [ ] `@capacitor/preferences` plugin installed.
+  - [ ] Storage adapter with unified API for web (localStorage) and native (Preferences).
+  - [ ] One-time migration for keys `bg-trainer-v3`, `bg-trainer-mastery-v1`, `bg-trainer-pace-v1`, `bg-trainer-lang-v1`.
+  - [ ] History/mastery survive app backgrounding + device storage pressure.
+  - [ ] Documents folder or `NSUserDefaults` included in iTunes/iCloud backup (non-`WebKit/` location).
+
+### 3.22 FR-IOS-POLISH
+- **Desc:** Optional native-integration niceties.
+- **Acceptance:**
+  - [ ] Dark mode: either opt-out via `UIUserInterfaceStyle: Light` in Info.plist, or add `prefers-color-scheme: dark` CSS variants.
+  - [ ] iPad layout: either drop iPad (`TARGETED_DEVICE_FAMILY = "1"`) or widen container past `max-w-md` on `min-width: 768px`.
+  - [ ] VoiceOver labels on answer tiles, progress, navigation buttons.
+  - [ ] Dynamic Type: respect system font size via `font-size: max(1rem, env(safe-area-inset-top)*0 + ...)` or rem-based scaling.
+  - [ ] Crash reporting (Sentry or Firebase Crashlytics) for production builds.
+
+### 3.23 FR-IOS-CICD
+- **Desc:** Automated build + TestFlight delivery on release tags.
+- **Acceptance:**
+  - [ ] GitHub Actions workflow `ios-release.yml` triggered on tag `v*`.
+  - [ ] `npm run build:ios && cap sync ios && xcodebuild archive -exportArchive` producing `.ipa`.
+  - [ ] App Store Connect API key stored as GitHub secret; upload via `fastlane pilot` or `xcrun altool`.
+  - [ ] Auto-bump `CURRENT_PROJECT_VERSION` (build number) from CI run number.
+  - [ ] `MARKETING_VERSION` sourced from git tag.
+
 ### 3.9 FR-NAV
 - **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.
 - **Acceptance:**
@@ -209,8 +277,10 @@
 
 ## 5. Interfaces
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.
-- **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`.
-- **Deploy:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`.
+- **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS target: migrate to `@capacitor/preferences` (FR-IOS-STORAGE).
+- **Deploy:**
+  - **Web:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`.
+  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store.
 
 ## 6. Acceptance
 - **Criteria:**
