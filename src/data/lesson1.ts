@@ -332,29 +332,33 @@ export const DATA_PROFESSION: DataItem[] = [
   { q: "актьор", answer: "актриса", hint: { ru: "актёр → ж.р.", uk: "актор → ж.р." }, decoys: ["студентка", "преподавателка", "журналистка"] },
 ];
 
+const GREETING_RULE: Localized<string> = {
+  ru: "Добро утро: до 11:00. Добър ден: 11:00–18:00. Добър вечер: 18:00–22:00. Лека нощ: после 22:00.",
+  uk: "Добро утро: до 11:00. Добър ден: 11:00–18:00. Добър вечер: 18:00–22:00. Лека нощ: після 22:00.",
+};
 export const DATA_GREETING: DataItem[] = [
-  { q: "07:00 ☀️", answer: "Добро утро", hint: { ru: "доброе утро", uk: "доброго ранку" } },
-  { q: "09:00 🏢", answer: "Добро утро", hint: { ru: "доброе утро", uk: "доброго ранку" } },
-  { q: "13:00 🌞", answer: "Добър ден", hint: { ru: "добрый день", uk: "добрий день" } },
-  { q: "15:00 🌤", answer: "Добър ден", hint: { ru: "добрый день", uk: "добрий день" } },
-  { q: "19:00 🌆", answer: "Добър вечер", hint: { ru: "добрый вечер", uk: "добрий вечір" } },
-  { q: "21:00 🌃", answer: "Добър вечер", hint: { ru: "добрый вечер", uk: "добрий вечір" } },
-  { q: "23:00 🌙", answer: "Лека нощ", hint: { ru: "спокойной ночи", uk: "надобраніч" } },
-  { q: "00:30 💤", answer: "Лека нощ", hint: { ru: "спокойной ночи", uk: "надобраніч" } },
+  { q: "07:00 ☀️", answer: "Добро утро", hint: { ru: "утро (до 11:00)", uk: "ранок (до 11:00)" }, rule: GREETING_RULE },
+  { q: "09:00 🏢", answer: "Добро утро", hint: { ru: "утро (до 11:00)", uk: "ранок (до 11:00)" }, rule: GREETING_RULE },
+  { q: "13:00 🌞", answer: "Добър ден", hint: { ru: "день (11:00–18:00)", uk: "день (11:00–18:00)" }, rule: GREETING_RULE },
+  { q: "15:00 🌤", answer: "Добър ден", hint: { ru: "день (11:00–18:00)", uk: "день (11:00–18:00)" }, rule: GREETING_RULE },
+  { q: "19:00 🌆", answer: "Добър вечер", hint: { ru: "вечер (18:00–22:00)", uk: "вечір (18:00–22:00)" }, rule: GREETING_RULE },
+  { q: "21:00 🌃", answer: "Добър вечер", hint: { ru: "вечер (18:00–22:00)", uk: "вечір (18:00–22:00)" }, rule: GREETING_RULE },
+  { q: "23:00 🌙", answer: "Лека нощ", hint: { ru: "ночь (после 22:00)", uk: "ніч (після 22:00)" }, rule: GREETING_RULE },
+  { q: "00:30 💤", answer: "Лека нощ", hint: { ru: "ночь (после 22:00)", uk: "ніч (після 22:00)" }, rule: GREETING_RULE },
 ];
 export const GREETING_OPTIONS = ["Добро утро", "Добър ден", "Добър вечер", "Лека нощ"];
 
 const NALI_HINT_YES: Localized<string> = { ru: "подтвердить", uk: "підтвердити" };
 const NALI_HINT_NO: Localized<string> = { ru: "отрицать", uk: "заперечити" };
 export const DATA_NALI: DataItem[] = [
-  { q: "Ти си от България, нали? (да)", answer: "Да.", hint: NALI_HINT_YES },
-  { q: "Ти си студент, нали? (не)", answer: "Не.", hint: NALI_HINT_NO },
-  { q: "Говориш български, нали? (да)", answer: "Да.", hint: NALI_HINT_YES },
-  { q: "Тя е преподавателка, нали? (не)", answer: "Не.", hint: NALI_HINT_NO },
-  { q: "Имаш време, нали? (да)", answer: "Да.", hint: NALI_HINT_YES },
-  { q: "Те са от Русия, нали? (не)", answer: "Не.", hint: NALI_HINT_NO },
-  { q: "Вие сте журналист, нали? (да)", answer: "Да.", hint: NALI_HINT_YES },
-  { q: "Той е фотограф, нали? (не)", answer: "Не.", hint: NALI_HINT_NO },
+  { q: "Ти си от България, нали? 👍", answer: "Да.", hint: NALI_HINT_YES },
+  { q: "Ти си студент, нали? 👎", answer: "Не.", hint: NALI_HINT_NO },
+  { q: "Говориш български, нали? 👍", answer: "Да.", hint: NALI_HINT_YES },
+  { q: "Тя е преподавателка, нали? 👎", answer: "Не.", hint: NALI_HINT_NO },
+  { q: "Имаш време, нали? 👍", answer: "Да.", hint: NALI_HINT_YES },
+  { q: "Те са от Русия, нали? 👎", answer: "Не.", hint: NALI_HINT_NO },
+  { q: "Вие сте журналист, нали? 👍", answer: "Да.", hint: NALI_HINT_YES },
+  { q: "Той е фотограф, нали? 👎", answer: "Не.", hint: NALI_HINT_NO },
 ];
 export const NALI_OPTIONS = ["Да.", "Не."];
 
@@ -379,14 +383,14 @@ export const DATA_NITO_I: DataItem[] = [
 export const NITO_I_OPTIONS = ["и", "нито"];
 
 export const DATA_KAK_SI: DataItem[] = [
-  { q: "😄", answer: "Много добре", hint: { ru: "очень хорошо", uk: "дуже добре" } },
-  { q: "🌟", answer: "Много добре", hint: { ru: "очень хорошо", uk: "дуже добре" } },
-  { q: "🙂", answer: "Добре", hint: { ru: "хорошо", uk: "добре" } },
-  { q: "👍", answer: "Добре", hint: { ru: "хорошо", uk: "добре" } },
-  { q: "😐", answer: "Горе-долу", hint: { ru: "средне", uk: "так собі" } },
-  { q: "🤷", answer: "Горе-долу", hint: { ru: "средне", uk: "так собі" } },
-  { q: "😕", answer: "Не много добре", hint: { ru: "не очень хорошо", uk: "не дуже добре" } },
-  { q: "🤒", answer: "Не много добре", hint: { ru: "не очень хорошо", uk: "не дуже добре" } },
+  { q: "😄", answer: "Много добре", label: { ru: "очень хорошо", uk: "дуже добре" }, hint: { ru: "очень хорошо", uk: "дуже добре" } },
+  { q: "😁", answer: "Много добре", label: { ru: "отлично", uk: "відмінно" }, hint: { ru: "очень хорошо", uk: "дуже добре" } },
+  { q: "🙂", answer: "Добре", label: { ru: "хорошо", uk: "добре" }, hint: { ru: "хорошо", uk: "добре" } },
+  { q: "👌", answer: "Добре", label: { ru: "нормально", uk: "нормально" }, hint: { ru: "хорошо", uk: "добре" } },
+  { q: "😐", answer: "Горе-долу", label: { ru: "средне", uk: "так собі" }, hint: { ru: "средне", uk: "так собі" } },
+  { q: "🤷", answer: "Горе-долу", label: { ru: "так себе", uk: "так собі" }, hint: { ru: "средне", uk: "так собі" } },
+  { q: "😕", answer: "Не много добре", label: { ru: "не очень", uk: "не дуже" }, hint: { ru: "не очень хорошо", uk: "не дуже добре" } },
+  { q: "🤒", answer: "Не много добре", label: { ru: "плохо, болею", uk: "погано, хворію" }, hint: { ru: "не очень хорошо", uk: "не дуже добре" } },
 ];
 export const KAK_SI_OPTIONS = ["Много добре", "Добре", "Не много добре", "Горе-долу"];
 
@@ -441,20 +445,20 @@ export const DATA_REPLY: DataItem[] = [
 ];
 
 export const DATA_LI: LiItem[] = [
-  { words: ["Говориш", "български"], liPosition: 0, result: "Говориш ли български?", translation: { ru: "Говоришь по-болгарски?", uk: "Розмовляєш болгарською?" } },
-  { words: ["Искаш", "кафе"], liPosition: 0, result: "Искаш ли кафе?", translation: { ru: "Хочешь кофе?", uk: "Хочеш кави?" } },
-  { words: ["Имаш", "време"], liPosition: 0, result: "Имаш ли време?", translation: { ru: "Есть время?", uk: "Маєш час?" } },
-  { words: ["Разбираш", "ме"], liPosition: 0, result: "Разбираш ли ме?", translation: { ru: "Понимаешь меня?", uk: "Розумієш мене?" } },
-  { words: ["Можеш", "да", "помогнеш"], liPosition: 0, result: "Можеш ли да помогнеш?", translation: { ru: "Можешь помочь?", uk: "Можеш допомогти?" } },
-  { words: ["Знаеш", "къде", "е"], liPosition: 0, result: "Знаеш ли къде е?", translation: { ru: "Знаешь, где это?", uk: "Знаєш, де це?" } },
-  { words: ["Обичаш", "музика"], liPosition: 0, result: "Обичаш ли музика?", translation: { ru: "Любишь музыку?", uk: "Любиш музику?" } },
-  { words: ["Вярваш", "ми"], liPosition: 0, result: "Вярваш ли ми?", translation: { ru: "Веришь мне?", uk: "Віриш мені?" } },
-  { words: ["Четеш", "книги"], liPosition: 0, result: "Четеш ли книги?", translation: { ru: "Читаешь книги?", uk: "Читаєш книги?" } },
-  { words: ["Живееш", "тук"], liPosition: 0, result: "Живееш ли тук?", translation: { ru: "Живёшь здесь?", uk: "Живеш тут?" } },
-  { words: ["Харесваш", "ме"], liPosition: 0, result: "Харесваш ли ме?", translation: { ru: "Нравлюсь тебе?", uk: "Подобаюсь тобі?" } },
-  { words: ["Учиш", "български"], liPosition: 0, result: "Учиш ли български?", translation: { ru: "Учишь болгарский?", uk: "Вчиш болгарську?" } },
-  { words: ["Пиеш", "кафе"], liPosition: 0, result: "Пиеш ли кафе?", translation: { ru: "Пьёшь кофе?", uk: "П'єш каву?" } },
-  { words: ["Работиш", "тук"], liPosition: 0, result: "Работиш ли тук?", translation: { ru: "Работаешь здесь?", uk: "Працюєш тут?" } },
+  { words: ["Говориш", "български"], liPosition: 0, result: "Говориш ли български?", translation: { ru: "*Говоришь* по-болгарски?", uk: "*Розмовляєш* болгарською?" } },
+  { words: ["Искаш", "кафе"], liPosition: 0, result: "Искаш ли кафе?", translation: { ru: "*Хочешь* кофе?", uk: "*Хочеш* кави?" } },
+  { words: ["Имаш", "време"], liPosition: 0, result: "Имаш ли време?", translation: { ru: "*Есть* время?", uk: "*Маєш* час?" } },
+  { words: ["Разбираш", "ме"], liPosition: 0, result: "Разбираш ли ме?", translation: { ru: "*Понимаешь* меня?", uk: "*Розумієш* мене?" } },
+  { words: ["Можеш", "да", "помогнеш"], liPosition: 0, result: "Можеш ли да помогнеш?", translation: { ru: "*Можешь* помочь?", uk: "*Можеш* допомогти?" } },
+  { words: ["Знаеш", "къде", "е"], liPosition: 0, result: "Знаеш ли къде е?", translation: { ru: "*Знаешь*, где это?", uk: "*Знаєш*, де це?" } },
+  { words: ["Обичаш", "музика"], liPosition: 0, result: "Обичаш ли музика?", translation: { ru: "*Любишь* музыку?", uk: "*Любиш* музику?" } },
+  { words: ["Вярваш", "ми"], liPosition: 0, result: "Вярваш ли ми?", translation: { ru: "*Веришь* мне?", uk: "*Віриш* мені?" } },
+  { words: ["Четеш", "книги"], liPosition: 0, result: "Четеш ли книги?", translation: { ru: "*Читаешь* книги?", uk: "*Читаєш* книги?" } },
+  { words: ["Живееш", "тук"], liPosition: 0, result: "Живееш ли тук?", translation: { ru: "*Живёшь* здесь?", uk: "*Живеш* тут?" } },
+  { words: ["Харесваш", "ме"], liPosition: 0, result: "Харесваш ли ме?", translation: { ru: "*Нравлюсь* тебе?", uk: "*Подобаюсь* тобі?" } },
+  { words: ["Учиш", "български"], liPosition: 0, result: "Учиш ли български?", translation: { ru: "*Учишь* болгарский?", uk: "*Вчиш* болгарську?" } },
+  { words: ["Пиеш", "кафе"], liPosition: 0, result: "Пиеш ли кафе?", translation: { ru: "*Пьёшь* кофе?", uk: "*П'єш* каву?" } },
+  { words: ["Работиш", "тук"], liPosition: 0, result: "Работиш ли тук?", translation: { ru: "*Работаешь* здесь?", uk: "*Працюєш* тут?" } },
 ];
 
 // ========================= MATCH =========================

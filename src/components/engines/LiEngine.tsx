@@ -63,7 +63,13 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-6">
         <TaskPrompt text={prompt} />
-        <p className="text-sm font-semibold text-gray-400 mb-2">{L(q.translation)}</p>
+        <p className="text-sm font-semibold text-gray-400 mb-2">
+          {L(q.translation).split(/(\*[^*]+\*)/g).map((part, i) =>
+            part.startsWith("*") && part.endsWith("*")
+              ? <span key={i} className="underline decoration-2 underline-offset-2 text-gray-700">{part.slice(1, -1)}</span>
+              : <span key={i}>{part}</span>
+          )}
+        </p>
         <p className="text-sm font-medium text-gray-500 mb-6">
           {t("tapPositionFor")} <span className="font-bold text-gray-900">ли</span>
         </p>
