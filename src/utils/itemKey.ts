@@ -4,7 +4,8 @@ export function itemKey(item: unknown): string {
   if (item && typeof item === "object") {
     const o = item as Record<string, unknown>;
     if (typeof o.q === "string") return o.q;
-    if (typeof o.translation === "string") return o.translation;
+    if (typeof o.result === "string") return o.result;
+    if (Array.isArray(o.words)) return (o.words as string[]).join("|");
   }
   throw new Error("itemKey: unknown item shape");
 }

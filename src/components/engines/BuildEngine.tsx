@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import type { BuildItem } from "../../types";
 import { shuffle, pickOK, pickFail } from "../../utils/shuffle";
+import { OK, FAIL } from "../../constants";
+import { useI18n } from "../../i18n/context";
+import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 
@@ -11,6 +14,7 @@ interface Props {
 }
 
 export function BuildEngine({ data, onComplete, onItemAnswer }: Props) {
+  const { t, L } = useI18n();
   const items = data();
   const [qs] = useState<BuildItem[]>(() => shuffle(items).slice(0, 12));
   const [cur, setCur] = useState(0);
@@ -44,12 +48,12 @@ export function BuildEngine({ data, onComplete, onItemAnswer }: Props) {
         const ns = score + 15;
         setScore(ns);
         sRef.current = ns;
-        setReaction(pickOK());
+        setReaction(pickOK(L(OK)));
       } else {
         eRef.current++;
-        setReaction(pickFail());
+        setReaction(pickFail(L(FAIL)));
       }
-      onItemAnswer?.(qs[cur].translation, ok, false);
+      onItemAnswer?.(itemKey(qs[cur]), ok, false);
       setTimeout(() => {
         if (cur + 1 < qs.length) setCur(c => c + 1);
         else onComplete(sRef.current, Date.now() - t0, eRef.current);
@@ -72,9 +76,9 @@ export function BuildEngine({ data, onComplete, onItemAnswer }: Props) {
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
-        <p className="text-sm font-semibold text-gray-400 mb-4">{qs[cur].translation}</p>
+        <p className="text-sm font-semibold text-gray-400 mb-4">{L(qs[cur].translation)}</p>
         <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">
-          {placed.length === 0 && <span className="text-gray-400 text-sm font-medium">Нажми на слова ниже...</span>}
+          {placed.length === 0 && <span className="text-gray-400 text-sm font-medium">{t("tapWordsBelow")}</span>}
           {placed.map((word, i) =>
             <button key={word + i} onClick={() => removeWord(word, i)}
               className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${done ? (i < target.length && word === target[i] ? "bg-emerald-500 text-white" : "bg-[#E60023] text-white") : "bg-[#111111] text-white hover:bg-gray-800"}`}>

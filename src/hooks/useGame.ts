@@ -10,15 +10,23 @@ export interface AnswerOpts {
 
 type AnswerArg = AnswerOpts | number;
 
+export interface Reactions {
+  ok: string[];
+  fail: string[];
+}
+
 // FR-GAME-SESSION, FR-MASTERY: session runs exactly `qsTotal` answers; wrong items are
 // re-queued 3..5 positions later without mutating `qs`. Errors count unique wrong indices.
 export function useGame(
   qs: DataItem[],
   onComplete: (score: number, time: number, errors: number) => void,
+  reactions: Reactions,
   pts = 10,
   delay = 1000,
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void,
 ) {
+  const reactionsRef = useRef(reactions);
+  reactionsRef.current = reactions;
   const qsTotalRef = useRef(qs.length);
   const planRef = useRef<number[]>(qs.map((_, i) => i));
   const planPosRef = useRef(1);
@@ -86,11 +94,11 @@ export function useGame(
         const ns = sRef.current + pts + extraPts;
         setScore(ns);
         sRef.current = ns;
-        setReaction(pickOK());
+        setReaction(pickOK(reactionsRef.current.ok));
       } else {
         setCorr(correctVal);
         errSet.current.add(cur);
-        setReaction(pickFail());
+        setReaction(pickFail(reactionsRef.current.fail));
         retryRef.current.push({
           idx: cur,
           dueAt: answeredRef.current + 1 + 3 + Math.floor(Math.random() * 3),

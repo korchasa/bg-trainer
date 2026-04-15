@@ -1,5 +1,3 @@
-import { OK, FAIL } from "../constants";
-
 /** Fisher-Yates shuffle — unbiased, returns a new array */
 export function shuffle<T>(arr: T[]): T[] {
   const result = [...arr];
@@ -14,5 +12,5 @@ export function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export const pickOK = () => pickRandom(OK);
-export const pickFail = () => pickRandom(FAIL);
+export const pickOK = (arr: string[]) => pickRandom(arr);
+export const pickFail = (arr: string[]) => pickRandom(arr);

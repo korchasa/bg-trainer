@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { ACCENT } from "../../constants";
+import { ACCENT, OK, FAIL } from "../../constants";
+import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 
@@ -25,10 +26,12 @@ interface Props {
 }
 
 export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
+  const { t, L } = useI18n();
+  const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, reaction, score, answered, qsTotal, answer } = useGame(qs, onComplete, 15, 1200, onItemAnswer);
+  const { cur, sel, reaction, score, answered, qsTotal, answer } = useGame(qs, onComplete, reactions, 15, 1200, onItemAnswer);
 
   useEffect(() => {
     const decoys = makeNegDecoys(qs[cur].answer).map(a => ({ ...qs[cur], answer: a }));
@@ -40,9 +43,9 @@ export function NegEngine({ data, onComplete, onItemAnswer }: Props) {
     <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
-        <p className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: ACCENT }}>Задача</p>
+        <p className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: ACCENT }}>{t("taskLabel")}</p>
         <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{item.q}</h1>
-        <p className="text-base font-medium text-gray-500">({item.hint})</p>
+        <p className="text-base font-medium text-gray-500">({L(item.hint)})</p>
       </div>
       <Reaction text={reaction} />
       <div className="w-full flex flex-col gap-3 mb-4">

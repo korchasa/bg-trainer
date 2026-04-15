@@ -29,11 +29,12 @@
   - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence.
   - **Engines (`components/engines/*`):** one React component per `EngineType`. Consumes `useGame`.
   - **State hooks (`hooks/*`):** `useGame` (scoring, advance, reaction), `useTimer` (countdown for timed mode).
-  - **Data layer (`data/index.ts`):** all exercises + `Category`/`Mode` definitions (static).
-  - **Lessons layer (`data/lessons.ts`):** `LESSONS` array (8 textbook units) + `LESSON_BY_ID`.
+  - **Data layer (`data/index.ts`):** all exercises + `Category`/`Mode` definitions (static). L1 fields stored as `Localized<string>`.
+  - **Lessons layer (`data/lessons.ts`):** `LESSONS` array (8 textbook units, localized titles) + `LESSON_BY_ID`.
   - **Slicer (`utils/sliceData.ts`):** type-aware wrapper around `mode.data()` that shuffles+slices to round size while preserving `pickOpt.opts`.
   - **Persistence (`utils/history.ts`):** thin wrapper over `localStorage` with size cap + error swallow.
-  - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`.
+  - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`).
+  - **i18n (`src/i18n/*`):** `LocaleProvider` + `useI18n` hook expose `t` (plain UI strings), `f` (parametric strings), `L` (resolves `Localized<T>`). `STRINGS`/`FORMATS` dictionaries enforce locale completeness via `Record<Locale, …>`. Locale persisted under `bg-trainer-lang-v1`; first-run detection from `navigator.language` (only literal `uk` prefix triggers UK).
   - **UI atoms (`components/ui/*`):** `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`.
   - **Screens (`components/screens/*`):** `ResultsScreen`, `AnalyticsScreen`.
 
@@ -101,7 +102,7 @@
   - `ItemMastery = { level: 0..10, lastTs: ms, attempts }`
   - `ModeMastery = Record<itemId, ItemMastery>`; `MasteryStore = Record<modeId, ModeMastery>`
 - **ERD:** None (no relational data). `Category 1—n Mode 1—n Item` in-memory.
-- **Migration:** `localStorage` keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All three schemas are independent.
+- **Migration:** `localStorage` keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All four schemas are independent. `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning).
 
 ## 5. Logic
 - **Algos:**
@@ -133,7 +134,7 @@
 - **Simplified:**
   - No test suite (not configured).
   - No linter (ESLint not installed).
-  - No i18n — UI strings Russian/Bulgarian hardcoded.
+  - i18n covers only `ru` and `uk`. Bulgarian content shared. `DATA_GENDER` answers/options remain Russian (`мужской`/`женский`/`средний`) for v1 — Ukrainian users see Russian gender labels there.
   - No accessibility audit formalized.
 - **Deferred:**
   - Test harness (Vitest/Playwright) — to add when regressions appear.

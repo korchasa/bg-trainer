@@ -1,3 +1,5 @@
+import type { Localized } from "./i18n/types";
+
 export interface HistoryEntry {
   mode: string;
   score: number;
@@ -12,7 +14,7 @@ export interface HistoryEntry {
 export interface Lesson {
   id: string;
   num: number;
-  title: string;
+  title: Localized<string>;
   modeIds: string[];
   available: boolean;
 }
@@ -20,22 +22,22 @@ export interface Lesson {
 export interface DataItem {
   q: string;
   answer: string;
-  hint: string;
-  label?: string;
+  hint: Localized<string>;
+  label?: Localized<string>;
   decoys?: string[];
-  rule?: string;
+  rule?: Localized<string>;
 }
 
 export interface BuildItem {
   words: string[];
-  translation: string;
+  translation: Localized<string>;
 }
 
 export interface LiItem {
   words: string[];
   liPosition: number;
   result: string;
-  translation: string;
+  translation: Localized<string>;
 }
 
 export type EngineType = "pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type";
@@ -48,15 +50,15 @@ export interface PickOptData {
 export interface Mode {
   id: string;
   icon: string;
-  label: string;
-  desc: string;
+  label: Localized<string>;
+  desc: Localized<string>;
   type: EngineType;
   data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[];
 }
 
 export interface Category {
   id: string;
-  name: string;
+  name: Localized<string>;
   modes: Mode[];
 }
 

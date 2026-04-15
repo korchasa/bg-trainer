@@ -3,6 +3,8 @@ import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { useTimer } from "../../hooks/useTimer";
+import { OK, FAIL } from "../../constants";
+import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
@@ -25,6 +27,8 @@ interface Props {
 const SPEED_GATE_LEVEL = 5;
 
 export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup }: Props) {
+  const { t, L } = useI18n();
+  const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<TimedItem[]>(() =>
     shuffle(items).map(item => {
@@ -35,7 +39,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup }: Pro
   const [showHint, setShowHint] = useState(false);
   const hintedRef = useRef(false);
   const { cur, sel, corr, reaction, score, answered, qsTotal, advance, answer } =
-    useGame(qs, onComplete, 10, 1200, onItemAnswer);
+    useGame(qs, onComplete, reactions, 10, 1200, onItemAnswer);
 
   const { timeLeft, stop, reset } = useTimer(useCallback(() => {
     advance();
@@ -65,16 +69,16 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup }: Pro
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
         {gated
-          ? <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">Без таймера — новый айтем</div>
+          ? <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">{t("noTimerNewItem")}</div>
           : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>
               ⏱ {timeLeft}с
             </div>}
         <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{item.q} ___</h1>
         {showHint || sel !== null
-          ? <p className="text-base font-medium text-gray-400">({item.hint})</p>
+          ? <p className="text-base font-medium text-gray-400">({L(item.hint)})</p>
           : (
             <button onClick={revealHint} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">
-              Подсказка
+              {t("hintBtn")}
             </button>
           )}
       </div>

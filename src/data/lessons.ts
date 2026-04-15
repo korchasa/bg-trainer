@@ -4,7 +4,10 @@ export const LESSONS: Lesson[] = [
   {
     id: "l1",
     num: 1,
-    title: "Знакомство. Съм, казвам се, говоря, нали",
+    title: {
+      ru: "Знакомство. Съм, казвам се, говоря, нали",
+      uk: "Знайомство. Съм, казвам се, говоря, нали",
+    },
     available: true,
     modeIds: [
       "sym_pick",
@@ -28,13 +31,55 @@ export const LESSONS: Lesson[] = [
       "neg_tf",
     ],
   },
-  { id: "l2", num: 2, title: "Род, артикль, мн.ч., притежательные, числа", available: false, modeIds: [] },
-  { id: "l3", num: 3, title: "Краткие притежательные, показательные, живея", available: false, modeIds: [] },
-  { id: "l4", num: 4, title: "Времена «съм», спряжения, часы, предлоги", available: false, modeIds: [] },
-  { id: "l5", num: 5, title: "Цвета, когато/който, бъдеще, внешность", available: false, modeIds: [] },
-  { id: "l6", num: 6, title: "Да-конструкция, вид глагола, движение", available: false, modeIds: [] },
-  { id: "l7", num: 7, title: "Степени сравнения, диминутивы, нещо/нищо", available: false, modeIds: [] },
-  { id: "l8", num: 8, title: "Ям, минало неопределено, ресторан", available: false, modeIds: [] },
+  {
+    id: "l2", num: 2, available: false, modeIds: [],
+    title: {
+      ru: "Род, артикль, мн.ч., притежательные, числа",
+      uk: "Рід, артикль, мн., присвійні, числа",
+    },
+  },
+  {
+    id: "l3", num: 3, available: false, modeIds: [],
+    title: {
+      ru: "Краткие притежательные, показательные, живея",
+      uk: "Короткі присвійні, вказівні, живея",
+    },
+  },
+  {
+    id: "l4", num: 4, available: false, modeIds: [],
+    title: {
+      ru: "Времена «съм», спряжения, часы, предлоги",
+      uk: "Часи «съм», дієвідміни, години, прийменники",
+    },
+  },
+  {
+    id: "l5", num: 5, available: false, modeIds: [],
+    title: {
+      ru: "Цвета, когато/който, бъдеще, внешность",
+      uk: "Кольори, когато/който, майбутнє, зовнішність",
+    },
+  },
+  {
+    id: "l6", num: 6, available: false, modeIds: [],
+    title: {
+      ru: "Да-конструкция, вид глагола, движение",
+      uk: "Да-конструкція, вид дієслова, рух",
+    },
+  },
+  {
+    id: "l7", num: 7, available: false, modeIds: [],
+    title: {
+      ru: "Степени сравнения, диминутивы, нещо/нищо",
+      uk: "Ступені порівняння, демінутиви, нещо/нищо",
+    },
+  },
+  {
+    id: "l8", num: 8, available: false, modeIds: [],
+    title: {
+      ru: "Ям, минало неопределено, ресторан",
+      uk: "Ям, минуле неозначене, ресторан",
+    },
+  },
 ];
 
 export const LESSON_BY_ID: Record<string, Lesson> =

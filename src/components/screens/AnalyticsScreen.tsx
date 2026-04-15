@@ -2,10 +2,12 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { ACCENT } from "../../constants";
-import { MODE_LABELS } from "../../data";
-import { LESSONS } from "../../data/lessons";
-import type { HistoryEntry } from "../../types";
+import { ALL_MODES } from "../../data";
+import { LESSONS, LESSON_BY_ID } from "../../data/lessons";
+import { useI18n } from "../../i18n/context";
+import type { HistoryEntry, Mode } from "../../types";
 
+const MODE_BY_ID: Record<string, Mode> = Object.fromEntries(ALL_MODES.map(m => [m.id, m]));
 const MODE_TO_LESSON: Record<string, string> = (() => {
   const m: Record<string, string> = {};
   for (const l of LESSONS) for (const id of l.modeIds) m[id] = l.id;
@@ -26,15 +28,31 @@ interface Props {
 }
 
 export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMastery }: Props) {
+  const { t, f, L } = useI18n();
+
+  const modeIcon = (modeId: string): string => {
+    if (modeId.startsWith("round:")) return "🎲";
+    return MODE_BY_ID[modeId]?.icon ?? "·";
+  };
+  const modeName = (modeId: string): string => {
+    if (modeId.startsWith("round:")) {
+      const lid = modeId.slice(6);
+      const lesson = LESSON_BY_ID[lid];
+      return lesson ? `${t("roundLabel")} · ${f("lessonNum", lesson.num)}` : t("roundLabel");
+    }
+    const m = MODE_BY_ID[modeId];
+    return m ? L(m.label) : modeId;
+  };
+
   if (!history.length) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
-        <p className="text-gray-400 text-lg font-semibold">Пока нет данных!</p>
+        <p className="text-gray-400 text-lg font-semibold">{t("noData")}</p>
         <button
           onClick={onBack}
           className="px-8 py-4 bg-[#F2F2F2] text-gray-900 font-bold rounded-full transition-all active:bg-[#E0E0E0]"
         >
-          ← Меню
+          {t("backMenu")}
         </button>
       </div>
     );
@@ -64,17 +82,17 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
     .map(l => {
       const b = byLesson[l.id];
       const acc = Math.max(0, Math.round((1 - b.errors / Math.max(b.qs, 1)) * 100));
-      return { id: l.id, num: l.num, title: l.title, ...b, avg: Math.round(b.score / b.count), acc };
+      return { id: l.id, num: l.num, title: L(l.title), ...b, avg: Math.round(b.score / b.count), acc };
     });
   const last20 = history.slice(-20).map((h, i) => ({ n: i + 1, score: h.score, errors: h.errors || 0 }));
 
   const statCards = [
-    { icon: "🎮", value: total, label: "игр" },
-    { icon: "⭐", value: bestScore, label: "лучший" },
-    { icon: "📈", value: average, label: "средний" },
-    { icon: "❌", value: totalErrors, label: "ошибок" },
-    { icon: "🎯", value: Math.max(0, Math.round((1 - totalErrors / Math.max(totalQs, 1)) * 100)) + "%", label: "точность" },
-    { icon: "📚", value: lessonRows.length, label: "уроков" },
+    { icon: "🎮", value: total, label: t("statGames") },
+    { icon: "⭐", value: bestScore, label: t("statBest") },
+    { icon: "📈", value: average, label: t("statAvg") },
+    { icon: "❌", value: totalErrors, label: t("statErrors") },
+    { icon: "🎯", value: Math.max(0, Math.round((1 - totalErrors / Math.max(totalQs, 1)) * 100)) + "%", label: t("statAccuracy") },
+    { icon: "📚", value: lessonRows.length, label: t("statLessons") },
   ];
 
   return (
@@ -91,7 +109,7 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
 
         {lessonRows.length > 0 && (
           <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
-            <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">По урокам</h3>
+            <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("byLessons")}</h3>
             <div className="flex flex-col gap-3">
               {lessonRows.map(l => (
                 <div key={l.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-100">
@@ -99,21 +117,21 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
                     {l.num}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-black text-gray-900">Урок {l.num}</div>
+                    <div className="text-xs font-black text-gray-900">{f("lessonNum", l.num)}</div>
                     <div className="text-[11px] font-semibold text-gray-400 truncate">{l.title}</div>
                   </div>
                   <div className="flex gap-3 shrink-0">
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-black text-gray-900">{l.count}</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">игр</span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase">{t("shortGames")}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-black text-gray-900">{l.avg}</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">ср.</span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase">{t("shortAvg")}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-black" style={{ color: ACCENT }}>{l.acc}%</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">точн.</span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase">{t("shortAcc")}</span>
                     </div>
                   </div>
                 </div>
@@ -121,14 +139,14 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
             </div>
             {unassigned > 0 && (
               <div className="text-[10px] font-bold text-gray-400 mt-3 text-center">
-                Без привязки к уроку: {unassigned}
+                {f("unassignedCount", unassigned)}
               </div>
             )}
           </div>
         )}
 
         <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
-          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">Последние 20</h3>
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("last20")}</h3>
           <ResponsiveContainer width="100%" height={130}>
             <LineChart data={last20}>
               <XAxis dataKey="n" tick={{ fill: "#9ca3af", fontSize: 10 }} />
@@ -137,45 +155,45 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
                 contentStyle={{ background: "#ffffff", border: "1px solid #f0f0f0", borderRadius: 12, fontSize: 12 }}
                 itemStyle={{ color: "#111111" }}
               />
-              <Line type="monotone" dataKey="score" stroke="#111111" strokeWidth={2} dot={{ r: 3, fill: "#111111" }} name="Очки" />
-              <Line type="monotone" dataKey="errors" stroke={ACCENT} strokeWidth={2} dot={{ r: 3, fill: ACCENT }} name="Ошибки" />
+              <Line type="monotone" dataKey="score" stroke="#111111" strokeWidth={2} dot={{ r: 3, fill: "#111111" }} name={t("scoreSeries")} />
+              <Line type="monotone" dataKey="errors" stroke={ACCENT} strokeWidth={2} dot={{ r: 3, fill: ACCENT }} name={t("errorsSeries")} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
-          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">Данные</h3>
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("dataSection")}</h3>
           <div className="flex flex-col gap-2">
             <button
               onClick={onClearHistory}
               className="w-full px-4 py-3 text-sm font-bold text-gray-900 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-gray-100 active:scale-[0.98] transition-all"
             >
-              Сбросить историю
+              {t("resetHistory")}
             </button>
             <button
               onClick={onClearMastery}
               className="w-full px-4 py-3 text-sm font-bold text-white rounded-2xl active:scale-[0.98] transition-all"
               style={{ backgroundColor: ACCENT }}
             >
-              Сбросить освоение
+              {t("resetMastery")}
             </button>
           </div>
         </div>
 
         <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm mb-6">
-          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">История</h3>
+          <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("history")}</h3>
           <div className="flex flex-col gap-0">
             {history.slice(-15).reverse().map((h, i) => (
               <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
                 <span className="text-xs font-bold text-gray-400">
-                  {new Date(h.ts).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  {new Date(h.ts).toLocaleDateString(t("dateLocale"), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                 </span>
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-full bg-gray-100">
-                    <span className="text-xs">{(MODE_LABELS[h.mode] || h.mode).split(" ")[0]}</span>
+                    <span className="text-xs">{modeIcon(h.mode)}</span>
                   </div>
                   <span className="text-xs font-bold text-gray-800 max-w-[100px] truncate">
-                    {(MODE_LABELS[h.mode] || h.mode).split(" ").slice(1).join(" ")}
+                    {modeName(h.mode)}
                   </span>
                 </div>
                 <span className="text-sm font-black" style={{ color: ACCENT }}>+{h.score}</span>

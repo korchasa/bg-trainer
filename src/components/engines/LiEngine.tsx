@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import type { LiItem } from "../../types";
 import { shuffle, pickOK, pickFail } from "../../utils/shuffle";
-import { ACCENT } from "../../constants";
+import { ACCENT, OK, FAIL } from "../../constants";
+import { useI18n } from "../../i18n/context";
+import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 
@@ -12,6 +14,7 @@ interface Props {
 }
 
 export function LiEngine({ data, onComplete, onItemAnswer }: Props) {
+  const { t, L } = useI18n();
   const items = data();
   const [qs] = useState<LiItem[]>(() => shuffle(items).slice(0, 12));
   const [cur, setCur] = useState(0);
@@ -30,12 +33,12 @@ export function LiEngine({ data, onComplete, onItemAnswer }: Props) {
       const ns = score + 15;
       setScore(ns);
       sRef.current = ns;
-      setReaction(pickOK());
+      setReaction(pickOK(L(OK)));
     } else {
       eRef.current++;
-      setReaction(pickFail());
+      setReaction(pickFail(L(FAIL)));
     }
-    onItemAnswer?.(qs[cur].translation, ok, false);
+    onItemAnswer?.(itemKey(qs[cur]), ok, false);
     setTimeout(() => {
       if (cur + 1 < qs.length) {
         setCur(c => c + 1);
@@ -57,9 +60,9 @@ export function LiEngine({ data, onComplete, onItemAnswer }: Props) {
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-6">
-        <p className="text-sm font-semibold text-gray-400 mb-2">{q.translation}</p>
+        <p className="text-sm font-semibold text-gray-400 mb-2">{L(q.translation)}</p>
         <p className="text-sm font-medium text-gray-500 mb-6">
-          Нажми на место для <span className="font-bold text-gray-900">ли</span>
+          {t("tapPositionFor")} <span className="font-bold text-gray-900">ли</span>
         </p>
         <div className="flex flex-wrap items-center gap-2 justify-center w-full">
           {q.words.map((word, i) =>

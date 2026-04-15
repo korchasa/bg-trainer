@@ -1,6 +1,6 @@
 # bg-trainer
 
-Interactive Bulgarian language trainer for A0-level learners. The UI is in Russian, targeting Russian speakers who are learning Bulgarian.
+Interactive Bulgarian language trainer for A0-level learners. The UI is in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers who are learning Bulgarian.
 
 **Live demo:** https://korchasa.github.io/bg-trainer/
 

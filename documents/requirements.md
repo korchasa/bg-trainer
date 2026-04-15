@@ -1,16 +1,17 @@
 # SRS
 
 ## 1. Intro
-- **Desc:** bg-trainer — browser-based gamified grammar trainer for Bulgarian A0 learners. UI in Russian. Single-page React app hosted on GitHub Pages.
+- **Desc:** bg-trainer — browser-based gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single-page React app hosted on GitHub Pages.
 - **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size).
 
 ## 2. General
-- **Context:** Self-study tool for Russian speakers at A0. No accounts, no backend. All state is client-side.
+- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side.
 - **Assumptions/Constraints:**
   - Modern evergreen browser with `localStorage` and ES2020+.
   - Mobile-first, max-width `md`, portrait-friendly.
   - Static hosting only (GitHub Pages at base `/bg-trainer/`).
-  - No server, no analytics backend, no i18n — Russian UI hardcoded.
+  - No server, no analytics backend.
+  - i18n: 2 locales (`ru`, `uk`), client-side only, no external i18n library.
 
 ## 3. Functional Reqs
 
@@ -146,6 +147,22 @@
   - [x] `LessonScreen` shows per-mode mastery bars. Evidence: `src/components/screens/LessonScreen.tsx`
   - [x] `AnalyticsScreen` offers "Сбросить освоение" separate from history reset. Evidence: `src/components/screens/AnalyticsScreen.tsx`, `src/App.tsx:288`
   - [x] Existing `bg-trainer-v3` history preserved. Evidence: `src/constants.ts:7`, `src/utils/history.ts`
+
+### 3.17 FR-LANG
+- **Desc:** UI and L1 content available in 2 locales: `ru` (Russian) and `uk` (Ukrainian). User selects locale via segmented switcher on `LessonsScreen` header. Choice persists in `localStorage` under `bg-trainer-lang-v1`. First-run detection: `navigator.language.toLowerCase().startsWith("uk")` → `uk`, else `ru`. Bulgarian content (`q`, `answer`, `decoys`, `result`, `words`) is shared and never localized — Ukrainian/Russian only varies on `hint`, `rule`, `label`, `translation`, `Mode.label`/`desc`, `Category.name`, `Lesson.title`, `OK`/`FAIL` arrays, and UI strings. Resolved at render-time via `useI18n()` (`t`, `f`, `L`). Type-safe: `Localized<T> = Record<Locale, T>`; missing keys = compile error. Mid-session locale switch only re-resolves visible text — game state (`cur`, `corr`, `score`, `answered`) survives.
+- **Scenario:** User opens app first time on UK browser → Ukrainian UI auto-selected. User taps `РУ` in switcher → all UI re-renders in Russian; choice saved. Reload → choice restored.
+- **Acceptance:**
+  - [x] `Locale = "ru" | "uk"`. Evidence: `src/i18n/types.ts:1`
+  - [x] Locale persisted under `bg-trainer-lang-v1`; `navigator.language` fallback `uk` only when prefix `uk`. Evidence: `src/i18n/storage.ts`
+  - [x] `LocaleProvider` mounted at root. Evidence: `src/main.tsx:8-10`
+  - [x] `useI18n()` exposes `t`, `f`, `L`, `locale`, `setLocale`. Evidence: `src/i18n/context.tsx`
+  - [x] UI strings dictionary has matching keys in both locales (compiler-enforced via `Record<StringKey, string>`). Evidence: `src/i18n/strings.ts`
+  - [x] `Localized<T>` fields on `DataItem.hint/rule/label`, `BuildItem.translation`, `LiItem.translation`, `Mode.label/desc`, `Category.name`, `Lesson.title`. Evidence: `src/types.ts`
+  - [x] `OK`/`FAIL` reactions are `Localized<string[]>`; passed into `useGame` via `reactions` prop. Evidence: `src/constants.ts:3-10`, `src/hooks/useGame.ts:23,95,99`
+  - [x] Language switcher rendered on `LessonsScreen`. Evidence: `src/components/screens/LessonsScreen.tsx:28-43`
+  - [x] `AnalyticsScreen` resolves mode label via `ALL_MODES.find(...).label` + `L()`, not raw modeId. Evidence: `src/components/screens/AnalyticsScreen.tsx:33-46`
+  - [x] Glossary maintained. Evidence: `documents/i18n-glossary.md`
+  - [x] `npm run build` passes. Evidence: build output zero TS errors.
 
 ### 3.9 FR-NAV
 - **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.

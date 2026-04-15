@@ -14,6 +14,7 @@ import { ResultsScreen } from "./components/screens/ResultsScreen";
 import { AnalyticsScreen } from "./components/screens/AnalyticsScreen";
 import { LessonsScreen } from "./components/screens/LessonsScreen";
 import { LessonScreen } from "./components/screens/LessonScreen";
+import { useI18n } from "./i18n/context";
 import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent, SessionPace } from "./types";
 
 interface RoundState {
@@ -25,6 +26,7 @@ interface RoundState {
 }
 
 export default function App() {
+  const { t, f, L } = useI18n();
   const [screen, setScreen] = useState<Screen>("lessons");
   const [lessonId, setLessonId] = useState<string | null>(null);
   const [modeId, setModeId] = useState<string | null>(null);
@@ -189,7 +191,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-gray-400 font-semibold">Загрузка...</div>
+        <div className="text-gray-400 font-semibold">{t("loading")}</div>
       </div>
     );
   }
@@ -206,9 +208,10 @@ export default function App() {
   const levelLookup = currentMode
     ? (itemId: string) => mastery[currentMode.id]?.[itemId]?.level ?? 0
     : undefined;
+  const currentLabel = currentMode ? L(currentMode.label) : "";
   const gameTitle = round && currentMode
-    ? `${currentMode.label} · ${round.idx + 1}/${round.queue.length}`
-    : (currentMode?.label ?? "");
+    ? f("gameOfRound", currentLabel, round.idx + 1, round.queue.length)
+    : currentLabel;
 
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col items-center">
@@ -225,7 +228,7 @@ export default function App() {
 
         {screen === "lesson" && currentLesson && (
           <>
-            <NavHeader title={`Урок ${currentLesson.num}`} onBack={() => { setLessonId(null); setScreen("lessons"); }} />
+            <NavHeader title={f("lessonNum", currentLesson.num)} onBack={() => { setLessonId(null); setScreen("lessons"); }} />
             <LessonScreen lesson={currentLesson} mastery={mastery} pace={pace} onChangePace={changePace} onPickGame={startGame} onStartRound={startRound} />
           </>
         )}
@@ -247,7 +250,7 @@ export default function App() {
 
             {currentMode.desc && (
               <div className="px-4 pt-3 pb-1 text-center text-xs font-semibold text-gray-500 shrink-0">
-                {currentMode.desc}
+                {L(currentMode.desc)}
               </div>
             )}
 
@@ -271,9 +274,9 @@ export default function App() {
 
             {showAbortBar && (
               <ConfirmBar
-                text="Прервать раунд?"
-                confirmLabel="Прервать"
-                cancelLabel="Продолжить"
+                text={t("confirmAbortRound")}
+                confirmLabel={t("abort")}
+                cancelLabel={t("continue")}
                 onConfirm={abortRound}
                 onCancel={() => setShowAbortBar(false)}
               />
@@ -283,7 +286,7 @@ export default function App() {
 
         {screen === "results" && result && (
           <div className="flex-1 flex flex-col overflow-hidden">
-            <NavHeader title={resultMode?.startsWith("round:") ? "Раунд завершён" : "Результат"} onBack={backFromResults} />
+            <NavHeader title={resultMode?.startsWith("round:") ? t("roundFinished") : t("result")} onBack={backFromResults} />
             <ResultsScreen
               score={result.score}
               time={result.time}
@@ -300,7 +303,7 @@ export default function App() {
 
         {screen === "analytics" && (
           <div className="flex-1 flex flex-col overflow-hidden">
-            <NavHeader title="Аналитика" onBack={() => setScreen("lessons")} />
+            <NavHeader title={t("analytics")} onBack={() => setScreen("lessons")} />
             <AnalyticsScreen
               history={history}
               onBack={() => setScreen("lessons")}
