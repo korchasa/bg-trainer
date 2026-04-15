@@ -11,6 +11,7 @@ interface I18nCtx {
   t: (k: StringKey) => string;
   f: <K extends FmtKey>(k: K, ...args: FmtArgs<K>) => string;
   L: <T>(v: Localized<T>) => T;
+  Lq: (q: string) => string;
 }
 
 const Ctx = createContext<I18nCtx | null>(null);
@@ -31,6 +32,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       return fn(...args);
     },
     L: <T,>(v: Localized<T>): T => v[locale],
+    Lq: (q: string): string => {
+      const parts = q.split(" / ");
+      if (parts.length !== 2) return q;
+      return locale === "uk" ? parts[1] : parts[0];
+    },
   }), [locale, setLocale]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

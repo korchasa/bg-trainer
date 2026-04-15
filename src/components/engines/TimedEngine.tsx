@@ -29,7 +29,7 @@ interface Props {
 const SPEED_GATE_LEVEL = 5;
 
 export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, prompt }: Props) {
-  const { t, L } = useI18n();
+  const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<TimedItem[]>(() =>
@@ -76,7 +76,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
               ⏱ {timeLeft}с
             </div>}
         <TaskPrompt text={prompt} />
-        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{item.q} ___</h1>
+        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{Lq(item.q)} ___</h1>
         {showHint || sel !== null
           ? <p className="text-base font-medium text-gray-400">({L(item.hint)})</p>
           : (

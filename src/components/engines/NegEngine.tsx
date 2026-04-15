@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
-  const { L } = useI18n();
+  const { L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
@@ -46,7 +46,7 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
       <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
         <TaskPrompt text={prompt} />
-        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{item.q}</h1>
+        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{Lq(item.q)}</h1>
         <p className="text-base font-medium text-gray-500">({L(item.hint)})</p>
       </div>
       <Reaction text={reaction} />

@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
-  const { t, L } = useI18n();
+  const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const [qs] = useState<DataItem[]>(() => shuffle(data()));
   const [input, setInput] = useState("");
@@ -55,7 +55,7 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
         <TaskPrompt text={prompt} />
-        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter">{item.q}</h1>
+        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter">{Lq(item.q)}</h1>
         {item.label && <div className="text-sm font-semibold text-gray-400 mb-1">{L(item.label)}</div>}
         {showHint || sel !== null
           ? <p className="text-base font-medium text-gray-400 mb-4">({L(item.hint)})</p>
