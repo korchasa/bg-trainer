@@ -44,7 +44,7 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
       <div className="flex-1 flex flex-col items-center justify-center mb-8">
         <TaskPrompt text={prompt} />
-        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter">{Lq(item.q)}</h1>
+        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center">{Lq(item.q)}</h1>
         {showHint || sel !== null
           ? <p className="text-lg font-semibold text-gray-400">({L(item.hint)})</p>
           : (
