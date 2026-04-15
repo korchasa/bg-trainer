@@ -23,7 +23,7 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
   const available = LESSONS.filter(l => l.available);
   const upcoming = LESSONS.filter(l => !l.available);
   return (
-    <div className="flex-1 flex flex-col px-4 pt-2 pb-6 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col px-4 pt-2 pb-6">
       <div className="flex justify-end pt-2">
         <div role="group" aria-label={t("langSwitchAria")} className="inline-flex bg-[#F2F2F2] rounded-full p-0.5">
           {LOCALES.map(l => {

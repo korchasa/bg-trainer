@@ -42,6 +42,7 @@ export default function App() {
   const [showAbortBar, setShowAbortBar] = useState(false);
   const pendingRef = useRef<MasteryEvent[]>([]);
   const modeIdRef = useRef<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   modeIdRef.current = modeId;
 
   useEffect(() => {
@@ -214,8 +215,15 @@ export default function App() {
     : currentLabel;
 
   return (
-    <div className="h-screen overflow-hidden bg-white flex flex-col items-center">
-      <div className="relative w-full h-screen max-w-md mx-auto flex flex-col overflow-hidden bg-white">
+    <div
+      className="h-screen overflow-hidden bg-white flex flex-col items-center"
+      onWheel={(e) => {
+        if (scrollRef.current && !scrollRef.current.contains(e.target as Node)) {
+          scrollRef.current.scrollTop += e.deltaY;
+        }
+      }}
+    >
+      <div ref={scrollRef} className="relative w-full h-screen max-w-md mx-auto flex flex-col overflow-y-auto no-scrollbar bg-white">
 
         {screen === "lessons" && (
           <LessonsScreen

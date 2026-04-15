@@ -24,7 +24,7 @@ export function LessonScreen({ lesson, mastery, pace, onChangePace, onPickGame, 
   const size = SESSION_SIZE_BY_PACE[pace];
 
   return (
-    <div className="flex-1 flex flex-col px-4 pt-4 pb-6 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col px-4 pt-4 pb-6">
       <div className="mb-4">
         <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{f("lessonNum", lesson.num)}</div>
         <h1 className="text-2xl font-black text-gray-900 leading-tight">{L(lesson.title)}</h1>
