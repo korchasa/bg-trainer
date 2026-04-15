@@ -35,12 +35,15 @@
   - [x] On completion → `onComplete(score, time, errors)` fires once. Evidence: `src/hooks/useGame.ts:59-63`
 
 ### 3.10 FR-LESSONS
-- **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. Lesson 1 is fully playable in debug scope; lessons 2–8 show as "Скоро" placeholders.
-- **Scenario:** User picks lesson 1 → sees 19 games specific to lesson-1 content (съм, казвам се, говоря, имам/нямам, страна→язык, национальность, профессия, приветствия, ответные реплики, Как си, Това е/са, предметы, нито/и, нали, ли-вопрос, отрицание).
+- **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. Lessons 1–2 are fully playable; lessons 3–8 show as "Скоро" placeholders.
+- **Scenario:** User picks lesson 1 → sees games for L1 grammar (съм, казвам се, говоря, имам/нямам, страна→язык, национальность, профессия, приветствия, ответные реплики, Как си, Това е/са, предметы, нито/и, нали, ли-вопрос, отрицание). User picks lesson 2 → sees games for L2 grammar (род, артикль, мн.ч., согласование прил., полные притежательные, антонимы, предлоги места, има/няма, един/една/едно, счётная форма, Ето го/я/ги, Вярно/не, словарь комнаты, север→северен).
 - **Acceptance:**
-  - [x] `LESSONS` defined with 8 entries; only L1 `available=true`. Evidence: `src/data/lessons.ts:3-38`
-  - [x] L1 `modeIds` cover L1 grammar topics. Evidence: `src/data/lessons.ts:9-29`
-  - [x] Each new L1 mode backed by ≥6 data items. Evidence: `src/data/index.ts` (DATA_KAZVAM, DATA_GOVORYA, DATA_IMAM, DATA_NYAMAM, DATA_COUNTRY_LANG, DATA_NATIONALITY, DATA_PROFESSION, DATA_GREETING, DATA_NALI, DATA_NITO_I, DATA_KAK_SI, DATA_TOVA, DATA_OBJECTS, DATA_REPLY)
+  - [x] `LESSONS` defined with 8 entries; L1 and L2 `available=true`. Evidence: `src/data/lessons.ts:3-118`
+  - [x] L1 `modeIds` cover L1 grammar topics. Evidence: `src/data/lessons.ts:12-41`
+  - [x] L2 `modeIds` cover L2 grammar topics (27 modes). Evidence: `src/data/lessons.ts:49-77`
+  - [x] Each new L1 mode backed by ≥6 data items. Evidence: `src/data/lesson1.ts` (DATA_KAZVAM, DATA_GOVORYA, DATA_IMAM, DATA_NYAMAM, DATA_COUNTRY_LANG, DATA_NATIONALITY, DATA_PROFESSION, DATA_GREETING, DATA_NALI, DATA_NITO_I, DATA_KAK_SI, DATA_TOVA, DATA_OBJECTS, DATA_REPLY)
+  - [x] Each new L2 mode backed by ≥10 data items. Evidence: `src/data/lesson2.ts` (DATA_AGREE, DATA_POSSESS_FULL, DATA_PREP_PLACE, DATA_DIR_ADJ, DATA_ANTONYMS, DATA_IMA_NYAMA, DATA_EDIN, DATA_COUNT, DATA_ETO, DATA_VF, DATA_ROOM, DATA_ART_M_FULL_SHORT, DATA_NUMBERS, DATA_DVAMA, DATA_NYAMA_GO, DATA_SPACE, DATA_PRONOUN_ACC, DATA_KOLKO_KUDE, DATA_ROOM_PLURAL, DATA_MATCH_POSSESS, DATA_MATCH_ARTICLE_ROOM, DATA_ODD_L2, DATA_ROOM_BUILD, DATA_PARADIGM_POSSESS)
+  - [x] Data split into per-lesson modules with composition root. Evidence: `src/data/index.ts`, `src/data/lesson1.ts`, `src/data/lesson2.ts`
 
 ### 3.11 FR-ROUND
 - **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
