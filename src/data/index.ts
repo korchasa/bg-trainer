@@ -25,9 +25,24 @@ import {
   DATA_MATCH_POSSESS, DATA_MATCH_ARTICLE_ROOM,
   DATA_ODD_L2, DATA_ROOM_BUILD,
 } from "./lesson2";
+import {
+  DATA_L3_HOUSE, DATA_L3_FAMILY,
+  DATA_L3_POSS_SHORT, L3_POSS_SHORT_OPTIONS,
+  DATA_L3_POSS_ART, DATA_L3_DEMO, L3_DEMO_OPTIONS,
+  DATA_L3_ZHIVEYA, DATA_L3_ZNAYA, DATA_L3_SLEDVAM,
+  DATA_L3_FLOOR, DATA_L3_DAYS, DATA_L3_MONTHS, DATA_L3_LOC_ADV,
+  DATA_L3_NUM, DATA_L3_ORD,
+  DATA_L3_VF, L3_VF_OPTIONS,
+  DATA_L3_MATCH_FAMILY, DATA_L3_MATCH_SHORT_POSS,
+  DATA_L3_BUILD, DATA_L3_PARADIGM, DATA_L3_ODD,
+  DATA_L3_NA_KOGO, L3_NA_KOGO_OPTIONS,
+  DATA_L3_TIME, DATA_L3_QWORDS, L3_QWORDS_OPTIONS,
+  DATA_L3_ZANIMAVAM, DATA_L3_DATE_BUILD,
+} from "./lesson3";
 
 export * from "./lesson1";
 export * from "./lesson2";
+export * from "./lesson3";
 
 export const CATEGORIES: Category[] = [
   {
@@ -137,6 +152,43 @@ export const CATEGORIES: Category[] = [
       { id: "match_article_room", icon: "🏷️", label: { ru: "Слово ↔ с артиклем", uk: "Слово ↔ з артиклем" }, desc: { ru: "Соедини слово с его определённой формой", uk: "З'єднай слово з означеною формою" }, type: "match", data: () => DATA_MATCH_ARTICLE_ROOM },
       { id: "odd_l2", icon: "🙅", label: { ru: "Найди лишнее · L2", uk: "Знайди зайве · L2" }, desc: { ru: "Одно слово не подходит по роду/категории/согласованию", uk: "Одне слово не підходить за родом/категорією/узгодженням" }, type: "odd", data: () => DATA_ODD_L2 },
       { id: "room_build", icon: "🏠", label: { ru: "Собери предложение", uk: "Склади речення" }, desc: { ru: "Расставь слова в предложении о комнате", uk: "Розстав слова в реченні про кімнату" }, type: "build", data: () => DATA_ROOM_BUILD },
+    ],
+  },
+  {
+    id: "l3_extra",
+    name: { ru: "Урок 3 · семья", uk: "Урок 3 · родина" },
+    modes: [
+      { id: "l3_house_pick", icon: "🏠", label: { ru: "Жильё", uk: "Житло" }, desc: { ru: "Выбери болгарский перевод части дома", uk: "Обери болгарський переклад частини дому" }, type: "pickFrom", data: () => DATA_L3_HOUSE },
+      { id: "l3_family_pick", icon: "👪", label: { ru: "Семья", uk: "Родина" }, desc: { ru: "Выбери болгарский перевод слова о семье", uk: "Обери болгарський переклад слова про родину" }, type: "pickFrom", data: () => DATA_L3_FAMILY },
+      { id: "l3_poss_short_pick", icon: "🔑", label: { ru: "Краткие притяж.", uk: "Короткі присв." }, desc: { ru: "Выбери краткое притяжательное: ми/ти/му/й/ни/ви/им/си", uk: "Обери коротке присвійне: ми/ти/му/й/ни/ви/им/си" }, type: "pickOpt", data: () => ({ items: DATA_L3_POSS_SHORT, opts: L3_POSS_SHORT_OPTIONS }) },
+      { id: "l3_poss_art_pick", icon: "🏷️", label: { ru: "Артикль + кр. притяж.", uk: "Артикль + кор. присв." }, desc: { ru: "С артиклем или без: майка ми, но мъжът ми", uk: "З артиклем чи без: майка ми, але мъжът ми" }, type: "pickFrom", data: () => DATA_L3_POSS_ART },
+      { id: "l3_dem_pick", icon: "👉", label: { ru: "Този / онзи", uk: "Този / онзи" }, desc: { ru: "Выбери указательное близко (този/тази/това/тези) или далеко (онзи/…)", uk: "Обери вказівне близько (този/тази/това/тези) або далеко (онзи/…)" }, type: "pickOpt", data: () => ({ items: DATA_L3_DEMO, opts: L3_DEMO_OPTIONS }) },
+      { id: "l3_zhiveya_pick", icon: "🏘️", label: { ru: "Живея", uk: "Живея" }, desc: { ru: "Выбери форму «живея» для местоимения", uk: "Обери форму «живея» для займенника" }, type: "pick", data: () => DATA_L3_ZHIVEYA },
+      { id: "l3_znaya_pick", icon: "🧠", label: { ru: "Зная", uk: "Зная" }, desc: { ru: "Выбери форму «зная» для местоимения", uk: "Обери форму «зная» для займенника" }, type: "pick", data: () => DATA_L3_ZNAYA },
+      { id: "l3_sledvam_pick", icon: "🎓", label: { ru: "Следвам", uk: "Следвам" }, desc: { ru: "Выбери форму «следвам» (учиться по спец.) для местоимения", uk: "Обери форму «следвам» (навчатися за спец.) для займенника" }, type: "pick", data: () => DATA_L3_SLEDVAM },
+      { id: "l3_floor_pick", icon: "🏢", label: { ru: "Этажность", uk: "Поверховість" }, desc: { ru: "Образуй прилагательное: два+етаж → двуетажен", uk: "Утвори прикметник: два+етаж → двуетажен" }, type: "pickFrom", data: () => DATA_L3_FLOOR },
+      { id: "l3_days_pick", icon: "📅", label: { ru: "Дни недели", uk: "Дні тижня" }, desc: { ru: "Выбери болгарский день недели", uk: "Обери болгарський день тижня" }, type: "pickFrom", data: () => DATA_L3_DAYS },
+      { id: "l3_months_pick", icon: "🗓️", label: { ru: "Месяцы", uk: "Місяці" }, desc: { ru: "Выбери болгарский месяц", uk: "Обери болгарський місяць" }, type: "pickFrom", data: () => DATA_L3_MONTHS },
+      { id: "l3_loc_adv_pick", icon: "🧭", label: { ru: "Горе / долу / …", uk: "Горе / долу / …" }, desc: { ru: "Выбери наречие места: горе/долу/отпред/отзад/отляво/отдясно", uk: "Обери прислівник місця: горе/долу/отпред/отзад/отляво/отдясно" }, type: "pickFrom", data: () => DATA_L3_LOC_ADV },
+      { id: "l3_num_pick", icon: "🔢", label: { ru: "Числа 11–1000", uk: "Числа 11–1000" }, desc: { ru: "Выбери слово для числа: подростковые, десятки, сотни", uk: "Обери слово для числа: підліткові, десятки, сотні" }, type: "pickFrom", data: () => DATA_L3_NUM },
+      { id: "l3_ord_pick", icon: "🥇", label: { ru: "Порядковые", uk: "Порядкові" }, desc: { ru: "Образуй порядковое (м.р.): пет → пети", uk: "Утвори порядкове (ч.р.): пет → пети" }, type: "pickFrom", data: () => DATA_L3_ORD },
+      { id: "l3_vf_pick", icon: "✅", label: { ru: "Вярно / Не е вярно", uk: "Вярно / Не е вярно" }, desc: { ru: "Верно ли утверждение по тексту о семье Сия и Киро?", uk: "Чи правильне твердження за текстом про родину Сія і Кіро?" }, type: "pickOpt", data: () => ({ items: DATA_L3_VF, opts: L3_VF_OPTIONS }) },
+      { id: "l3_match_family", icon: "💑", label: { ru: "м. ↔ ж. роли", uk: "ч. ↔ ж. ролі" }, desc: { ru: "Соедини мужскую и женскую форму члена семьи", uk: "З'єднай чоловічу та жіночу форму члена родини" }, type: "match", data: () => DATA_L3_MATCH_FAMILY },
+      { id: "l3_match_short_poss", icon: "🔗", label: { ru: "Мест. ↔ кр. притяж.", uk: "Займ. ↔ кор. присв." }, desc: { ru: "Соедини местоимение с кратким притяжательным (аз↔ми)", uk: "З'єднай займенник з коротким присвійним (аз↔ми)" }, type: "match", data: () => DATA_L3_MATCH_SHORT_POSS },
+      { id: "l3_build", icon: "🧩", label: { ru: "Собери предложение", uk: "Склади речення" }, desc: { ru: "Расставь слова в предложении о семье", uk: "Розстав слова в реченні про родину" }, type: "build", data: () => DATA_L3_BUILD },
+      { id: "l3_paradigm", icon: "🧱", label: { ru: "Парадигмы L3", uk: "Парадигми L3" }, desc: { ru: "Собери парадигму: живея, зная, следвам", uk: "Склади парадигму: живея, зная, следвам" }, type: "paradigm", data: () => DATA_L3_PARADIGM },
+      { id: "l3_odd", icon: "🙅", label: { ru: "Найди лишнее · L3", uk: "Знайди зайве · L3" }, desc: { ru: "Одно слово не подходит по категории/группе", uk: "Одне слово не підходить за категорією/групою" }, type: "odd", data: () => DATA_L3_ODD },
+      { id: "l3_na_kogo_pick", icon: "🪪", label: { ru: "На кого? (чей)", uk: "На кого? (чий)" }, desc: { ru: "Выбери предлог «на» для выражения принадлежности", uk: "Обери прийменник «на» для належності" }, type: "pickOpt", data: () => ({ items: DATA_L3_NA_KOGO, opts: L3_NA_KOGO_OPTIONS }) },
+      { id: "l3_time_pick", icon: "⏰", label: { ru: "Время: ден/седмица/…", uk: "Час: ден/седмица/…" }, desc: { ru: "Выбери болгарский перевод: ден/седмица/месец/година, днес/утре/вчера", uk: "Обери болгарський переклад: ден/седмица/месец/година, днес/утре/вчера" }, type: "pickFrom", data: () => DATA_L3_TIME },
+      { id: "l3_qwords_pick", icon: "❓", label: { ru: "Вопросительные", uk: "Питальні" }, desc: { ru: "Откъде/Какъв/Какви/Колко/Как/Кога/Къде", uk: "Откъде/Какъв/Какви/Колко/Как/Кога/Къде" }, type: "pickOpt", data: () => ({ items: DATA_L3_QWORDS, opts: L3_QWORDS_OPTIONS }) },
+      { id: "l3_zanimavam_pick", icon: "🎯", label: { ru: "Занимавам се", uk: "Занимавам се" }, desc: { ru: "Выбери форму «занимавам се» для местоимения", uk: "Обери форму «занимавам се» для займенника" }, type: "pick", data: () => DATA_L3_ZANIMAVAM },
+      { id: "l3_date_build", icon: "📆", label: { ru: "Собери дату / возраст", uk: "Склади дату / вік" }, desc: { ru: "Расставь слова: «На колко години…», «Роден на пети май…»", uk: "Розстав слова: «На колко години…», «Роден на пети май…»" }, type: "build", data: () => DATA_L3_DATE_BUILD },
+      { id: "l3_num_type", icon: "⌨️", label: { ru: "Впиши число", uk: "Впиши число" }, desc: { ru: "Напечатай болгарское слово для числа (11–1000)", uk: "Надрукуй болгарське слово для числа (11–1000)" }, type: "type", data: () => DATA_L3_NUM },
+      { id: "l3_ord_type", icon: "⌨️", label: { ru: "Впиши порядковое", uk: "Впиши порядкове" }, desc: { ru: "Напечатай порядковое число (м.р.): 5 → пети", uk: "Надрукуй порядкове число (ч.р.): 5 → пети" }, type: "type", data: () => DATA_L3_ORD },
+      { id: "l3_family_type", icon: "⌨️", label: { ru: "Впиши семью", uk: "Впиши родину" }, desc: { ru: "Напечатай болгарский перевод слова о семье", uk: "Надрукуй болгарський переклад слова про родину" }, type: "type", data: () => DATA_L3_FAMILY },
+      { id: "l3_days_type", icon: "⌨️", label: { ru: "Впиши день", uk: "Впиши день" }, desc: { ru: "Напечатай болгарский день недели", uk: "Надрукуй болгарський день тижня" }, type: "type", data: () => DATA_L3_DAYS },
+      { id: "l3_months_type", icon: "⌨️", label: { ru: "Впиши месяц", uk: "Впиши місяць" }, desc: { ru: "Напечатай болгарский месяц", uk: "Надрукуй болгарський місяць" }, type: "type", data: () => DATA_L3_MONTHS },
+      { id: "l3_zhiveya_fill", icon: "⚡", label: { ru: "Живея на скорость", uk: "Живея на швидкість" }, desc: { ru: "Выбери форму «живея» за отведённое время — автоматизация", uk: "Обери форму «живея» за відведений час — автоматизація" }, type: "timed", data: () => DATA_L3_ZHIVEYA },
     ],
   },
   {
