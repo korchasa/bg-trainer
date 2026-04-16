@@ -279,24 +279,6 @@ export const DATA_L3_ORD: DataItem[] = [
   { q: "20", answer: "двайсети", hint: HINT_ORD, rule: ORD_RULE, decoys: ["двадесет", "двама", "двеста"] },
 ];
 
-// --- Верно / Неверно по тексту ---
-const HINT_VF_T: Localized<string> = { ru: "соответствует тексту", uk: "відповідає тексту" };
-const HINT_VF_F: Localized<string> = { ru: "не соответствует тексту", uk: "не відповідає тексту" };
-export const DATA_L3_VF: DataItem[] = [
-  { q: "Сия и Киро са съпруг и съпруга.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Сия е майка на Лили и Борис.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Борис и Лили са брат и сестра.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Огнян е син на Киро.", answer: "Не е вярно", hint: HINT_VF_F },
-  { q: "Киро е син на Огнян.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Огнян и Рада са съпруг и съпруга.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Рада е баба на Борис и Лили.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Сия е дъщеря на Рада.", answer: "Не е вярно", hint: HINT_VF_F },
-  { q: "Огнян е баща на Киро.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Къщата на семейството е едноетажна.", answer: "Вярно", hint: HINT_VF_T },
-  { q: "Къщата им няма кухня.", answer: "Не е вярно", hint: HINT_VF_F },
-];
-export const L3_VF_OPTIONS = ["Вярно", "Не е вярно"];
-
 // --- Сопоставление: м. ↔ ж. ---
 const HINT_FAM_PAIR: Localized<string> = { ru: "муж. ↔ жен. роль", uk: "чол. ↔ жін. роль" };
 export const DATA_L3_MATCH_FAMILY: MatchItem[] = [
