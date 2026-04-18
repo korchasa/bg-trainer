@@ -38,10 +38,26 @@ import {
   DATA_L3_TIME, DATA_L3_QWORDS, L3_QWORDS_OPTIONS,
   DATA_L3_ZANIMAVAM, DATA_L3_DATE_BUILD,
 } from "./lesson3";
+import {
+  DATA_L4_CHETA, DATA_L4_UCHA, DATA_L4_KAZVAM, DATA_L4_OPRAVYAM,
+  DATA_L4_PRAVYA, DATA_L4_YAM,
+  DATA_L4_CONJ_TYPE, L4_CONJ_TYPE_OPTIONS,
+  DATA_L4_MIYA_SE, DATA_L4_REFL_VOCAB,
+  DATA_L4_TIME_PERIOD, DATA_L4_PAST_TIME,
+  DATA_L4_FREQ, L4_FREQ_OPTIONS,
+  DATA_L4_NEVER, DATA_L4_ANT,
+  DATA_L4_PREP_TIME, L4_PREP_TIME_OPTIONS,
+  DATA_L4_HOURS, DATA_L4_HOURS_TYPE,
+  DATA_L4_BYAH, L4_BYAH_OPTIONS, DATA_L4_BYAH_TYPE,
+  DATA_L4_SHTE_BADA, DATA_L4_SHTE_NEG, L4_SHTE_NEG_OPTIONS,
+  DATA_L4_PARADIGM, DATA_L4_BUILD, DATA_L4_HOURS_BUILD,
+  DATA_L4_MATCH_ANT, DATA_L4_MATCH_CONJ, DATA_L4_ODD,
+} from "./lesson4";
 
 export * from "./lesson1";
 export * from "./lesson2";
 export * from "./lesson3";
+export * from "./lesson4";
 
 export const CATEGORIES: Category[] = [
   {
@@ -186,6 +202,40 @@ export const CATEGORIES: Category[] = [
       { id: "l3_days_type", icon: "⌨️", label: { ru: "Впиши день", uk: "Впиши день" }, desc: { ru: "Напечатай болгарский день недели", uk: "Надрукуй болгарський день тижня" }, type: "type", data: () => DATA_L3_DAYS },
       { id: "l3_months_type", icon: "⌨️", label: { ru: "Впиши месяц", uk: "Впиши місяць" }, desc: { ru: "Напечатай болгарский месяц", uk: "Надрукуй болгарський місяць" }, type: "type", data: () => DATA_L3_MONTHS },
       { id: "l3_zhiveya_fill", icon: "⚡", label: { ru: "Живея на скорость", uk: "Живея на швидкість" }, desc: { ru: "Выбери форму «живея» за отведённое время — автоматизация", uk: "Обери форму «живея» за відведений час — автоматизація" }, type: "timed", data: () => DATA_L3_ZHIVEYA },
+    ],
+  },
+  {
+    id: "l4_extra",
+    name: { ru: "Урок 4 · день", uk: "Урок 4 · день" },
+    modes: [
+      { id: "l4_cheta_pick", icon: "📖", label: { ru: "Чета (I)", uk: "Чета (I)" }, desc: { ru: "Выбери форму «чета» для местоимения", uk: "Обери форму «чета» для займенника" }, type: "pick", data: () => DATA_L4_CHETA },
+      { id: "l4_ucha_pick", icon: "📚", label: { ru: "Уча (II)", uk: "Уча (II)" }, desc: { ru: "Выбери форму «уча» для местоимения", uk: "Обери форму «уча» для займенника" }, type: "pick", data: () => DATA_L4_UCHA },
+      { id: "l4_kazvam_pick", icon: "🗣️", label: { ru: "Казвам (III)", uk: "Казвам (III)" }, desc: { ru: "Выбери форму «казвам» для местоимения", uk: "Обери форму «казвам» для займенника" }, type: "pick", data: () => DATA_L4_KAZVAM },
+      { id: "l4_opravyam_pick", icon: "🛏️", label: { ru: "Оправям (III)", uk: "Оправям (III)" }, desc: { ru: "Выбери форму «оправям» для местоимения", uk: "Обери форму «оправям» для займенника" }, type: "pick", data: () => DATA_L4_OPRAVYAM },
+      { id: "l4_pravya_pick", icon: "🛠️", label: { ru: "Правя (II)", uk: "Правя (II)" }, desc: { ru: "Выбери форму «правя» для местоимения", uk: "Обери форму «правя» для займенника" }, type: "pick", data: () => DATA_L4_PRAVYA },
+      { id: "l4_yam_pick", icon: "🍽️", label: { ru: "Ям (неправ.)", uk: "Ям (неправ.)" }, desc: { ru: "Выбери форму «ям» для местоимения", uk: "Обери форму «ям» для займенника" }, type: "pick", data: () => DATA_L4_YAM },
+      { id: "l4_conj_type_pick", icon: "🏷️", label: { ru: "I / II / III спряжение", uk: "I / II / III дієвідм." }, desc: { ru: "Определи тип спряжения по 3 л. ед. ч.", uk: "Визнач тип дієвідміни за 3 ос. одн." }, type: "pickOpt", data: () => ({ items: DATA_L4_CONJ_TYPE, opts: L4_CONJ_TYPE_OPTIONS }) },
+      { id: "l4_miya_se_pick", icon: "🧼", label: { ru: "Мия се (возвр.)", uk: "Мия се (зворотн.)" }, desc: { ru: "Выбери форму «мия се» для местоимения", uk: "Обери форму «мия се» для займенника" }, type: "pick", data: () => DATA_L4_MIYA_SE },
+      { id: "l4_refl_vocab_pick", icon: "🌅", label: { ru: "Словарь дня", uk: "Словник дня" }, desc: { ru: "Выбери болгарский глагол распорядка дня", uk: "Обери болгарське дієслово розпорядку дня" }, type: "pickFrom", data: () => DATA_L4_REFL_VOCAB },
+      { id: "l4_refl_vocab_type", icon: "⌨️", label: { ru: "Впиши глагол дня", uk: "Впиши дієслово дня" }, desc: { ru: "Напечатай болгарский глагол распорядка дня", uk: "Надрукуй болгарське дієслово розпорядку дня" }, type: "type", data: () => DATA_L4_REFL_VOCAB },
+      { id: "l4_time_period_pick", icon: "🕰️", label: { ru: "Время суток", uk: "Час доби" }, desc: { ru: "Выбери болгарское слово для времени суток / периода", uk: "Обери болгарське слово для часу доби / періоду" }, type: "pickFrom", data: () => DATA_L4_TIME_PERIOD },
+      { id: "l4_past_time_pick", icon: "⏪", label: { ru: "Указатели прошлого", uk: "Вказівники минулого" }, desc: { ru: "Выбери болгарский указатель прошлого времени", uk: "Обери болгарський вказівник минулого часу" }, type: "pickFrom", data: () => DATA_L4_PAST_TIME },
+      { id: "l4_freq_pick", icon: "🔁", label: { ru: "Частотные наречия", uk: "Прислівники частоти" }, desc: { ru: "Выбери частотное наречие: винаги / често / никога / …", uk: "Обери прислівник частоти: винаги / често / никога / …" }, type: "pickOpt", data: () => ({ items: DATA_L4_FREQ, opts: L4_FREQ_OPTIONS }) },
+      { id: "l4_never_pick", icon: "🚫", label: { ru: "Никога + не", uk: "Никога + не" }, desc: { ru: "Преобразуй утверждение, добавив «никога не»", uk: "Перетвори ствердження, додавши «никога не»" }, type: "pickFrom", data: () => DATA_L4_NEVER },
+      { id: "l4_ant_pick", icon: "↔️", label: { ru: "Антонимы · L4", uk: "Антоніми · L4" }, desc: { ru: "Подбери антоним из урока 4", uk: "Підбери антонім з уроку 4" }, type: "pickFrom", data: () => DATA_L4_ANT },
+      { id: "l4_prep_time_pick", icon: "🕘", label: { ru: "Предлоги времени", uk: "Прийменники часу" }, desc: { ru: "Выбери предлог времени: в / преди / след / към / около / до / от / между", uk: "Обери прийменник часу: в / преди / след / към / около / до / от / между" }, type: "pickOpt", data: () => ({ items: DATA_L4_PREP_TIME, opts: L4_PREP_TIME_OPTIONS }) },
+      { id: "l4_hours_pick", icon: "🕖", label: { ru: "Часы: полный ответ", uk: "Години: повна відповідь" }, desc: { ru: "Выбери болгарскую фразу «Часът е …» для цифрового времени", uk: "Обери болгарську фразу «Часът е …» для цифрового часу" }, type: "pickFrom", data: () => DATA_L4_HOURS },
+      { id: "l4_hours_type", icon: "⌨️", label: { ru: "Впиши часы", uk: "Впиши години" }, desc: { ru: "Напечатай короткую форму времени (без «Часът е»)", uk: "Надрукуй коротку форму часу (без «Часът е»)" }, type: "type", data: () => DATA_L4_HOURS_TYPE },
+      { id: "l4_byah_pick", icon: "⌛", label: { ru: "Бях (прошедшее)", uk: "Бях (минуле)" }, desc: { ru: "Выбери форму «бях» по лицу / числу", uk: "Обери форму «бях» за особою / числом" }, type: "pickOpt", data: () => ({ items: DATA_L4_BYAH, opts: L4_BYAH_OPTIONS }) },
+      { id: "l4_byah_type", icon: "⌨️", label: { ru: "Впиши бях", uk: "Впиши бях" }, desc: { ru: "Напечатай форму «бях» для местоимения", uk: "Надрукуй форму «бях» для займенника" }, type: "type", data: () => DATA_L4_BYAH_TYPE },
+      { id: "l4_shte_bada_pick", icon: "⏩", label: { ru: "Ще бъда (будущее)", uk: "Ще бъда (майбутнє)" }, desc: { ru: "Выбери форму «ще бъда» для местоимения", uk: "Обери форму «ще бъда» для займенника" }, type: "pick", data: () => DATA_L4_SHTE_BADA },
+      { id: "l4_shte_neg_pick", icon: "🔀", label: { ru: "Ще / няма да", uk: "Ще / няма да" }, desc: { ru: "Выбери «ще» (положит.) или «няма да» (отриц.) для будущего времени", uk: "Обери «ще» (стверд.) або «няма да» (запереч.) для майбутнього часу" }, type: "pickOpt", data: () => ({ items: DATA_L4_SHTE_NEG, opts: L4_SHTE_NEG_OPTIONS }) },
+      { id: "l4_paradigm", icon: "🧱", label: { ru: "Парадигмы · L4", uk: "Парадигми · L4" }, desc: { ru: "Собери парадигму: чета, уча, казвам, оправям, правя, ям, мия се, бях, ще бъда", uk: "Склади парадигму: чета, уча, казвам, оправям, правя, ям, мия се, бях, ще бъда" }, type: "paradigm", data: () => DATA_L4_PARADIGM },
+      { id: "l4_build", icon: "🧩", label: { ru: "Собери предложение · L4", uk: "Склади речення · L4" }, desc: { ru: "Расставь слова в предложении о распорядке дня", uk: "Розстав слова в реченні про розпорядок дня" }, type: "build", data: () => DATA_L4_BUILD },
+      { id: "l4_hours_build", icon: "⏰", label: { ru: "Собери часы", uk: "Склади години" }, desc: { ru: "Расставь слова во фразе «Часът е …»", uk: "Розстав слова у фразі «Часът е …»" }, type: "build", data: () => DATA_L4_HOURS_BUILD },
+      { id: "l4_match_ant", icon: "🔗", label: { ru: "Антонимы: пары", uk: "Антоніми: пари" }, desc: { ru: "Соедини антонимические пары", uk: "З'єднай антонімічні пари" }, type: "match", data: () => DATA_L4_MATCH_ANT },
+      { id: "l4_match_conj", icon: "🔗", label: { ru: "1л. ↔ 3л.", uk: "1ос. ↔ 3ос." }, desc: { ru: "Соедини 1-е лицо ед. ч. с 3-м лицом ед. ч.", uk: "З'єднай 1-у особу одн. з 3-ю особою одн." }, type: "match", data: () => DATA_L4_MATCH_CONJ },
+      { id: "l4_odd", icon: "🙅", label: { ru: "Найди лишнее · L4", uk: "Знайди зайве · L4" }, desc: { ru: "Одно слово не подходит по спряжению / категории / времени", uk: "Одне слово не підходить за дієвідміною / категорією / часом" }, type: "odd", data: () => DATA_L4_ODD },
     ],
   },
   {
