@@ -14,10 +14,10 @@ interface Props {
 // Blocks further answers until dismissed; subsequent retries are not scored.
 export function ErrorDialog({ title, correctLabel, correct, hint, rule, continueLabel, onContinue }: Props) {
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm p-4 pb-6">
       <div
-        className="w-full max-w-sm bg-white rounded-[28px] p-6 ring-2 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.5)]"
-        style={{ borderColor: ACCENT, boxShadow: `0 0 0 2px ${ACCENT}, 0 24px 60px -12px rgba(0,0,0,0.5)` }}
+        className="w-full max-w-sm bg-white rounded-[28px] p-6"
+        style={{ boxShadow: `0 0 0 2px ${ACCENT}, 0 24px 60px -12px rgba(0,0,0,0.5)` }}
       >
         <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: ACCENT }}>
           ✕ {title}
