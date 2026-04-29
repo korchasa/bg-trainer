@@ -7,6 +7,7 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { ErrorDialog } from "../ui/ErrorDialog";
 
 function makeNegDecoys(corr: string): string[] {
   const words = corr.split(" ");
@@ -28,12 +29,12 @@ interface Props {
 }
 
 export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
-  const { L, Lq } = useI18n();
+  const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, reaction, score, answered, qsTotal, answer } = useGame(qs, onComplete, reactions, 15, 1200, onItemAnswer);
+  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } = useGame(qs, onComplete, reactions, 15, 1200, onItemAnswer);
 
   useEffect(() => {
     const decoys = makeNegDecoys(qs[cur].answer).map(a => ({ ...qs[cur], answer: a }));
@@ -79,6 +80,17 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
           );
         })}
       </div>
+      {errorPending && (
+        <ErrorDialog
+          title={t("errorTitle")}
+          correctLabel={t("correctAnswer")}
+          correct={item.answer}
+          hint={L(item.hint)}
+          rule={item.rule ? L(item.rule) : undefined}
+          continueLabel={t("continue")}
+          onContinue={dismissError}
+        />
+      )}
     </div>
   );
 }

@@ -46,8 +46,8 @@
 - **Deps:** All screens, all engines, `data/index.ts`, `data/lessons.ts`, `utils/sliceData.ts`, `utils/history.ts`, `utils/shuffle.ts`, `types.ts`.
 
 ### 3.2 useGame hook
-- **Purpose:** Encapsulate per-session state: `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal` + `answer()` + `advance()`. Owns `indexPlan`, `retryBuffer`, `errSet` to drive non-mutating re-queue of wrong answers and unique-index error counting.
-- **Interfaces:** `useGame(qs, onComplete, pts=10, delay=1000, onItemAnswer?)`. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`.
+- **Purpose:** Encapsulate per-session state: `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`, `errorPending` + `answer()` + `advance()` + `dismissError()`. Owns `indexPlan`, `errSet`, `firstWrongRef`, `lockedRef` to drive immediate-retry-on-wrong, single-counted scoring/mastery/error per question.
+- **Interfaces:** `useGame(qs, onComplete, reactions, pts=10, delay=1000, onItemAnswer?)`. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`. `dismissError()` clears visual state to allow another attempt at the same question without unsetting `firstWrongRef`.
 - **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`, `pickFail`), `utils/itemKey`.
 
 ### 3.3 useTimer hook
@@ -131,9 +131,9 @@
 
 ## 5. Logic
 - **Algos:**
-  - **Session flow:** `useGame` owns `indexPlan` (initial order), `planPos`, `retryBuffer[{ idx, dueAt }]`, `answered` (counter), `qsTotalRef` (fixed at mount). `advance()` picks the next physical index via `pickNext(answered)`: prefer any due retry (`dueAt ≤ answered`), else `indexPlan[planPos++]`, else earliest-due retry. Session completes when `answered ≥ qsTotal` and `retryBuffer` is empty, or when `pickNext` returns `-1`.
-  - **Re-queue:** On a wrong answer, push `{ idx: cur, dueAt: answered + 1 + 3 + rand(0..2) }` (3–5 positions later). `qs` is never mutated. `errSet` records unique wrong indices; `errors` at completion = `errSet.size`.
-  - **Answer handling:** first selection locks input; correct → `score += pts + extraPts`; incorrect → correct value stored in `corr`, item re-queued. `answer(val, correctVal, { extraPts, hinted })`; legacy numeric third arg still supported. Auto-advance after `delay`.
+  - **Session flow:** `useGame` owns `indexPlan` (initial order), `planPos`, `answered` (counter), `qsTotalRef` (fixed at mount). `advance()` picks the next physical index via `pickNext()` = `indexPlan[planPos++]` or `-1`. Each plan slot is consumed only when the user finally answers correctly; session completes when `answered ≥ qsTotal` or `pickNext` returns `-1`.
+  - **Retry-until-correct (FR-RETRY):** On a wrong answer, `firstWrongRef` is set, `errorPending=true` raises the `ErrorDialog` overlay, and the same `cur` stays. `dismissError()` clears `sel`/`corr`/`reaction` so the user can re-answer; on retry-correct, `lockedRef` flips and `advance()` is scheduled. Only the first attempt per question writes to `errSet`, awards score, and emits an `onItemAnswer` mastery event; retries are silent. `errors` at completion = `errSet.size`.
+  - **Answer handling:** `answer(val, correctVal, { extraPts, hinted })`; legacy numeric third arg still supported. First selection sets `sel` and either locks for advance (correct) or arms `errorPending` (wrong). Subsequent calls return `false` while `lockedRef`, `errorPending`, or `sel !== null`. Auto-advance after `delay` on correct.
   - **Timed bonus + speed-gate:** `TimedEngine` passes `extraPts = max(0, timeLeft · 2)` on correct. When `levelLookup(itemId) < 5` the timer is disabled, `extraPts = 0`, and `fast` is reported as `false` to mastery.
   - **Shuffle:** Fisher-Yates (`utils/shuffle.ts`) for answer options and reaction picks.
   - **History cap:** `saveHistory` keeps only `h.slice(-200)`.

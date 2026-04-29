@@ -15,8 +15,10 @@ export interface Reactions {
   fail: string[];
 }
 
-// FR-GAME-SESSION, FR-MASTERY: session runs exactly `qsTotal` answers; wrong items are
-// re-queued 3..5 positions later without mutating `qs`. Errors count unique wrong indices.
+// FR-GAME-SESSION, FR-MASTERY: session runs exactly `qsTotal` correctly-answered slots.
+// FR-RETRY: on a wrong answer the question stays — user must retry until correct.
+// Only the first attempt per question is scored / recorded as an error / sent to mastery;
+// subsequent retries are silent (no score, no mastery, no error increment).
 export function useGame(
   qs: DataItem[],
   onComplete: (score: number, time: number, errors: number) => void,
@@ -30,11 +32,12 @@ export function useGame(
   const qsTotalRef = useRef(qs.length);
   const planRef = useRef<number[]>(qs.map((_, i) => i));
   const planPosRef = useRef(1);
-  const retryRef = useRef<{ idx: number; dueAt: number }[]>([]);
   const errSet = useRef<Set<number>>(new Set());
   const sRef = useRef(0);
   const answeredRef = useRef(0);
   const finishedRef = useRef(false);
+  const firstWrongRef = useRef(false);
+  const lockedRef = useRef(false);
 
   const [cur, setCur] = useState(() => planRef.current[0] ?? 0);
   const [answered, setAnswered] = useState(0);
@@ -42,22 +45,12 @@ export function useGame(
   const [corr, setCorr] = useState<string | null>(null);
   const [reaction, setReaction] = useState("");
   const [score, setScore] = useState(0);
+  const [errorPending, setErrorPending] = useState(false);
   const [t0] = useState(Date.now());
 
-  const pickNext = (answeredNow: number): number => {
-    const rb = retryRef.current;
-    const dueIdx = rb.findIndex(r => r.dueAt <= answeredNow);
-    if (dueIdx >= 0) {
-      const [item] = rb.splice(dueIdx, 1);
-      return item.idx;
-    }
+  const pickNext = (): number => {
     if (planPosRef.current < planRef.current.length) {
       return planRef.current[planPosRef.current++];
-    }
-    if (rb.length > 0) {
-      rb.sort((a, b) => a.dueAt - b.dueAt);
-      const [item] = rb.splice(0, 1);
-      return item.idx;
     }
     return -1;
   };
@@ -71,52 +64,73 @@ export function useGame(
   const advance = useCallback(() => {
     if (finishedRef.current) return;
     const a = answeredRef.current;
-    // Strict cap: session always ends at qsTotal answers. Retries replace future
-    // plan slots; overflow retries are dropped rather than extending the session.
     if (a >= qsTotalRef.current) { finish(); return; }
-    const next = pickNext(a);
+    const next = pickNext();
     if (next < 0) { finish(); return; }
     setCur(next);
     setSel(null);
     setCorr(null);
     setReaction("");
+    setErrorPending(false);
+    firstWrongRef.current = false;
+    lockedRef.current = false;
   }, [finish]);
+
+  const dismissError = useCallback(() => {
+    // Reset visual state so the user can attempt the same question again.
+    // firstWrongRef stays set — subsequent attempts won't be scored.
+    setSel(null);
+    setCorr(null);
+    setReaction("");
+    setErrorPending(false);
+  }, []);
 
   const answer = useCallback(
     (val: string, correctVal: string, opts: AnswerArg = {}) => {
+      if (lockedRef.current) return false;
+      if (errorPending) return false;
       if (sel !== null) return false;
+
       setSel(val);
       const o: AnswerOpts = typeof opts === "number" ? { extraPts: opts } : opts;
       const extraPts = o.extraPts ?? 0;
       const hinted = o.hinted ?? false;
       const ok = val === correctVal;
+
       if (ok) {
-        const ns = sRef.current + pts + extraPts;
-        setScore(ns);
-        sRef.current = ns;
+        if (!firstWrongRef.current) {
+          // First-attempt correct → award score and mastery.
+          const ns = sRef.current + pts + extraPts;
+          setScore(ns);
+          sRef.current = ns;
+          if (onItemAnswer) {
+            try { onItemAnswer(itemKey(qs[cur]), true, extraPts > 0, hinted); }
+            catch { /* unknown item shape — skip mastery */ }
+          }
+        }
+        // Retry-success path silently advances: no score, no mastery event.
         setReaction(pickOK(reactionsRef.current.ok));
+        answeredRef.current += 1;
+        setAnswered(answeredRef.current);
+        lockedRef.current = true;
+        setTimeout(advance, delay);
       } else {
         setCorr(correctVal);
-        errSet.current.add(cur);
         setReaction(pickFail(reactionsRef.current.fail));
-        retryRef.current.push({
-          idx: cur,
-          dueAt: answeredRef.current + 1 + 3 + Math.floor(Math.random() * 3),
-        });
-      }
-      answeredRef.current += 1;
-      setAnswered(answeredRef.current);
-      if (onItemAnswer) {
-        try {
-          onItemAnswer(itemKey(qs[cur]), ok, extraPts > 0, hinted);
-        } catch {
-          // Unknown item shape — skip mastery update, keep gameplay running.
+        if (!firstWrongRef.current) {
+          // First-attempt wrong → record error and fire mastery once.
+          errSet.current.add(cur);
+          if (onItemAnswer) {
+            try { onItemAnswer(itemKey(qs[cur]), false, false, hinted); }
+            catch { /* unknown item shape — skip mastery */ }
+          }
+          firstWrongRef.current = true;
         }
+        setErrorPending(true);
       }
-      setTimeout(advance, delay);
       return ok;
     },
-    [sel, pts, delay, advance, onItemAnswer, qs, cur],
+    [sel, pts, delay, advance, onItemAnswer, qs, cur, errorPending],
   );
 
   return {
@@ -129,5 +143,7 @@ export function useGame(
     qsTotal: qsTotalRef.current,
     advance,
     answer,
+    errorPending,
+    dismissError,
   };
 }
