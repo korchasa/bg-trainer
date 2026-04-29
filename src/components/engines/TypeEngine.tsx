@@ -8,6 +8,7 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { ErrorDialog } from "../ui/ErrorDialog";
 
 // FR-TYPE: keyboard-input engine.
 // Whitelist normalization ONLY: trim, lowercase, collapse internal whitespace.
@@ -31,7 +32,7 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const [showHint, setShowHint] = useState(false);
   const hintedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { cur, sel, reaction, score, answered, qsTotal, answer } =
+  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
     useGame(qs, onComplete, reactions, 10, 1400, onItemAnswer);
 
   useEffect(() => {
@@ -91,6 +92,21 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
           {t("check")}
         </button>
       </div>
+      {errorPending && (
+        <ErrorDialog
+          title={t("errorTitle")}
+          correctLabel={t("correctAnswer")}
+          correct={item.answer}
+          hint={L(item.hint)}
+          rule={item.rule ? L(item.rule) : undefined}
+          continueLabel={t("continue")}
+          onContinue={() => {
+            setInput("");
+            dismissError();
+            inputRef.current?.focus();
+          }}
+        />
+      )}
     </div>
   );
 }

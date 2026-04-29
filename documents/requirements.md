@@ -25,15 +25,24 @@
   - [x] Lesson screen lists its modes + primary "Раунд" button. Evidence: `src/components/screens/LessonScreen.tsx`
 
 ### 3.2 FR-GAME-SESSION
-- **Desc:** Session = N questions from the selected mode's data, where N = `SESSION_SIZE_BY_PACE[pace]` (see FR-PACE). `qsTotal` is fixed at session start. Wrong answers are re-queued 3–5 positions later within the same session (`retryBuffer`, non-mutating). Progress UI and history use `answered / qsTotal`. `errors` counts unique wrong indices (repeat-fails on the same item do not increment).
-- **Scenario:** User plays → answers `qsTotal` questions (some repeated via re-queue) → `ResultsScreen` shows score/errors/time (single game) or round aggregates.
+- **Desc:** Session = N questions from the selected mode's data, where N = `SESSION_SIZE_BY_PACE[pace]` (see FR-PACE). `qsTotal` is fixed at session start. On a wrong answer the question is **not** advanced — user must retry the same item until correct (see FR-RETRY). A slot is consumed only when the user answers correctly, so the session always ends after `qsTotal` correctly-answered slots. Progress UI uses `answered / qsTotal`. `errors` counts unique wrong indices (only the first wrong attempt per question counts; retries do not).
+- **Scenario:** User plays → answers `qsTotal` questions (each may require retries on first-wrong) → `ResultsScreen` shows score/errors/time (single game) or round aggregates.
 - **Acceptance:**
   - [x] Session size = `SESSION_SIZE_BY_PACE[pace]` for both single and round games. Evidence: `src/utils/sliceData.ts:6-33`, `src/App.tsx:199-201`, `src/constants.ts:10-14`
-  - [x] `useGame` tracks `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`. Evidence: `src/hooks/useGame.ts:27-35,110-120`
-  - [x] Wrong answers re-queued via `retryBuffer` without mutating `qs`. Evidence: `src/hooks/useGame.ts:39,85-89,43-55`
-  - [x] Progress component reads `answered/qsTotal`. Evidence: `src/components/engines/PickEngine.tsx:32`, `src/components/engines/PickOptEngine.tsx:33`, `src/components/engines/PickFromEngine.tsx:38`, `src/components/engines/TimedEngine.tsx:60`, `src/components/engines/NegEngine.tsx:41`
-  - [x] Unique-index error counting via `errSet: Set<number>`. Evidence: `src/hooks/useGame.ts:29,87`
-  - [x] On completion → `onComplete(score, time, errors)` fires once. Evidence: `src/hooks/useGame.ts:59-63`
+  - [x] `useGame` tracks `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`, `errorPending`. Evidence: `src/hooks/useGame.ts`
+  - [x] Wrong answers stay on the same `cur` until correct (immediate retry, no re-queue). Evidence: `src/hooks/useGame.ts`
+  - [x] Progress component reads `answered/qsTotal`. Evidence: `src/components/engines/PickEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/NegEngine.tsx`
+  - [x] Unique-index error counting via `errSet: Set<number>`; only the first wrong attempt is counted. Evidence: `src/hooks/useGame.ts`
+  - [x] On completion → `onComplete(score, time, errors)` fires once. Evidence: `src/hooks/useGame.ts`
+
+### 3.2.1 FR-RETRY
+- **Desc:** On a wrong answer, the engine surfaces an error explanation modal (correct answer, hint, optional rule) with a "Continue" button. Question repeats on the same `cur` slot until the user answers correctly. Only the first attempt per question is scored / recorded as an error / forwarded to mastery (`onItemAnswer`); subsequent attempts are silent — no score change, no mastery event, no error increment, no extra reaction.
+- **Scenario:** User answers wrong → modal pops up with the correct answer → user taps "Продолжить" → buttons re-enable on the same question → user keeps trying → on correct answer, session advances to next slot.
+- **Acceptance:**
+  - [x] `useGame` exposes `errorPending` + `dismissError`; first wrong sets `firstWrongRef`, locks advance until retry-correct. Evidence: `src/hooks/useGame.ts`
+  - [x] Retry attempts skip score, mastery, and error increments. Evidence: `src/hooks/useGame.ts`
+  - [x] `ErrorDialog` renders correct answer + hint + rule + Continue button per engine using `useGame`. Evidence: `src/components/ui/ErrorDialog.tsx`, engines under `src/components/engines/` (Pick, PickOpt, PickFrom, Timed, Neg, Type, OddOneOut)
+  - [x] i18n strings `errorTitle`, `correctAnswer` defined for `ru` and `uk`. Evidence: `src/i18n/strings.ts`
 
 ### 3.10 FR-LESSONS
 - **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. Lessons 1–4 are fully playable; lessons 5–8 show as "Скоро" placeholders.
@@ -70,11 +79,12 @@
   - [x] Round button label reflects pace (`3 × N = 3N вопросов`). Evidence: `src/components/screens/LessonScreen.tsx`
 
 ### 3.3 FR-SCORING
-- **Desc:** Correct = +10 pts. Timed mode adds speed bonus. Wrong answer increments error count, 0 pts. Second answer on the same question ignored.
+- **Desc:** Correct on first attempt = +10 pts. Timed mode adds speed bonus on first-attempt correct. Wrong answer increments error count once, 0 pts; retries on the same question are not scored (see FR-RETRY).
 - **Acceptance:**
-  - [x] Base +10 pts on correct. Evidence: `src/hooks/useGame.ts:36`
-  - [x] Speed bonus applied in `TimedEngine` via `extraPts`. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useGame.ts:31`
-  - [x] Duplicate selections rejected. Evidence: `src/hooks/useGame.ts:32`
+  - [x] Base +10 pts on first-attempt correct only. Evidence: `src/hooks/useGame.ts`
+  - [x] Speed bonus applied in `TimedEngine` via `extraPts`, only on first-attempt correct. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useGame.ts`
+  - [x] Duplicate / post-correct selections rejected via `lockedRef`. Evidence: `src/hooks/useGame.ts`
+  - [x] Retry-success after first-wrong adds 0 pts. Evidence: `src/hooks/useGame.ts`
 
 ### 3.4 FR-ENGINES
 - **Desc:** 11 engine types implement distinct interaction patterns. Multiple-choice engines hide L1 hints by default and expose a "Подсказка" reveal button; reveal sets `hinted=true` which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).

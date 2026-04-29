@@ -8,6 +8,7 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { ErrorDialog } from "../ui/ErrorDialog";
 
 interface Props {
   data: () => OddItem[];
@@ -18,13 +19,13 @@ interface Props {
 
 // FR-ODD: user taps the single word that doesn't belong to the paradigm/category.
 export function OddOneOutEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
-  const { L } = useI18n();
+  const { t, L } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<OddItem[]>(() => shuffle(items));
   const [tiles, setTiles] = useState<string[]>([]);
   const hintedRef = useRef(false);
-  const { cur, sel, reaction, score, answered, qsTotal, answer } =
+  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
     useGame(qs as unknown as DataItem[], onComplete, reactions, 10, 1200, onItemAnswer);
 
   useEffect(() => {
@@ -52,6 +53,17 @@ export function OddOneOutEngine({ data, onComplete, onItemAnswer, prompt }: Prop
             onClick={() => answer(w, correct, { hinted: hintedRef.current })} className="h-16 text-xl" />
         )}
       </div>
+      {errorPending && (
+        <ErrorDialog
+          title={t("errorTitle")}
+          correctLabel={t("correctAnswer")}
+          correct={correct}
+          hint={L(item.hint)}
+          rule={item.rule ? L(item.rule) : undefined}
+          continueLabel={t("continue")}
+          onContinue={dismissError}
+        />
+      )}
     </div>
   );
 }

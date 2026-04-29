@@ -50,6 +50,8 @@ const PLAIN_RU = {
   taskLabel: "Задача",
   langSwitchAria: "Язык",
   dateLocale: "ru-RU",
+  errorTitle: "Ошибка",
+  correctAnswer: "Правильный ответ",
 } as const;
 
 const PLAIN_UK: Record<keyof typeof PLAIN_RU, string> = {
@@ -101,6 +103,8 @@ const PLAIN_UK: Record<keyof typeof PLAIN_RU, string> = {
   taskLabel: "Завдання",
   langSwitchAria: "Мова",
   dateLocale: "uk-UA",
+  errorTitle: "Помилка",
+  correctAnswer: "Правильна відповідь",
 };
 
 const FMT_RU = {
