@@ -53,11 +53,30 @@ import {
   DATA_L4_PARADIGM, DATA_L4_BUILD, DATA_L4_HOURS_BUILD,
   DATA_L4_MATCH_ANT, DATA_L4_MATCH_CONJ, DATA_L4_ODD,
 } from "./lesson4";
+import {
+  DATA_L7_STORES, DATA_L7_SHOP_PEOPLE, DATA_L7_SHOP_WORDS,
+  DATA_L7_WHAT_WHERE, L7_WHAT_WHERE_OPTIONS,
+  DATA_L7_KUPUVAM, DATA_L7_PRODAVAM, DATA_L7_DAVAM,
+  DATA_L7_PLASCHTAM, DATA_L7_PAZARUVAM, DATA_L7_SHOP_VERBS,
+  DATA_L7_COMP, DATA_L7_SUPER,
+  DATA_L7_COMP_FILL, L7_COMP_FILL_OPTIONS,
+  DATA_L7_DIM,
+  DATA_L7_SHTE_NYAMA, L7_SHTE_NYAMA_OPTIONS, DATA_L7_FUTURE_NEG,
+  DATA_L7_NESHTO, L7_NESHTO_OPTIONS,
+  DATA_L7_DAT_SHORT, L7_DAT_SHORT_OPTIONS, DATA_L7_DAT_TRANS,
+  DATA_L7_LIKES, L7_LIKES_OPTIONS,
+  DATA_L7_APPROX, DATA_L7_MONEY,
+  DATA_L7_SELLER_BUYER, L7_SELLER_BUYER_OPTIONS,
+  DATA_L7_PARADIGM, DATA_L7_BUILD, DATA_L7_MARKET_BUILD,
+  DATA_L7_MATCH_PRON_DAT, DATA_L7_MATCH_ACC_DAT,
+  DATA_L7_MATCH_ANT, DATA_L7_MATCH_STORE, DATA_L7_ODD,
+} from "./lesson7";
 
 export * from "./lesson1";
 export * from "./lesson2";
 export * from "./lesson3";
 export * from "./lesson4";
+export * from "./lesson7";
 
 export const CATEGORIES: Category[] = [
   {
@@ -236,6 +255,43 @@ export const CATEGORIES: Category[] = [
       { id: "l4_match_ant", icon: "🔗", label: { ru: "Антонимы: пары", uk: "Антоніми: пари" }, desc: { ru: "Соедини антонимические пары", uk: "З'єднай антонімічні пари" }, type: "match", data: () => DATA_L4_MATCH_ANT },
       { id: "l4_match_conj", icon: "🔗", label: { ru: "1л. ↔ 3л.", uk: "1ос. ↔ 3ос." }, desc: { ru: "Соедини 1-е лицо ед. ч. с 3-м лицом ед. ч.", uk: "З'єднай 1-у особу одн. з 3-ю особою одн." }, type: "match", data: () => DATA_L4_MATCH_CONJ },
       { id: "l4_odd", icon: "🙅", label: { ru: "Найди лишнее · L4", uk: "Знайди зайве · L4" }, desc: { ru: "Одно слово не подходит по спряжению / категории / времени", uk: "Одне слово не підходить за дієвідміною / категорією / часом" }, type: "odd", data: () => DATA_L4_ODD },
+    ],
+  },
+  {
+    id: "l7_extra",
+    name: { ru: "Урок 7 · покупки", uk: "Урок 7 · покупки" },
+    modes: [
+      { id: "l7_stores_pick", icon: "🏬", label: { ru: "Магазины", uk: "Магазини" }, desc: { ru: "Выбери болгарское название магазина", uk: "Обери болгарську назву магазину" }, type: "pickFrom", data: () => DATA_L7_STORES },
+      { id: "l7_shop_people_pick", icon: "🧑‍💼", label: { ru: "Роли в магазине", uk: "Ролі в магазині" }, desc: { ru: "Выбери болгарский термин: продавец/покупатель/кассир", uk: "Обери болгарський термін: продавець/покупець/касир" }, type: "pickFrom", data: () => DATA_L7_SHOP_PEOPLE },
+      { id: "l7_shop_words_pick", icon: "💰", label: { ru: "Термины покупки", uk: "Терміни покупки" }, desc: { ru: "Выбери болгарский термин: касса/очередь/цена/сдача…", uk: "Обери болгарський термін: каса/черга/ціна/здача…" }, type: "pickFrom", data: () => DATA_L7_SHOP_WORDS },
+      { id: "l7_what_where_pick", icon: "🛒", label: { ru: "Что где продают", uk: "Що де продають" }, desc: { ru: "Выбери магазин, в котором продают этот товар", uk: "Обери магазин, в якому продають цей товар" }, type: "pickOpt", data: () => ({ items: DATA_L7_WHAT_WHERE, opts: L7_WHAT_WHERE_OPTIONS }) },
+      { id: "l7_kupuvam_pick", icon: "🛍️", label: { ru: "Купувам", uk: "Купувам" }, desc: { ru: "Выбери форму «купувам» для местоимения", uk: "Обери форму «купувам» для займенника" }, type: "pick", data: () => DATA_L7_KUPUVAM },
+      { id: "l7_prodavam_pick", icon: "🏷️", label: { ru: "Продавам", uk: "Продавам" }, desc: { ru: "Выбери форму «продавам» для местоимения", uk: "Обери форму «продавам» для займенника" }, type: "pick", data: () => DATA_L7_PRODAVAM },
+      { id: "l7_davam_pick", icon: "🤲", label: { ru: "Давам", uk: "Давам" }, desc: { ru: "Выбери форму «давам» для местоимения", uk: "Обери форму «давам» для займенника" }, type: "pick", data: () => DATA_L7_DAVAM },
+      { id: "l7_plaschtam_pick", icon: "💳", label: { ru: "Плащам", uk: "Плащам" }, desc: { ru: "Выбери форму «плащам» для местоимения", uk: "Обери форму «плащам» для займенника" }, type: "pick", data: () => DATA_L7_PLASCHTAM },
+      { id: "l7_pazaruvam_pick", icon: "🛒", label: { ru: "Пазарувам", uk: "Пазарувам" }, desc: { ru: "Выбери форму «пазарувам» для местоимения", uk: "Обери форму «пазарувам» для займенника" }, type: "pick", data: () => DATA_L7_PAZARUVAM },
+      { id: "l7_shop_verbs_pick", icon: "🔤", label: { ru: "Глаголы шопинга", uk: "Дієслова шопінгу" }, desc: { ru: "Выбери болгарский глагол по значению", uk: "Обери болгарське дієслово за значенням" }, type: "pickFrom", data: () => DATA_L7_SHOP_VERBS },
+      { id: "l7_comp_pick", icon: "📈", label: { ru: "Сравнит. степень", uk: "Вищий ступінь" }, desc: { ru: "Образуй сравнительную степень: голям → по-голям", uk: "Утвори вищий ступінь: голям → по-голям" }, type: "pickFrom", data: () => DATA_L7_COMP },
+      { id: "l7_super_pick", icon: "🏆", label: { ru: "Превосх. степень", uk: "Найвищий ступінь" }, desc: { ru: "Образуй превосходную степень: голям → най-голям", uk: "Утвори найвищий ступінь: голям → най-голям" }, type: "pickFrom", data: () => DATA_L7_SUPER },
+      { id: "l7_comp_fill_pick", icon: "🔀", label: { ru: "по- / най-", uk: "по- / най-" }, desc: { ru: "Выбери «по» (сравнение двух) или «най» (выделение из группы)", uk: "Обери «по» (порівняння двох) або «най» (виділення з групи)" }, type: "pickOpt", data: () => ({ items: DATA_L7_COMP_FILL, opts: L7_COMP_FILL_OPTIONS }) },
+      { id: "l7_dim_pick", icon: "🐭", label: { ru: "Диминутивы", uk: "Демінутиви" }, desc: { ru: "Образуй уменьшительную форму: магазин → магазинче", uk: "Утвори зменшену форму: магазин → магазинче" }, type: "pickFrom", data: () => DATA_L7_DIM },
+      { id: "l7_shte_nyama_pick", icon: "⏩", label: { ru: "ще / няма да", uk: "ще / няма да" }, desc: { ru: "Выбери «ще» (утверждение) или «няма да» (отрицание) для буд. вр.", uk: "Обери «ще» (ствердження) або «няма да» (заперечення) для майб. ч." }, type: "pickOpt", data: () => ({ items: DATA_L7_SHTE_NYAMA, opts: L7_SHTE_NYAMA_OPTIONS }) },
+      { id: "l7_future_neg_pick", icon: "🚫", label: { ru: "→ отрицат. буд.", uk: "→ заперечне майб." }, desc: { ru: "Преобразуй «ще + гл.» в «няма да + гл.»", uk: "Перетвори «ще + дієсл.» на «няма да + дієсл.»" }, type: "pickFrom", data: () => DATA_L7_FUTURE_NEG },
+      { id: "l7_neshto_pick", icon: "❓", label: { ru: "нещо / нищо", uk: "нещо / нищо" }, desc: { ru: "Выбери «нещо» (что-то) или «нищо» (ничего, всегда с «не»)", uk: "Обери «нещо» (щось) або «нищо» (нічого, завжди з «не»)" }, type: "pickOpt", data: () => ({ items: DATA_L7_NESHTO, opts: L7_NESHTO_OPTIONS }) },
+      { id: "l7_dat_short_pick", icon: "👤", label: { ru: "Кр. дательное", uk: "Кор. давальне" }, desc: { ru: "Выбери краткое дательное местоимение: ми/ти/му/й/ни/ви/им", uk: "Обери коротке давальне займенник: ми/ти/му/й/ни/ви/им" }, type: "pickOpt", data: () => ({ items: DATA_L7_DAT_SHORT, opts: L7_DAT_SHORT_OPTIONS }) },
+      { id: "l7_dat_trans_pick", icon: "🔁", label: { ru: "→ кр. DAT", uk: "→ кор. DAT" }, desc: { ru: "Замени «на + имя» на краткое дательное местоимение", uk: "Заміни «на + ім'я» на коротке давальне займенник" }, type: "pickFrom", data: () => DATA_L7_DAT_TRANS },
+      { id: "l7_likes_pick", icon: "👍", label: { ru: "харесва / отива / става", uk: "харесва / отива / става" }, desc: { ru: "Выбери форму глагола по числу подлежащего (товара)", uk: "Обери форму дієслова за числом підмета (товару)" }, type: "pickOpt", data: () => ({ items: DATA_L7_LIKES, opts: L7_LIKES_OPTIONS }) },
+      { id: "l7_approx_pick", icon: "≈", label: { ru: "Приблизит. количество", uk: "Приблизна кількість" }, desc: { ru: "Выбери болгарское выражение приблизительного количества", uk: "Обери болгарський вираз приблизної кількості" }, type: "pickFrom", data: () => DATA_L7_APPROX },
+      { id: "l7_money_pick", icon: "💵", label: { ru: "Деньги · счёт", uk: "Гроші · лічба" }, desc: { ru: "Собери «число + лев/стотинка/килограм»: 1 → лев, 2–6 → лева", uk: "Склади «число + лев/стотинка/килограм»: 1 → лев, 2–6 → лева" }, type: "pickFrom", data: () => DATA_L7_MONEY },
+      { id: "l7_seller_buyer_pick", icon: "🗣️", label: { ru: "Продавач или клиент?", uk: "Продавач чи клієнт?" }, desc: { ru: "Выбери, кто говорит реплику: продавач или клиент", uk: "Обери, хто каже репліку: продавач чи клієнт" }, type: "pickOpt", data: () => ({ items: DATA_L7_SELLER_BUYER, opts: L7_SELLER_BUYER_OPTIONS }) },
+      { id: "l7_paradigm", icon: "🧱", label: { ru: "Парадигмы · L7", uk: "Парадигми · L7" }, desc: { ru: "Собери парадигму: купувам, продавам, давам, плащам, пазарувам", uk: "Склади парадигму: купувам, продавам, давам, плащам, пазарувам" }, type: "paradigm", data: () => DATA_L7_PARADIGM },
+      { id: "l7_build", icon: "🧩", label: { ru: "Собери предложение · L7", uk: "Склади речення · L7" }, desc: { ru: "Расставь слова в предложении о покупках", uk: "Розстав слова в реченні про покупки" }, type: "build", data: () => DATA_L7_BUILD },
+      { id: "l7_market_build", icon: "🥕", label: { ru: "Собери диалог рынка", uk: "Склади діалог ринку" }, desc: { ru: "Расставь слова в реплике с рынка / магазина одежды", uk: "Розстав слова в репліці з ринку / магазину одягу" }, type: "build", data: () => DATA_L7_MARKET_BUILD },
+      { id: "l7_match_pron_dat", icon: "🔗", label: { ru: "Мест. ↔ кр. DAT", uk: "Займ. ↔ кор. DAT" }, desc: { ru: "Соедини местоимение с кратким дательным (аз↔ми)", uk: "З'єднай займенник з коротким давальним (аз↔ми)" }, type: "match", data: () => DATA_L7_MATCH_PRON_DAT },
+      { id: "l7_match_acc_dat", icon: "🔗", label: { ru: "ACC ↔ DAT", uk: "ACC ↔ DAT" }, desc: { ru: "Соедини винительные краткие с дательными (го↔му, я↔й)", uk: "З'єднай знахідні короткі з давальними (го↔му, я↔й)" }, type: "match", data: () => DATA_L7_MATCH_ACC_DAT },
+      { id: "l7_match_ant", icon: "↔️", label: { ru: "Антонимы · L7", uk: "Антоніми · L7" }, desc: { ru: "Соедини антонимические пары урока 7", uk: "З'єднай антонімічні пари уроку 7" }, type: "match", data: () => DATA_L7_MATCH_ANT },
+      { id: "l7_match_store", icon: "🛍️", label: { ru: "Магазин ↔ товар", uk: "Магазин ↔ товар" }, desc: { ru: "Соедини магазин с типичным товаром", uk: "З'єднай магазин з типовим товаром" }, type: "match", data: () => DATA_L7_MATCH_STORE },
+      { id: "l7_odd", icon: "🙅", label: { ru: "Найди лишнее · L7", uk: "Знайди зайве · L7" }, desc: { ru: "Одно слово не подходит по категории / форме / времени", uk: "Одне слово не підходить за категорією / формою / часом" }, type: "odd", data: () => DATA_L7_ODD },
     ],
   },
   {
