@@ -169,7 +169,7 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
 - [ ] FR-IOS-APPSTORE: Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered; automatic signing wired with team ID.
   - Test: `manual — korchasa`
   - Evidence: `manual — korchasa` (developer.apple.com screenshot + Xcode signing tab screenshot)
-- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted (localStorage-only, no PII transmission, IAP receipts via Apple; bilingual EN+RU). Published to `https://korchasa.github.io/bg-trainer/privacy.html` on next deploy.
+- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted (localStorage-only, no PII transmission, IAP receipts via Apple; bilingual EN+RU). Published to `https://bgtrainer.korchasa.dev/privacy.html` on next deploy (custom domain via `public/CNAME`).
   - Test: `manual — korchasa`
   - Evidence: `public/privacy.html`; `src/components/screens/PaywallScreen.tsx:7` (PRIVACY_URL constant)
 - [ ] FR-IOS-APPSTORE: ASC listing complete (title, RU/UK/EN descriptions, keywords, Education category, 4+ rating, support URL).

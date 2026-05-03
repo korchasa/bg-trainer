@@ -18,7 +18,7 @@
 
 ## Project Information
 - Project Name: bg-trainer
-- Live demo: https://korchasa.github.io/bg-trainer/
+- Live demo: https://bgtrainer.korchasa.dev/
 
 ## Project Vision
 Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (13 categories, 34 modes, 11 engine types) with persistent progress and analytics.
@@ -311,6 +311,13 @@ Project uses npm scripts (`package.json`). No standardized `check/test/prod` scr
 
 ### Command Scripts
 No helper scripts in `scripts/`. All commands are inline npm scripts in `package.json`.
+
+### Browser Automation Access
+- `foxcode-run-project-profile` (skill) launches a Firefox profile bridged via `mcp__plugin_foxcode_foxcode__evalInBrowser` (ws://localhost:8795).
+- Through it the agent can drive any authenticated web UI in the user's browser session — including App Store Connect, RevenueCat, GitHub, GitHub Pages dashboards, and arbitrary sites.
+- Use it to: inspect live app state, fetch IAP/subscription config, verify deploys, scrape pages, automate forms, take screenshots, run JS in the page context.
+- Prefer this over guessing or asking the user for data that is reachable from a logged-in browser. Do not ask for credentials — the user is already authenticated in the profile.
+- Treat as a real action with side effects: confirm before clicking destructive buttons (delete, submit, publish, transfer).
 
 ## Code Documentation
 

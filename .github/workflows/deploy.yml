@@ -28,7 +28,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE_PATH: /bg-trainer/
+          VITE_BASE_PATH: /
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4

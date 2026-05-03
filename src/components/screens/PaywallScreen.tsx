@@ -4,8 +4,8 @@ import { useI18n } from "../../i18n/context";
 import { useIap } from "../../services/iap";
 
 const EULA_URL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
-// FR-IOS-APPSTORE: privacy policy is hosted on the GitHub Pages deployment of this same repo.
-const PRIVACY_URL = "https://korchasa.github.io/bg-trainer/privacy.html";
+// FR-IOS-APPSTORE: privacy policy is hosted on the public site of this app.
+const PRIVACY_URL = "https://bgtrainer.korchasa.dev/privacy.html";
 
 interface Props {
   onClose: () => void;

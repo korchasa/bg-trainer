@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE_PATH: /bg-trainer/preview/${{ steps.branch.outputs.dir }}/
+          VITE_BASE_PATH: /preview/${{ steps.branch.outputs.dir }}/
 
       - name: Deploy preview
         uses: peaceiris/actions-gh-pages@v4
@@ -49,7 +49,7 @@ jobs:
         with:
           script: |
             const branchDir = '${{ steps.branch.outputs.dir }}';
-            const url = `https://${{ github.repository_owner }}.github.io/bg-trainer/preview/${branchDir}/`;
+            const url = `https://bgtrainer.korchasa.dev/preview/${branchDir}/`;
             const body = `### Preview deployed\n\n🔗 ${url}`;
 
             const prs = await github.rest.pulls.list({
