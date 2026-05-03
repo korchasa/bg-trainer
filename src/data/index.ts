@@ -100,6 +100,25 @@ import {
   DATA_L7_MATCH_PRON_DAT, DATA_L7_MATCH_ACC_DAT,
   DATA_L7_MATCH_ANT, DATA_L7_MATCH_STORE, DATA_L7_ODD,
 } from "./lesson7";
+import {
+  DATA_L8_FOOD, DATA_L8_FOOD_TYPE,
+  DATA_L8_FRUITS, DATA_L8_FRUITS_TYPE,
+  DATA_L8_VEGETABLES, DATA_L8_VEGETABLES_TYPE,
+  DATA_L8_MEAT_DAIRY, DATA_L8_SPICES, DATA_L8_DRINKS,
+  DATA_L8_TABLEWARE, DATA_L8_DISHES, DATA_L8_RESTAURANT,
+  DATA_L8_TASTE, L8_TASTE_OPTIONS,
+  DATA_L8_COOKING, DATA_L8_METHOD, L8_METHOD_OPTIONS,
+  DATA_L8_GLAD_ZHAD, L8_GLAD_ZHAD_OPTIONS,
+  DATA_L8_YADE_MI_SE, L8_YADE_MI_SE_OPTIONS,
+  DATA_L8_PIE_MI_SE, L8_PIE_MI_SE_OPTIONS,
+  DATA_L8_PART, DATA_L8_PART_TYPE,
+  DATA_L8_PERF_AUX, L8_PERF_AUX_OPTIONS,
+  DATA_L8_PERF_WO, DATA_L8_PERF_LI,
+  DATA_L8_PERF_SHORT, L8_PERF_SHORT_OPTIONS,
+  DATA_L8_PERF_PARADIGM, DATA_L8_BUILD,
+  DATA_L8_MATCH_COGNATE, DATA_L8_MATCH_PAIRS, DATA_L8_MATCH_TASTE,
+  DATA_L8_ODD,
+} from "./lesson8";
 
 export * from "./lesson1";
 export * from "./lesson2";
@@ -108,6 +127,7 @@ export * from "./lesson4";
 export * from "./lesson5";
 export * from "./lesson6";
 export * from "./lesson7";
+export * from "./lesson8";
 
 export const CATEGORIES: Category[] = [
   {
@@ -391,6 +411,42 @@ export const CATEGORIES: Category[] = [
       { id: "l7_match_ant", icon: "↔️", label: { ru: "Антонимы · L7", uk: "Антоніми · L7" }, desc: { ru: "Соедини антонимические пары урока 7", uk: "З'єднай антонімічні пари уроку 7" }, type: "match", data: () => DATA_L7_MATCH_ANT },
       { id: "l7_match_store", icon: "🛍️", label: { ru: "Магазин ↔ товар", uk: "Магазин ↔ товар" }, desc: { ru: "Соедини магазин с типичным товаром", uk: "З'єднай магазин з типовим товаром" }, type: "match", data: () => DATA_L7_MATCH_STORE },
       { id: "l7_odd", icon: "🙅", label: { ru: "Найди лишнее · L7", uk: "Знайди зайве · L7" }, desc: { ru: "Одно слово не подходит по категории / форме / времени", uk: "Одне слово не підходить за категорією / формою / часом" }, type: "odd", data: () => DATA_L7_ODD },
+    ],
+  },
+  {
+    id: "l8_extra",
+    name: { ru: "Урок 8 · еда", uk: "Урок 8 · їжа" },
+    modes: [
+      { id: "l8_food_pick", icon: "🍽️", label: { ru: "Еда: общая", uk: "Їжа: загальна" }, desc: { ru: "Выбери болгарский перевод общей еды", uk: "Обери болгарський переклад загальної їжі" }, type: "pickFrom", data: () => DATA_L8_FOOD },
+      { id: "l8_food_type", icon: "⌨️", label: { ru: "Впиши еду", uk: "Впиши їжу" }, desc: { ru: "Напечатай болгарский перевод слова о еде", uk: "Надрукуй болгарський переклад слова про їжу" }, type: "type", data: () => DATA_L8_FOOD_TYPE },
+      { id: "l8_fruits_pick", icon: "🍎", label: { ru: "Фрукты", uk: "Фрукти" }, desc: { ru: "Выбери болгарское название фрукта", uk: "Обери болгарську назву фрукта" }, type: "pickFrom", data: () => DATA_L8_FRUITS },
+      { id: "l8_fruits_type", icon: "⌨️", label: { ru: "Впиши фрукт", uk: "Впиши фрукт" }, desc: { ru: "Напечатай болгарское название фрукта", uk: "Надрукуй болгарську назву фрукта" }, type: "type", data: () => DATA_L8_FRUITS_TYPE },
+      { id: "l8_vegetables_pick", icon: "🥕", label: { ru: "Овощи", uk: "Овочі" }, desc: { ru: "Выбери болгарское название овоща", uk: "Обери болгарську назву овоча" }, type: "pickFrom", data: () => DATA_L8_VEGETABLES },
+      { id: "l8_vegetables_type", icon: "⌨️", label: { ru: "Впиши овощ", uk: "Впиши овоч" }, desc: { ru: "Напечатай болгарское название овоща", uk: "Надрукуй болгарську назву овоча" }, type: "type", data: () => DATA_L8_VEGETABLES_TYPE },
+      { id: "l8_meat_dairy_pick", icon: "🥩", label: { ru: "Мясо / молочное", uk: "М'ясо / молочне" }, desc: { ru: "Выбери болгарское название мясного / молочного продукта", uk: "Обери болгарську назву м'ясного / молочного продукту" }, type: "pickFrom", data: () => DATA_L8_MEAT_DAIRY },
+      { id: "l8_spices_pick", icon: "🌶️", label: { ru: "Приправы", uk: "Приправи" }, desc: { ru: "Выбери болгарское название приправы", uk: "Обери болгарську назву приправи" }, type: "pickFrom", data: () => DATA_L8_SPICES },
+      { id: "l8_drinks_pick", icon: "🥤", label: { ru: "Напитки", uk: "Напої" }, desc: { ru: "Выбери болгарское название напитка", uk: "Обери болгарську назву напою" }, type: "pickFrom", data: () => DATA_L8_DRINKS },
+      { id: "l8_tableware_pick", icon: "🍴", label: { ru: "Посуда / приборы", uk: "Посуд / прибори" }, desc: { ru: "Выбери болгарское название посуды или прибора", uk: "Обери болгарську назву посуду чи прибора" }, type: "pickFrom", data: () => DATA_L8_TABLEWARE },
+      { id: "l8_dishes_pick", icon: "🥘", label: { ru: "Болгарские блюда", uk: "Болгарські страви" }, desc: { ru: "Выбери название болгарского блюда по описанию", uk: "Обери назву болгарської страви за описом" }, type: "pickFrom", data: () => DATA_L8_DISHES },
+      { id: "l8_restaurant_pick", icon: "🧑‍🍳", label: { ru: "Ресторан", uk: "Ресторан" }, desc: { ru: "Выбери болгарское слово из ресторанной лексики", uk: "Обери болгарське слово з ресторанної лексики" }, type: "pickFrom", data: () => DATA_L8_RESTAURANT },
+      { id: "l8_taste_pick", icon: "👅", label: { ru: "Вкус продукта", uk: "Смак продукту" }, desc: { ru: "Выбери вкус: сладък / солен / лют / горчив / кисел", uk: "Обери смак: сладък / солен / лют / горчив / кисел" }, type: "pickOpt", data: () => ({ items: DATA_L8_TASTE, opts: L8_TASTE_OPTIONS }) },
+      { id: "l8_cooking_pick", icon: "🍳", label: { ru: "Глаголы готовки", uk: "Дієслова готування" }, desc: { ru: "Выбери болгарский глагол приготовления / обработки еды", uk: "Обери болгарське дієслово приготування / обробки їжі" }, type: "pickFrom", data: () => DATA_L8_COOKING },
+      { id: "l8_method_pick", icon: "🔥", label: { ru: "Способ готовки", uk: "Спосіб готування" }, desc: { ru: "Выбери способ: пека / варя / пържа / задушавам / ям сурово", uk: "Обери спосіб: пека / варя / пържа / задушавам / ям сурово" }, type: "pickOpt", data: () => ({ items: DATA_L8_METHOD, opts: L8_METHOD_OPTIONS }) },
+      { id: "l8_glad_zhad_pick", icon: "🍽️", label: { ru: "Гладен / жаден", uk: "Гладен / жаден" }, desc: { ru: "Согласуй «гладен / жаден» по роду и числу подлежащего", uk: "Узгодь «гладен / жаден» за родом і числом підмета" }, type: "pickOpt", data: () => ({ items: DATA_L8_GLAD_ZHAD, opts: L8_GLAD_ZHAD_OPTIONS }) },
+      { id: "l8_yade_mi_se_pick", icon: "🍰", label: { ru: "Яде / ядат ми се", uk: "Яде / ядат ми се" }, desc: { ru: "Выбери «яде ми се» (ед.) или «ядат ми се» (мн.) для предмета", uk: "Обери «яде ми се» (одн.) або «ядат ми се» (мн.) для предмета" }, type: "pickOpt", data: () => ({ items: DATA_L8_YADE_MI_SE, opts: L8_YADE_MI_SE_OPTIONS }) },
+      { id: "l8_pie_mi_se_pick", icon: "🥃", label: { ru: "Пие / пият ми се", uk: "Пие / пият ми се" }, desc: { ru: "Выбери «пие ми се» (ед.) или «пият ми се» (мн.) для напитка", uk: "Обери «пие ми се» (одн.) або «пият ми се» (мн.) для напою" }, type: "pickOpt", data: () => ({ items: DATA_L8_PIE_MI_SE, opts: L8_PIE_MI_SE_OPTIONS }) },
+      { id: "l8_part_pick", icon: "🧱", label: { ru: "Причастие по р./ч.", uk: "Дієприкметник за р./ч." }, desc: { ru: "Выбери форму причастия (ял/яла/яло/яли) по роду и числу", uk: "Обери форму дієприкметника (ял/яла/яло/яли) за родом і числом" }, type: "pickFrom", data: () => DATA_L8_PART },
+      { id: "l8_part_type", icon: "⌨️", label: { ru: "Впиши причастие", uk: "Впиши дієприкметник" }, desc: { ru: "Напечатай форму причастия (ял/яла/яло/яли)", uk: "Надрукуй форму дієприкметника (ял/яла/яло/яли)" }, type: "type", data: () => DATA_L8_PART_TYPE },
+      { id: "l8_perf_aux_pick", icon: "🔗", label: { ru: "Вспом. съм/си/е/…", uk: "Допом. съм/си/е/…" }, desc: { ru: "Выбери вспомогательное «съм» по подлежащему (минало неопределено)", uk: "Обери допоміжне «съм» за підметом (минуле неозначене)" }, type: "pickOpt", data: () => ({ items: DATA_L8_PERF_AUX, opts: L8_PERF_AUX_OPTIONS }) },
+      { id: "l8_perf_wo_pick", icon: "🪜", label: { ru: "Порядок слов", uk: "Порядок слів" }, desc: { ru: "Выбери правильный порядок слов в минало неопределено", uk: "Обери правильний порядок слів у минулому неозначеному" }, type: "pickFrom", data: () => DATA_L8_PERF_WO },
+      { id: "l8_perf_li", icon: "❓", label: { ru: "Ли в перфекте", uk: "Ли в перфекті" }, desc: { ru: "Вставь «ли» в вопрос минало неопределено (после причастия)", uk: "Встав «ли» у питання минулого неозначеного (після дієприкметника)" }, type: "li", data: () => DATA_L8_PERF_LI },
+      { id: "l8_perf_short_pick", icon: "💬", label: { ru: "Краткие ответы", uk: "Короткі відповіді" }, desc: { ru: "Выбери краткий ответ (Да, ял съм / Не, не съм ял)", uk: "Обери коротку відповідь (Да, ял съм / Не, не съм ял)" }, type: "pickOpt", data: () => ({ items: DATA_L8_PERF_SHORT, opts: L8_PERF_SHORT_OPTIONS }) },
+      { id: "l8_perf_paradigm", icon: "🧱", label: { ru: "Парадигмы перфекта", uk: "Парадигми перфекту" }, desc: { ru: "Собери парадигму минало неопределено: ял/пил/ходил/бил + наст. ям", uk: "Склади парадигму минулого неозначеного: ял/пил/ходил/бил + теп. ям" }, type: "paradigm", data: () => DATA_L8_PERF_PARADIGM },
+      { id: "l8_build", icon: "🧩", label: { ru: "Собери предложение · L8", uk: "Склади речення · L8" }, desc: { ru: "Расставь слова в предложении о еде / ресторане / перфекте", uk: "Розстав слова в реченні про їжу / ресторан / перфект" }, type: "build", data: () => DATA_L8_BUILD },
+      { id: "l8_match_cognate", icon: "🔗", label: { ru: "Глагол ↔ существ.", uk: "Дієслово ↔ іменник" }, desc: { ru: "Соедини однокоренные пары: ям ↔ ядене, готвя ↔ готвач …", uk: "З'єднай однокореневі пари: ям ↔ ядене, готвя ↔ готвач …" }, type: "match", data: () => DATA_L8_MATCH_COGNATE },
+      { id: "l8_match_pairs", icon: "🍷", label: { ru: "Напиток ↔ еда", uk: "Напій ↔ їжа" }, desc: { ru: "Соедини напиток с типичным сопровождением (по-болгарски)", uk: "З'єднай напій з типовим супроводом (по-болгарськи)" }, type: "match", data: () => DATA_L8_MATCH_PAIRS },
+      { id: "l8_match_taste", icon: "🔗", label: { ru: "Вкус ↔ продукт", uk: "Смак ↔ продукт" }, desc: { ru: "Соедини вкус с типичным продуктом", uk: "З'єднай смак з типовим продуктом" }, type: "match", data: () => DATA_L8_MATCH_TASTE },
+      { id: "l8_odd", icon: "🙅", label: { ru: "Найди лишнее · L8", uk: "Знайди зайве · L8" }, desc: { ru: "Одно слово не подходит по категории еды / напитка / посуды / причастия", uk: "Одне слово не підходить за категорією їжі / напою / посуду / дієприкметника" }, type: "odd", data: () => DATA_L8_ODD },
     ],
   },
   {
