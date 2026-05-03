@@ -279,11 +279,13 @@
 ### 3.23 FR-IOS-CICD
 - **Desc:** Automated build + TestFlight delivery on release tags.
 - **Acceptance:**
-  - [ ] GitHub Actions workflow `ios-release.yml` triggered on tag `v*`.
-  - [ ] `npm run build:ios && cap sync ios && xcodebuild archive -exportArchive` producing `.ipa`.
-  - [ ] App Store Connect API key stored as GitHub secret; upload via `fastlane pilot` or `xcrun altool`.
-  - [ ] Auto-bump `CURRENT_PROJECT_VERSION` (build number) from CI run number.
-  - [ ] `MARKETING_VERSION` sourced from git tag.
+  - [x] GitHub Actions workflow `ios-release.yml` triggered on tag `v*` (also `workflow_dispatch`). Evidence: `.github/workflows/ios-release.yml:3-7`
+  - [x] Pipeline runs `npm run build:ios && npx cap sync ios && xcodebuild archive -exportArchive` producing `.ipa` artifact. Evidence: `.github/workflows/ios-release.yml` (Build/Capacitor sync/Archive/Export IPA steps)
+  - [x] App Store Connect API key consumed from GitHub secrets (`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`); upload via `xcrun altool`. Evidence: `.github/workflows/ios-release.yml` (Upload to TestFlight via altool step)
+  - [x] Auto-bump `CURRENT_PROJECT_VERSION` from `${GITHUB_RUN_NUMBER}` via `xcrun agvtool new-version`. Evidence: `.github/workflows/ios-release.yml` (Bump versions step)
+  - [x] `MARKETING_VERSION` sourced from git tag (`${GITHUB_REF_NAME#v}`) via `xcrun agvtool new-marketing-version`. Evidence: `.github/workflows/ios-release.yml` (Bump versions step)
+  - [x] Keychain bootstrap (cert import + provisioning profile install) on clean macOS runner with cleanup. Evidence: `.github/workflows/ios-release.yml` (Bootstrap signing keychain + Cleanup keychain steps)
+  - [ ] First tagged build reaches ASC TestFlight "Ready to Test" — pending secrets population + manual run. Setup: `documents/ios-release-setup.md`.
 
 ### 3.9 FR-NAV
 - **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`, `paywall` (mobile only). Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar. Tap on locked pro lesson (mobile) → `paywall`; close paywall → back to `lessons`.

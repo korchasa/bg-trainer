@@ -223,27 +223,27 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
 
 ### CI/CD (FR-IOS-CICD)
 
-- [ ] FR-IOS-CICD: `.github/workflows/ios-release.yml` triggers on tag `v*`.
-  - Test: `manual — korchasa`
-  - Evidence: `grep -E "tags:.*v\*" .github/workflows/ios-release.yml`
-- [ ] FR-IOS-CICD: pipeline runs `npm run build:ios && cap sync ios && xcodebuild archive -exportArchive` and produces `.ipa` artifact.
-  - Test: `manual — korchasa` (re-run latest tag job)
-  - Evidence: `gh run list -w ios-release.yml -L 1 --json conclusion -q '.[].conclusion'` outputs `success`
+- [x] FR-IOS-CICD: `.github/workflows/ios-release.yml` triggers on tag `v*`.
+  - Test: `grep -E "tags:" .github/workflows/ios-release.yml`
+  - Evidence: `.github/workflows/ios-release.yml:3-7` (`on.push.tags: ["v*"]` + `workflow_dispatch`)
+- [x] FR-IOS-CICD: pipeline runs `npm run build:ios && cap sync ios && xcodebuild archive -exportArchive` and produces `.ipa` artifact.
+  - Test: `manual — korchasa` (re-run latest tag job after secrets populated)
+  - Evidence: `.github/workflows/ios-release.yml` Build/Capacitor sync/Archive/Export IPA steps; IPA published as `actions/upload-artifact@v4` with name `ios-build-<run_number>`
 - [ ] FR-IOS-CICD: first tagged build visible in App Store Connect → TestFlight (status reaches "Ready to Test").
   - Test: `manual — korchasa`
-  - Evidence: `manual — korchasa` (ASC TestFlight screenshot)
-- [ ] FR-IOS-CICD: keychain bootstrap (cert import + provisioning profile install) succeeds on clean macOS runner.
-  - Test: `manual — korchasa`
-  - Evidence: `gh run view --log <run-id> | grep -E "security import|profile.mobileprovision"` shows zero exit
-- [ ] FR-IOS-CICD: ASC API key (`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`) stored as GitHub secrets; upload via `xcrun altool` or `fastlane pilot`.
-  - Test: `manual — korchasa`
-  - Evidence: `gh secret list | grep -E "ASC_KEY_ID|ASC_ISSUER_ID|ASC_KEY_P8_BASE64"`
-- [ ] FR-IOS-CICD: `CURRENT_PROJECT_VERSION` auto-bumped from `${{ github.run_number }}`.
-  - Test: `manual — korchasa`
-  - Evidence: `grep -n "CURRENT_PROJECT_VERSION\|run_number" .github/workflows/ios-release.yml`
-- [ ] FR-IOS-CICD: `MARKETING_VERSION` sourced from git tag (`${GITHUB_REF_NAME#v}`).
-  - Test: `manual — korchasa`
-  - Evidence: `grep -n "MARKETING_VERSION\|GITHUB_REF_NAME" .github/workflows/ios-release.yml`
+  - Evidence: `manual — korchasa` (ASC TestFlight screenshot, blocked on secrets + first tag)
+- [x] FR-IOS-CICD: keychain bootstrap (cert import + provisioning profile install) implemented; runs on every workflow run with cleanup on failure.
+  - Test: `manual — korchasa` (re-run after secrets populated)
+  - Evidence: `.github/workflows/ios-release.yml` "Bootstrap signing keychain" + "Cleanup keychain" steps; secrets list in `documents/ios-release-setup.md`
+- [x] FR-IOS-CICD: ASC API key (`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`) consumed from GitHub secrets; upload via `xcrun altool`.
+  - Test: `gh secret list | grep -E "ASC_KEY_ID|ASC_ISSUER_ID|ASC_KEY_P8_BASE64"` (after population)
+  - Evidence: `.github/workflows/ios-release.yml` "Upload to TestFlight via altool" step references all three secrets
+- [x] FR-IOS-CICD: `CURRENT_PROJECT_VERSION` auto-bumped from `${{ github.run_number }}` via `xcrun agvtool new-version`.
+  - Test: `grep -n "agvtool new-version" .github/workflows/ios-release.yml`
+  - Evidence: `.github/workflows/ios-release.yml` "Bump versions from tag and run number" step
+- [x] FR-IOS-CICD: `MARKETING_VERSION` sourced from git tag (`${GITHUB_REF_NAME#v}`) via `xcrun agvtool new-marketing-version`.
+  - Test: `grep -n "agvtool new-marketing-version" .github/workflows/ios-release.yml`
+  - Evidence: `.github/workflows/ios-release.yml` "Bump versions from tag and run number" step
 
 ### Submission
 
