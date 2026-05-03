@@ -8,6 +8,15 @@ const config: CapacitorConfig = {
     contentInset: 'never',
     backgroundColor: '#ffffff',
   },
+  plugins: {
+    SplashScreen: {
+      backgroundColor: '#ffffff',
+      launchShowDuration: 3000,
+      launchAutoHide: false,
+      showSpinner: false,
+      iosSpinnerStyle: 'small',
+    },
+  },
 }
 
 export default config

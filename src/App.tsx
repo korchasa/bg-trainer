@@ -4,6 +4,7 @@ import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
 import { loadMastery, saveMastery, clearMastery, applyAnswer } from "./utils/mastery";
 import { loadPace, savePace } from "./utils/pace";
+import { hapticRoundFinished } from "./utils/nativeUx";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
 import { SESSION_SIZE_BY_PACE, ROUND_GAMES, DEFAULT_PACE } from "./constants";
@@ -115,6 +116,7 @@ export default function App() {
         round: true,
         qsTotal: nextTotals.qsTotal,
       });
+      hapticRoundFinished();
       setResult({ score: nextTotals.score, time: nextTotals.time, errors: nextTotals.errors });
       setResultMode(roundMode);
       setRound(null);

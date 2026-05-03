@@ -2,6 +2,8 @@ import { useState, useCallback, useRef } from "react";
 import type { DataItem } from "../types";
 import { pickOK, pickFail } from "../utils/shuffle";
 import { itemKey } from "../utils/itemKey";
+import { hapticCorrect, hapticWrong } from "../utils/nativeUx";
+import { prefersReducedMotion } from "../utils/motion";
 
 export interface AnswerOpts {
   extraPts?: number;
@@ -113,7 +115,10 @@ export function useGame(
         answeredRef.current += 1;
         setAnswered(answeredRef.current);
         lockedRef.current = true;
-        setTimeout(advance, delay);
+        hapticCorrect();
+        // FR-IOS-UX: skip the celebratory pause when Reduce Motion is on.
+        const effectiveDelay = prefersReducedMotion() ? 0 : delay;
+        setTimeout(advance, effectiveDelay);
       } else {
         setCorr(correctVal);
         setReaction(pickFail(reactionsRef.current.fail));
@@ -126,6 +131,7 @@ export function useGame(
           }
           firstWrongRef.current = true;
         }
+        hapticWrong();
         setErrorPending(true);
       }
       return ok;
