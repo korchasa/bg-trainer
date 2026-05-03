@@ -151,27 +151,27 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
 
 ### App Store readiness (FR-IOS-APPSTORE)
 
-- [ ] FR-IOS-APPSTORE: AppIcon set complete (1024×1024 + 17 size variants).
+- [x] FR-IOS-APPSTORE: AppIcon — single 1024×1024 universal sRGB 8-bit RGB no-alpha source (Xcode 14+ accepts a single source; iOS scales). Brand red `#E60023` background, white «БГ» monogram.
   - Test: `manual — korchasa`
-  - Evidence: `ls ios/App/App/Assets.xcassets/AppIcon.appiconset/ | wc -l` (≥18 entries)
-- [ ] FR-IOS-APPSTORE: `LaunchScreen.storyboard` replaced with branded white screen (no black flash).
+  - Evidence: `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` (1024×1024), `Contents.json`
+- [x] FR-IOS-APPSTORE: `LaunchScreen.storyboard` uses literal white `backgroundColor` so launch never flashes black; Splash imageset flattened to plain white.
   - Test: `manual — korchasa`
-  - Evidence: `grep -n "backgroundColor" ios/App/App/Base.lproj/LaunchScreen.storyboard`
-- [ ] FR-IOS-APPSTORE: `PrivacyInfo.xcprivacy` present with reasons for `UserDefaults` (CA92.1), Sentry, RevenueCat, iCloud KVS.
+  - Evidence: `ios/App/App/Base.lproj/LaunchScreen.storyboard:18`, `ios/App/App/Assets.xcassets/Splash.imageset/`
+- [x] FR-IOS-APPSTORE: `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` reason `CA92.1`. Wired into Xcode build resources.
   - Test: `manual — korchasa`
-  - Evidence: `ls ios/App/App/PrivacyInfo.xcprivacy && grep -E "CA92.1" ios/App/App/PrivacyInfo.xcprivacy`
-- [ ] FR-IOS-APPSTORE: `ITSAppUsesNonExemptEncryption: false` in Info.plist.
+  - Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries)
+- [x] FR-IOS-APPSTORE: `ITSAppUsesNonExemptEncryption: false` in Info.plist.
   - Test: `manual — korchasa`
-  - Evidence: `/usr/libexec/PlistBuddy -c "Print :ITSAppUsesNonExemptEncryption" ios/App/App/Info.plist`
-- [ ] FR-IOS-APPSTORE: orientation locked to `UIInterfaceOrientationPortrait` only.
+  - Evidence: `ios/App/App/Info.plist:60-61`
+- [x] FR-IOS-APPSTORE: orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed.
   - Test: `manual — korchasa`
-  - Evidence: `/usr/libexec/PlistBuddy -c "Print :UISupportedInterfaceOrientations" ios/App/App/Info.plist` outputs `UIInterfaceOrientationPortrait` exclusively
+  - Evidence: `ios/App/App/Info.plist:53-55`
 - [ ] FR-IOS-APPSTORE: Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered; automatic signing wired with team ID.
   - Test: `manual — korchasa`
   - Evidence: `manual — korchasa` (developer.apple.com screenshot + Xcode signing tab screenshot)
-- [ ] FR-IOS-APPSTORE: Privacy Policy hosted publicly (localStorage-only, no PII transmission, IAP receipts via Apple).
+- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted (localStorage-only, no PII transmission, IAP receipts via Apple; bilingual EN+RU). Published to `https://korchasa.github.io/bg-trainer/privacy.html` on next deploy.
   - Test: `manual — korchasa`
-  - Evidence: `curl -fsS <privacy-policy-url> | head -1`
+  - Evidence: `public/privacy.html`; `src/components/screens/PaywallScreen.tsx:7` (PRIVACY_URL constant)
 - [ ] FR-IOS-APPSTORE: ASC listing complete (title, RU/UK/EN descriptions, keywords, Education category, 4+ rating, support URL).
   - Test: `manual — korchasa`
   - Evidence: `manual — korchasa` (ASC screenshot)

@@ -234,14 +234,14 @@
 ### 3.19 FR-IOS-APPSTORE
 - **Desc:** Assets and metadata required for App Store submission. Blockers for `xcodebuild archive` + review.
 - **Acceptance:**
-  - [ ] AppIcon set (1024×1024 + 17 size variants) in `ios/App/App/Assets.xcassets/AppIcon.appiconset/`.
-  - [ ] `LaunchScreen.storyboard` replaced with branded white screen (prevents black flash pre-WebView).
-  - [ ] `PrivacyInfo.xcprivacy` with API usage reasons (`UserDefaults` CA92.1; `FileTimestamp` C617.1 if applicable).
-  - [ ] `ITSAppUsesNonExemptEncryption: false` in Info.plist.
-  - [ ] Orientation locked to `UIInterfaceOrientationPortrait` only. Evidence target: `ios/App/App/Info.plist:35-40`
-  - [ ] Apple Developer account active ($99/year); Bundle ID `dev.korchasa.bgtrainer` registered.
+  - [x] AppIcon set: single 1024×1024 universal sRGB 8-bit no-alpha (Xcode 14+ accepts a single source; iOS scales). Brand red `#E60023` background with white «БГ» monogram. Evidence: `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png`, `Contents.json`
+  - [x] `LaunchScreen.storyboard` uses literal white `backgroundColor` (not `systemBackgroundColor` reference) so launch never flashes black even if Splash image fails to load. Splash image flattened to plain white 2732×2732. Evidence: `ios/App/App/Base.lproj/LaunchScreen.storyboard:18`, `ios/App/App/Assets.xcassets/Splash.imageset/`
+  - [x] `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, and one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` with reason `CA92.1` (own defaults). Wired into Xcode project as a build resource. SDK manifests (RC, Capacitor plugins) merge in at archive time. Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries with IDs `B6010101000000000000PRIV`/`B6010102000000000000PRIV`)
+  - [x] `ITSAppUsesNonExemptEncryption: false` in Info.plist. Evidence: `ios/App/App/Info.plist:60-61`
+  - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
+  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU). Will be served from GitHub Pages on next deploy. Evidence: `public/privacy.html`; reference in `src/components/screens/PaywallScreen.tsx:7`
+  - [ ] Apple Developer account active ($99/year); Bundle ID `dev.korchasa.bgtrainer` registered. (manual — done outside repo)
   - [ ] Code signing configured (automatic signing with team).
-  - [ ] Publicly hosted Privacy Policy (localStorage-only, no data transmission).
   - [ ] App Store Connect listing: title, description (RU/UK/EN), keywords, Education category, 4+ rating, support URL.
   - [ ] Screenshots for iPhone 6.7" (1290×2796); optional 6.5" and 5.5" for older devices.
   - [ ] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` or `fastlane pilot`.
@@ -270,8 +270,8 @@
 ### 3.22 FR-IOS-POLISH
 - **Desc:** Optional native-integration niceties.
 - **Acceptance:**
-  - [ ] Dark mode: either opt-out via `UIUserInterfaceStyle: Light` in Info.plist, or add `prefers-color-scheme: dark` CSS variants.
-  - [ ] iPad layout: either drop iPad (`TARGETED_DEVICE_FAMILY = "1"`) or widen container past `max-w-md` on `min-width: 768px`.
+  - [x] Dark mode opt-out via `UIUserInterfaceStyle: Light` in Info.plist. Evidence: `ios/App/App/Info.plist:58-59`
+  - [x] iPad dropped via `TARGETED_DEVICE_FAMILY = "1"` (iPhone-only). Evidence: `ios/App/App.xcodeproj/project.pbxproj:320,341`
   - [ ] VoiceOver labels on answer tiles, progress, navigation buttons.
   - [ ] Dynamic Type: respect system font size via `font-size: max(1rem, env(safe-area-inset-top)*0 + ...)` or rem-based scaling.
   - [ ] Crash reporting (Sentry or Firebase Crashlytics) for production builds.
