@@ -8,7 +8,7 @@
 
 - [FR-FREEMIUM](requirements.md#324-fr-freemium) — Mobile-only content tier gating (free/pro) — partial (data + flag done, gate enforcement pending)
 - [FR-IAP](requirements.md#325-fr-iap) — RevenueCat single non-consumable lifetime unlock — pending
-- [FR-IOS-APPSTORE](requirements.md#319-fr-ios-appstore) — App Store submission assets and metadata — partial (code-side closed: AppIcon, LaunchScreen, PrivacyInfo, encryption flag, portrait lock, Privacy Policy; manual ASC listing/signing/screenshots/TestFlight pending)
+- [FR-IOS-APPSTORE](requirements.md#319-fr-ios-appstore) — App Store submission assets and metadata — partial (code-side closed; ASC listing partial: app registered, Education+4+ set, Localized Name/Subtitle/version metadata filled EN+RU+UK, custom domain `bgtrainer.korchasa.dev` live with privacy policy; pending: Privacy URL save in ASC form, App Privacy questionnaire, Pricing, screenshots, signing, TestFlight upload)
 - [FR-IOS-CICD](requirements.md#323-fr-ios-cicd) — TestFlight delivery on release tags — partial (workflow + setup doc done; first tagged TestFlight run pending secrets population — see `documents/ios-release-setup.md`)
 - [FR-IOS-POLISH](requirements.md#322-fr-ios-polish) — Native a11y, dark, iPad-drop, crash reporting — partial (dark opt-out, iPad drop, VoiceOver labels, Dynamic Type rem done; manual rotor walkthrough + Sentry pending)
 - [FR-IOS-STORAGE](requirements.md#321-fr-ios-storage) — Capacitor Preferences adapter + migration — partial (adapter + migration + bootReady done, on-device verification pending)

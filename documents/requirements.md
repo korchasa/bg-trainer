@@ -239,12 +239,12 @@
   - [x] `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, and one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` with reason `CA92.1` (own defaults). Wired into Xcode project as a build resource. SDK manifests (RC, Capacitor plugins) merge in at archive time. Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries with IDs `B6010101000000000000PRIV`/`B6010102000000000000PRIV`)
   - [x] `ITSAppUsesNonExemptEncryption: false` in Info.plist. Evidence: `ios/App/App/Info.plist:60-61`
   - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
-  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU). Will be served from GitHub Pages on next deploy. Evidence: `public/privacy.html`; reference in `src/components/screens/PaywallScreen.tsx:7`
-  - [ ] Apple Developer account active ($99/year); Bundle ID `dev.korchasa.bgtrainer` registered. (manual — done outside repo)
-  - [ ] Code signing configured (automatic signing with team).
-  - [ ] App Store Connect listing: title, description (RU/UK/EN), keywords, Education category, 4+ rating, support URL.
-  - [ ] Screenshots for iPhone 6.7" (1290×2796); optional 6.5" and 5.5" for older devices.
-  - [ ] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` or `fastlane pilot`.
+  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain). Evidence: `public/privacy.html`, `public/CNAME`, `.github/workflows/deploy.yml` (`VITE_BASE_PATH: /`); HTTP 200 verified post-deploy.
+  - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
+  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Pending: Privacy Policy URL save (Apple form-library quirk, manual entry), App Privacy data-collection questionnaire, Pricing form.
+  - [ ] Code signing configured (automatic signing with team) — pending Xcode setup.
+  - [ ] Screenshots for iPhone 6.7" (1290×2796); optional 6.5" and 5.5" for older devices — pending (require simulator capture or device).
+  - [ ] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` or `xcrun altool` — pending CI secrets population (see `documents/ios-release-setup.md`).
 
 ### 3.20 FR-IOS-UX
 - **Desc:** Native-feel tweaks on top of the web UX.

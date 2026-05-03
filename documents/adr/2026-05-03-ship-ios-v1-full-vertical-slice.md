@@ -166,15 +166,15 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
 - [x] FR-IOS-APPSTORE: orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed.
   - Test: `manual — korchasa`
   - Evidence: `ios/App/App/Info.plist:53-55`
-- [ ] FR-IOS-APPSTORE: Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered; automatic signing wired with team ID.
+- [x] FR-IOS-APPSTORE: Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered; ASC app `6766068069` ("BG Trainer A0") created. Automatic signing tied to team — pending Xcode wiring.
   - Test: `manual — korchasa`
-  - Evidence: `manual — korchasa` (developer.apple.com screenshot + Xcode signing tab screenshot)
-- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted (localStorage-only, no PII transmission, IAP receipts via Apple; bilingual EN+RU). Published to `https://bgtrainer.korchasa.dev/privacy.html` on next deploy (custom domain via `public/CNAME`).
+  - Evidence: ASC dashboard for app `6766068069` (manual)
+- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain via `public/CNAME`, deployed via `gh-pages` action). HTTP 200 verified post-deploy. Bilingual EN+RU; localStorage-only; RC receipts anonymized.
+  - Test: `curl -sI https://bgtrainer.korchasa.dev/privacy.html | head -1`
+  - Evidence: `public/privacy.html`, `public/CNAME`, `.github/workflows/deploy.yml` (`VITE_BASE_PATH: /`); `src/components/screens/PaywallScreen.tsx:7` (PRIVACY_URL constant)
+- [~] FR-IOS-APPSTORE: ASC listing — partial. Done: primary category=Education, content rights=no third-party, age rating=4+, Localized App Information (Name, Subtitle) for English (U.S.) + Russian + Ukrainian, App Store version 1.0 metadata (promotional text, description, keywords, support URL, marketing URL, copyright) filled in all three locales. Pending: Privacy Policy URL save (Apple form-library does not register programmatic value updates — manual entry required), App Privacy data-collection questionnaire, Pricing form.
   - Test: `manual — korchasa`
-  - Evidence: `public/privacy.html`; `src/components/screens/PaywallScreen.tsx:7` (PRIVACY_URL constant)
-- [ ] FR-IOS-APPSTORE: ASC listing complete (title, RU/UK/EN descriptions, keywords, Education category, 4+ rating, support URL).
-  - Test: `manual — korchasa`
-  - Evidence: `manual — korchasa` (ASC screenshot)
+  - Evidence: ASC distribution → version page + App Information page for app `6766068069` (manual)
 - [ ] FR-IOS-APPSTORE: screenshots for iPhone 6.7" (1290×2796) provided.
   - Test: `manual — korchasa`
   - Evidence: `manual — korchasa`
