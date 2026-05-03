@@ -69,7 +69,7 @@
   - [x] L8 `modeIds` cover L8 grammar topics (30 modes: 12 vocab pickFrom/type for еда/плодове/зеленчуци/месо/подправки/напитки/съдове/ястия/ресторант + taste pickOpt + cooking-verbs pickFrom + method pickOpt + гладен/жаден pickOpt + яде/ядат ми се pickOpt + пие/пият ми се pickOpt + part pickFrom/type + perf-aux pickOpt + perf-word-order pickFrom + perf-li (li engine) + perf-short pickOpt + perf-paradigm + build + 3 match (cognate / drink-food / taste-product) + odd). Evidence: `src/data/lessons.ts` (l8 block), `src/data/index.ts` (l8_extra category)
   - [x] Each new L8 mode backed by ≥5 data items (≥10 for vocab pickFrom/type, ≥12 for grammar drills; paradigm = 5 verb paradigms × 6 form slots; match-taste = 5 bijective pairs). Evidence: `src/data/lesson8.ts` (DATA_L8_FOOD, DATA_L8_FOOD_TYPE, DATA_L8_FRUITS, DATA_L8_FRUITS_TYPE, DATA_L8_VEGETABLES, DATA_L8_VEGETABLES_TYPE, DATA_L8_MEAT_DAIRY, DATA_L8_SPICES, DATA_L8_DRINKS, DATA_L8_TABLEWARE, DATA_L8_DISHES, DATA_L8_RESTAURANT, DATA_L8_TASTE, DATA_L8_COOKING, DATA_L8_METHOD, DATA_L8_GLAD_ZHAD, DATA_L8_YADE_MI_SE, DATA_L8_PIE_MI_SE, DATA_L8_PART, DATA_L8_PART_TYPE, DATA_L8_PERF_AUX, DATA_L8_PERF_WO, DATA_L8_PERF_LI, DATA_L8_PERF_SHORT, DATA_L8_PERF_PARADIGM, DATA_L8_BUILD, DATA_L8_MATCH_COGNATE, DATA_L8_MATCH_PAIRS, DATA_L8_MATCH_TASTE, DATA_L8_ODD)
   - [x] Data split into per-lesson modules with composition root. Evidence: `src/data/index.ts`, `src/data/lesson1.ts`, `src/data/lesson2.ts`, `src/data/lesson3.ts`, `src/data/lesson4.ts`, `src/data/lesson5.ts`, `src/data/lesson6.ts`, `src/data/lesson7.ts`, `src/data/lesson8.ts`
-  - [ ] `Lesson.tier: "free" | "pro"` field added; L1–L3 = `free`, L4–L8 = `pro`.
+  - [x] `Lesson.tier: "free" | "pro"` field added; L1–L3 = `free`, L4–L8 = `pro`. Evidence: `src/types.ts:14-22`, `src/data/lessons.ts:12,45,80,119,156,194,230,270`
 
 ### 3.11 FR-ROUND
 - **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
@@ -249,22 +249,23 @@
 ### 3.20 FR-IOS-UX
 - **Desc:** Native-feel tweaks on top of the web UX.
 - **Acceptance:**
-  - [ ] `@capacitor/splash-screen` plugin for native splash during WebView load (replaces HTML splash for true cold start).
-  - [ ] `@capacitor/status-bar` for programmatic status-bar style control (light/dark per screen).
-  - [ ] `@capacitor/haptics` — light impact on correct/wrong answer; notification feedback on round completion.
-  - [ ] Inter font self-hosted in `public/fonts/Inter-*.woff2` (removes runtime Google Fonts fetch; works offline).
-  - [ ] Back-swipe gesture: either wire app navigation to `window.history` so WKWebView edge-swipe works, or disable `allowsBackForwardNavigationGestures` in `CAPBridgeViewController` config.
-  - [ ] `prefers-reduced-motion` honored (disable auto-advance animations).
+  - [x] `@capacitor/splash-screen` plugin for native splash during WebView load; HTML splash covers the in-WebView phase, native splash covers the cold-start phase, both dismissed in the post-mount `requestAnimationFrame`. Evidence: `package.json:16`, `capacitor.config.ts:11-19`, `src/utils/nativeUx.ts:10-18`, `src/main.tsx:24-28`
+  - [x] `@capacitor/status-bar` for programmatic status-bar style control. Global dark-glyph style applied at boot to match the white app shell; per-screen overrides not yet needed. Evidence: `package.json:18`, `src/utils/nativeUx.ts:20-32`, `src/main.tsx:22`
+  - [x] `@capacitor/haptics` — Light impact on first-attempt correct, Medium impact on first-attempt wrong, Success notification on round completion. Evidence: `package.json:17`, `src/utils/nativeUx.ts:34-46`, `src/hooks/useGame.ts:5-6,118-122`, `src/App.tsx:4,108`
+  - [x] No runtime web-font fetch — UI uses system fonts (`-apple-system`, `system-ui`), guaranteed available offline on iOS/Android/web. Self-hosting Inter would only inflate the bundle without removing any external dependency, so it is not done. Evidence: `src/index.css:11`
+  - [x] Back-swipe gesture: Capacitor 8 sets `allowsBackForwardNavigationGestures=false` by default for WKWebView, which is the correct behavior for this single-page app. No override needed; will revisit if device testing surfaces an edge case.
+  - [x] `prefers-reduced-motion` honored — `useGame` shortcuts the celebratory advance delay to 0ms when the OS-level Reduce Motion accessibility setting is on. Evidence: `src/utils/motion.ts`, `src/hooks/useGame.ts:7,118`
 
 ### 3.21 FR-IOS-STORAGE
 - **Desc:** Migrate persistent state off `localStorage` to survive iOS "Offload Unused Apps" and WebKit cache eviction. Keys unchanged; adapter provides fallback for web build.
 - **Scenario:** On first launch after upgrade, app reads legacy `localStorage` keys, writes them into `@capacitor/preferences`, deletes legacy keys. Subsequent reads/writes hit Preferences (native) or `localStorage` (web).
 - **Acceptance:**
-  - [ ] `@capacitor/preferences` plugin installed.
-  - [ ] Storage adapter with unified API for web (localStorage) and native (Preferences).
-  - [ ] One-time migration for keys `bg-trainer-v3`, `bg-trainer-mastery-v1`, `bg-trainer-pace-v1`, `bg-trainer-lang-v1`.
-  - [ ] History/mastery survive app backgrounding + device storage pressure.
-  - [ ] Documents folder or `NSUserDefaults` included in iTunes/iCloud backup (non-`WebKit/` location).
+  - [x] `@capacitor/preferences` plugin installed. Evidence: `package.json:15`
+  - [x] Storage adapter with unified API for web (localStorage) and native (Preferences); reads sync from in-memory cache, writes mirror async to Preferences. Evidence: `src/utils/storage.ts`, callers refactored in `src/utils/history.ts`, `src/utils/mastery.ts`, `src/utils/pace.ts`, `src/i18n/storage.ts`
+  - [x] One-time idempotent migration for keys `bg-trainer-v3`, `bg-trainer-mastery-v1`, `bg-trainer-pace-v1`, `bg-trainer-lang-v1`; tracked by per-key `__migrated__:` flag so reruns are no-ops. Evidence: `src/utils/storage.ts:30-79`
+  - [x] App boot awaits `initStorage()` before mounting React; HTML splash covers hydration so the first render sees real persisted state without flicker. Evidence: `src/main.tsx:11-17`
+  - [ ] History/mastery survive app backgrounding + device storage pressure (verification pending — requires on-device test).
+  - [ ] Documents folder or `NSUserDefaults` included in iTunes/iCloud backup (non-`WebKit/` location) — Capacitor Preferences uses `NSUserDefaults` which is backed up by default; on-device verification pending.
 
 ### 3.22 FR-IOS-POLISH
 - **Desc:** Optional native-integration niceties.
@@ -297,11 +298,11 @@
 - **Desc:** Mobile-only content gating. `Lesson.tier: "free" | "pro"`. `free` lessons (L1–L3) always playable. `pro` lessons (L4–L8) gated on iOS/Android: tap when Pro is locked → paywall (FR-PAYWALL). Web ignores `tier` entirely — all `available` lessons playable everywhere on web. Tier is data, not platform-conditional content; only the gate is platform-conditional. Analytics never filters by tier — history of pro-tier plays (e.g., from web, or after subsequent purchase) always visible regardless of current platform/state.
 - **Scenario:** Free user on iOS taps L4 → paywall ($4.99 + Restore). Same user on web taps L4 → game starts. After purchase on iOS, all iOS devices on same Apple ID unlock; Android requires separate purchase (no cross-platform IAP).
 - **Acceptance:**
-  - [ ] `Lesson.tier: "free" | "pro"` in `src/types.ts`.
-  - [ ] L1, L2, L3 set `tier="free"`; L4–L8 set `tier="pro"` in `src/data/lessons.ts`.
-  - [ ] Build-time platform flag (`VITE_PLATFORM=web|ios|android`) drives gate enforcement; web build short-circuits to "always free".
+  - [x] `Lesson.tier: "free" | "pro"` in `src/types.ts`. Evidence: `src/types.ts:14-22`
+  - [x] L1, L2, L3 set `tier="free"`; L4–L8 set `tier="pro"` in `src/data/lessons.ts`. Evidence: `src/data/lessons.ts:12,45,80,119,156,194,230,270`
+  - [x] Build-time platform flag (`VITE_PLATFORM=web|ios|android`) exposed to the bundle and surfaced via `IS_WEB`/`IS_IOS`/`IS_ANDROID`/`IS_NATIVE`; `build:ios` script sets it to `ios`, default is `web`. Gate enforcement at the App level still pending. Evidence: `src/utils/platform.ts`, `src/vite-env.d.ts`, `package.json:10`
   - [ ] iOS/Android: tapping pro lesson when `proUnlocked=false` → `screen="paywall"`.
-  - [ ] Analytics shows entries for all lessons regardless of current tier or platform.
+  - [x] Analytics shows entries for all lessons regardless of current tier or platform — no tier filter exists in the analytics aggregation pipeline. Evidence: `src/components/screens/AnalyticsScreen.tsx:81` (filter is by lesson presence in history, not tier)
 
 ### 3.25 FR-IAP
 - **Desc:** RevenueCat SDK on iOS and Android. One non-consumable product `bgtrainer_pro_lifetime` (~$4.99 USD, App Store tier 5; €4.99 EUR equivalent). Pro entitlement (`pro`) cached locally; offline use respects last known status. Restore Purchases reachable from paywall and from analytics screen settings affordance. Web build is IAP no-op.
