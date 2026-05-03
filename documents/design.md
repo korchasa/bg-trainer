@@ -26,7 +26,7 @@
     Analytics --> History
     Lessons --> Mastery
     Lesson --> Mastery
-    App --> Data[(data/index.ts\n + lesson1..7.ts, no L8)]
+    App --> Data[(data/index.ts\n + lesson1..8.ts)]
     App --> LessonsData[(data/lessons.ts)]
     App --> Slice[(utils/sliceData)]
   ```
@@ -37,7 +37,7 @@
   - **Sync adapter (`services/sync.ts`):** Pro-only mirror of persistent state. iOS branch wraps `NSUbiquitousKeyValueStore` via Capacitor plugin; Android branch is a no-op (sync handled implicitly by Auto Backup configured in manifest). Reconcile-on-launch routine: max-`lastTs` per mastery item, dedupe history by `ts`.
   - **Engines (`components/engines/*`):** one React component per `EngineType`. Consumes `useGame`.
   - **State hooks (`hooks/*`):** `useGame` (scoring, advance, reaction), `useTimer` (countdown for timed mode).
-  - **Data layer (`data/index.ts` + `data/lesson1.ts` + `data/lesson2.ts` + `data/lesson3.ts` + `data/lesson4.ts` + `data/lesson5.ts` + `data/lesson6.ts` + `data/lesson7.ts`):** exercises split per-lesson; `index.ts` is composition root — imports datasets from lesson files, re-exports via `export *`, defines `CATEGORIES` + `ALL_MODES`. Shared labels (`LABEL_M/F/N/PL`) live in `lesson1.ts` and are imported by later lessons. L10n fields stored as `Localized<string>`. Translation pairs inside `DataItem.q` use convention `"<ru> / <uk>"` — engines render via `Lq` helper which splits on " / " and picks side by current locale.
+  - **Data layer (`data/index.ts` + `data/lesson1.ts` + `data/lesson2.ts` + `data/lesson3.ts` + `data/lesson4.ts` + `data/lesson5.ts` + `data/lesson6.ts` + `data/lesson7.ts` + `data/lesson8.ts`):** exercises split per-lesson; `index.ts` is composition root — imports datasets from lesson files, re-exports via `export *`, defines `CATEGORIES` + `ALL_MODES`. Shared labels (`LABEL_M/F/N/PL`) live in `lesson1.ts` and are imported by later lessons. L10n fields stored as `Localized<string>`. Translation pairs inside `DataItem.q` use convention `"<ru> / <uk>"` — engines render via `Lq` helper which splits on " / " and picks side by current locale.
   - **Lessons layer (`data/lessons.ts`):** `LESSONS` array (8 textbook units, localized titles) + `LESSON_BY_ID`.
   - **Slicer (`utils/sliceData.ts`):** type-aware wrapper around `mode.data()` that shuffles+slices to round size while preserving `pickOpt.opts`.
   - **Persistence (`utils/history.ts`):** thin wrapper over `localStorage` with size cap + error swallow.
