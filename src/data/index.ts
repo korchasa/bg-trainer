@@ -66,12 +66,29 @@ import {
   DATA_L5_BUILD, DATA_L5_KOGATO_BUILD, DATA_L5_PARADIGM,
   DATA_L5_MATCH_COLOR, DATA_L5_MATCH_ANT, DATA_L5_ODD,
 } from "./lesson5";
+import {
+  DATA_L6_STREET, DATA_L6_STREET_TYPE,
+  DATA_L6_POLITE, L6_POLITE_OPTIONS,
+  DATA_L6_TITLES, L6_TITLES_OPTIONS,
+  DATA_L6_MATCH_ABBR,
+  DATA_L6_MOGA, DATA_L6_OBICHAM, DATA_L6_MODAL, DATA_L6_DA_BUILD,
+  DATA_L6_MOTION, DATA_L6_MOTION_TYPE, DATA_L6_MATCH_MOTION,
+  DATA_L6_ASPECT, DATA_L6_MATCH_ASPECT,
+  DATA_L6_IMP_SG, DATA_L6_IMP_PL, DATA_L6_IMP_NEG,
+  DATA_L6_IMP_IRREG, DATA_L6_IMP_TYPE, DATA_L6_IMP_FILL,
+  DATA_L6_MATCH_IMP,
+  DATA_L6_DIR, L6_DIR_OPTIONS,
+  DATA_L6_COMPASS, L6_COMPASS_OPTIONS,
+  DATA_L6_DIR_PHRASES, DATA_L6_DIR_BUILD,
+  DATA_L6_PARADIGM, DATA_L6_ODD,
+} from "./lesson6";
 
 export * from "./lesson1";
 export * from "./lesson2";
 export * from "./lesson3";
 export * from "./lesson4";
 export * from "./lesson5";
+export * from "./lesson6";
 
 export const CATEGORIES: Category[] = [
   {
@@ -285,6 +302,39 @@ export const CATEGORIES: Category[] = [
       { id: "l5_match_color", icon: "🎨", label: { ru: "Цвет: RU/UK ↔ BG", uk: "Колір: RU/UK ↔ BG" }, desc: { ru: "Соедини русский/украинский цвет с болгарским", uk: "З'єднай російський/український колір з болгарським" }, type: "match", data: () => DATA_L5_MATCH_COLOR },
       { id: "l5_match_ant", icon: "🔗", label: { ru: "Антонимы: пары · L5", uk: "Антоніми: пари · L5" }, desc: { ru: "Соедини антонимические пары: внешность и характер", uk: "З'єднай антонімічні пари: зовнішність і характер" }, type: "match", data: () => DATA_L5_MATCH_ANT },
       { id: "l5_odd", icon: "🙅", label: { ru: "Найди лишнее · L5", uk: "Знайди зайве · L5" }, desc: { ru: "Одно слово не подходит по теме: внешность / характер / цвет / одежда / время", uk: "Одне слово не підходить за темою: зовнішність / характер / колір / одяг / час" }, type: "odd", data: () => DATA_L5_ODD },
+    ],
+  },
+  {
+    id: "l6_extra",
+    name: { ru: "Урок 6 · улица", uk: "Урок 6 · вулиця" },
+    modes: [
+      { id: "l6_street_pick", icon: "🏙️", label: { ru: "Словарь улицы", uk: "Словник вулиці" }, desc: { ru: "Выбери болгарский перевод слова об адресе / транспорте", uk: "Обери болгарський переклад слова про адресу / транспорт" }, type: "pickFrom", data: () => DATA_L6_STREET },
+      { id: "l6_street_type", icon: "⌨️", label: { ru: "Впиши слово улицы", uk: "Впиши слово вулиці" }, desc: { ru: "Напечатай болгарский перевод слова об адресе / транспорте", uk: "Надрукуй болгарський переклад слова про адресу / транспорт" }, type: "type", data: () => DATA_L6_STREET_TYPE },
+      { id: "l6_polite_pick", icon: "🤝", label: { ru: "Учтивые формулы", uk: "Ввічливі формули" }, desc: { ru: "Выбери: Заповядайте / Благодаря / Извинете / Моля", uk: "Обери: Заповядайте / Благодаря / Извинете / Моля" }, type: "pickOpt", data: () => ({ items: DATA_L6_POLITE, opts: L6_POLITE_OPTIONS }) },
+      { id: "l6_titles_pick", icon: "🎩", label: { ru: "Обращения", uk: "Звертання" }, desc: { ru: "Выбери: господин / госпожа / госпожица", uk: "Обери: господин / госпожа / госпожица" }, type: "pickOpt", data: () => ({ items: DATA_L6_TITLES, opts: L6_TITLES_OPTIONS }) },
+      { id: "l6_match_abbr", icon: "🔗", label: { ru: "Сокращения", uk: "Скорочення" }, desc: { ru: "Соедини сокращение с полной формой (г-н ↔ господин, ул. ↔ улица)", uk: "З'єднай скорочення з повною формою (г-н ↔ господин, ул. ↔ улица)" }, type: "match", data: () => DATA_L6_MATCH_ABBR },
+      { id: "l6_moga_pick", icon: "💪", label: { ru: "Мога", uk: "Мога" }, desc: { ru: "Выбери форму «мога» для местоимения", uk: "Обери форму «мога» для займенника" }, type: "pick", data: () => DATA_L6_MOGA },
+      { id: "l6_obicham_pick", icon: "❤️", label: { ru: "Обичам", uk: "Обичам" }, desc: { ru: "Выбери форму «обичам» для местоимения", uk: "Обери форму «обичам» для займенника" }, type: "pick", data: () => DATA_L6_OBICHAM },
+      { id: "l6_modal_pick", icon: "🎯", label: { ru: "Модальные глаголы", uk: "Модальні дієслова" }, desc: { ru: "Выбери модальный глагол да-конструкции по контексту", uk: "Обери модальне дієслово да-конструкції за контекстом" }, type: "pickFrom", data: () => DATA_L6_MODAL },
+      { id: "l6_da_build", icon: "🧩", label: { ru: "Да-конструкция", uk: "Да-конструкція" }, desc: { ru: "Собери предложение с модальным глаголом + «да» + глагол", uk: "Склади речення з модальним дієсловом + «да» + дієсловом" }, type: "build", data: () => DATA_L6_DA_BUILD },
+      { id: "l6_motion_pick", icon: "🚶", label: { ru: "Глаголы движения", uk: "Дієслова руху" }, desc: { ru: "Выбери болгарский глагол движения", uk: "Обери болгарське дієслово руху" }, type: "pickFrom", data: () => DATA_L6_MOTION },
+      { id: "l6_motion_type", icon: "⌨️", label: { ru: "Впиши глагол движения", uk: "Впиши дієслово руху" }, desc: { ru: "Напечатай болгарский глагол движения", uk: "Надрукуй болгарське дієслово руху" }, type: "type", data: () => DATA_L6_MOTION_TYPE },
+      { id: "l6_match_motion", icon: "🔗", label: { ru: "Пары движения", uk: "Пари руху" }, desc: { ru: "Соедини противоположные / парные глаголы движения", uk: "З'єднай протилежні / парні дієслова руху" }, type: "match", data: () => DATA_L6_MATCH_MOTION },
+      { id: "l6_aspect_pick", icon: "🔁", label: { ru: "Вид: несвършен → свършен", uk: "Вид: несвршн → свршн" }, desc: { ru: "Выбери свършен (однократный) вид для несвършенного", uk: "Обери свршн (одноразовий) вид для несвршн" }, type: "pickFrom", data: () => DATA_L6_ASPECT },
+      { id: "l6_match_aspect", icon: "🔗", label: { ru: "Пары вида", uk: "Пари виду" }, desc: { ru: "Соедини несвършен ↔ свършен вид (идвам ↔ дойда)", uk: "З'єднай несвршн ↔ свршн вид (идвам ↔ дойда)" }, type: "match", data: () => DATA_L6_MATCH_ASPECT },
+      { id: "l6_imp_sg_pick", icon: "❗", label: { ru: "Императив ед.ч.", uk: "Імператив одн." }, desc: { ru: "Выбери положительный императив ед.ч. (ты)", uk: "Обери стверд. імператив одн. (ти)" }, type: "pickFrom", data: () => DATA_L6_IMP_SG },
+      { id: "l6_imp_pl_pick", icon: "‼️", label: { ru: "Императив мн.ч.", uk: "Імператив мн." }, desc: { ru: "Выбери положительный императив мн.ч. (вы)", uk: "Обери стверд. імператив мн. (ви)" }, type: "pickFrom", data: () => DATA_L6_IMP_PL },
+      { id: "l6_imp_neg_pick", icon: "🚫", label: { ru: "Не + императив", uk: "Не + імператив" }, desc: { ru: "Преобразуй положительный императив в отрицательный (только несвършен вид)", uk: "Перетвори стверд. імператив на заперечний (лише несвршн вид)" }, type: "pickFrom", data: () => DATA_L6_IMP_NEG },
+      { id: "l6_imp_irreg_pick", icon: "⭐", label: { ru: "Неправильные императивы", uk: "Неправильні імперативи" }, desc: { ru: "Выбери императив для съм / дойда / видя / ям / дам / отида / вляза / изляза", uk: "Обери імператив для съм / дойда / видя / ям / дам / отида / вляза / изляза" }, type: "pickFrom", data: () => DATA_L6_IMP_IRREG },
+      { id: "l6_imp_type", icon: "⌨️", label: { ru: "Впиши императив", uk: "Впиши імператив" }, desc: { ru: "Напечатай императив для глагола и числа", uk: "Надрукуй імператив для дієслова й числа" }, type: "type", data: () => DATA_L6_IMP_TYPE },
+      { id: "l6_imp_fill_pick", icon: "✏️", label: { ru: "Императив в контексте", uk: "Імператив у контексті" }, desc: { ru: "Выбери императив, подходящий по контексту", uk: "Обери імператив за контекстом" }, type: "pickFrom", data: () => DATA_L6_IMP_FILL },
+      { id: "l6_match_imp", icon: "🔗", label: { ru: "1л. ↔ императив", uk: "1ос. ↔ імператив" }, desc: { ru: "Соедини 1л.ед.ч. (наст.) с императивом ед.ч.", uk: "З'єднай 1ос.одн. (теп.) з імперативом одн." }, type: "match", data: () => DATA_L6_MATCH_IMP },
+      { id: "l6_dir_pick", icon: "🧭", label: { ru: "Направления", uk: "Напрями" }, desc: { ru: "Выбери: наляво / надясно / направо / назад", uk: "Обери: наляво / надясно / направо / назад" }, type: "pickOpt", data: () => ({ items: DATA_L6_DIR, opts: L6_DIR_OPTIONS }) },
+      { id: "l6_compass_pick", icon: "🌐", label: { ru: "Стороны света", uk: "Сторони світу" }, desc: { ru: "Выбери: север / юг / изток / запад", uk: "Обери: север / юг / изток / запад" }, type: "pickOpt", data: () => ({ items: DATA_L6_COMPASS, opts: L6_COMPASS_OPTIONS }) },
+      { id: "l6_dir_phrases_pick", icon: "🗺️", label: { ru: "Фразы дороги", uk: "Фрази дороги" }, desc: { ru: "Выбери болгарское выражение для дороги (Завийте.../Карайте.../Вземете...)", uk: "Обери болгарський вираз для дороги (Завийте.../Карайте.../Вземете...)" }, type: "pickFrom", data: () => DATA_L6_DIR_PHRASES },
+      { id: "l6_dir_build", icon: "🚏", label: { ru: "Собери: дорога", uk: "Склади: дорога" }, desc: { ru: "Расставь слова в предложении о дороге / маршруте", uk: "Розстав слова в реченні про дорогу / маршрут" }, type: "build", data: () => DATA_L6_DIR_BUILD },
+      { id: "l6_paradigm", icon: "🧱", label: { ru: "Парадигмы · L6", uk: "Парадигми · L6" }, desc: { ru: "Собери парадигму: мога, обичам, карам, ходя, отивам, тръгвам", uk: "Склади парадигму: мога, обичам, карам, ходя, отивам, тръгвам" }, type: "paradigm", data: () => DATA_L6_PARADIGM },
+      { id: "l6_odd", icon: "🙅", label: { ru: "Найди лишнее · L6", uk: "Знайди зайве · L6" }, desc: { ru: "Одно слово не подходит по категории / виду / форме", uk: "Одне слово не підходить за категорією / видом / формою" }, type: "odd", data: () => DATA_L6_ODD },
     ],
   },
   {
