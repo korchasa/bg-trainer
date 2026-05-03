@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "build:ios": "VITE_BASE_PATH=./ tsc && VITE_BASE_PATH=./ vite build",
+    "build:ios": "VITE_BASE_PATH=./ VITE_PLATFORM=ios tsc && VITE_BASE_PATH=./ VITE_PLATFORM=ios vite build",
     "ios:sync": "npm run build:ios && cap sync ios",
     "ios:open": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/preferences": "^8.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.13.3"

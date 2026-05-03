@@ -1,9 +1,10 @@
 import { STORAGE_KEY } from "../constants";
 import type { HistoryEntry } from "../types";
+import { getRaw, removeRaw, setRaw } from "./storage";
 
 export function loadHistory(): HistoryEntry[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = getRaw(STORAGE_KEY);
     return raw ? (JSON.parse(raw) as HistoryEntry[]) : [];
   } catch {
     return [];
@@ -11,17 +12,9 @@ export function loadHistory(): HistoryEntry[] {
 }
 
 export function saveHistory(h: HistoryEntry[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(h.slice(-200)));
-  } catch {
-    // Quota exceeded — silently ignore
-  }
+  setRaw(STORAGE_KEY, JSON.stringify(h.slice(-200)));
 }
 
 export function clearHistory(): void {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+  removeRaw(STORAGE_KEY);
 }

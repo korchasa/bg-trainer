@@ -1,6 +1,7 @@
 import type { MasteryStore, Lesson, Mode } from "../types";
 import { itemCount, itemKey } from "./itemKey";
 import { shuffle } from "./shuffle";
+import { getRaw, removeRaw, setRaw } from "./storage";
 
 export const MASTERY_KEY = "bg-trainer-mastery-v1";
 export const DECAY_DAYS = 7;
@@ -10,7 +11,7 @@ export const MASTERY_THRESHOLD = 7;
 
 export function loadMastery(): MasteryStore {
   try {
-    const raw = localStorage.getItem(MASTERY_KEY);
+    const raw = getRaw(MASTERY_KEY);
     return raw ? (JSON.parse(raw) as MasteryStore) : {};
   } catch {
     return {};
@@ -18,19 +19,11 @@ export function loadMastery(): MasteryStore {
 }
 
 export function saveMastery(store: MasteryStore): void {
-  try {
-    localStorage.setItem(MASTERY_KEY, JSON.stringify(store));
-  } catch {
-    // Quota exceeded — silently ignore
-  }
+  setRaw(MASTERY_KEY, JSON.stringify(store));
 }
 
 export function clearMastery(): void {
-  try {
-    localStorage.removeItem(MASTERY_KEY);
-  } catch {
-    // ignore
-  }
+  removeRaw(MASTERY_KEY);
 }
 
 export function applyAnswer(

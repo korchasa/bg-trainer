@@ -11,12 +11,15 @@ export interface HistoryEntry {
   qsTotal?: number;
 }
 
+export type LessonTier = "free" | "pro";
+
 export interface Lesson {
   id: string;
   num: number;
   title: Localized<string>;
   modeIds: string[];
   available: boolean;
+  tier: LessonTier;
 }
 
 export interface DataItem {
