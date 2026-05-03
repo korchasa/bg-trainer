@@ -118,27 +118,27 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-black text-gray-900">{f("lessonNum", l.num)}</div>
-                    <div className="text-[11px] font-semibold text-gray-400 truncate">{l.title}</div>
+                    <div className="text-[0.6875rem] font-semibold text-gray-400 truncate">{l.title}</div>
                   </div>
                   <div className="flex gap-3 shrink-0">
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-black text-gray-900">{l.count}</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">{t("shortGames")}</span>
+                      <span className="text-[0.5625rem] font-bold text-gray-400 uppercase">{t("shortGames")}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-black text-gray-900">{l.avg}</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">{t("shortAvg")}</span>
+                      <span className="text-[0.5625rem] font-bold text-gray-400 uppercase">{t("shortAvg")}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-sm font-black" style={{ color: ACCENT }}>{l.acc}%</span>
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">{t("shortAcc")}</span>
+                      <span className="text-[0.5625rem] font-bold text-gray-400 uppercase">{t("shortAcc")}</span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
             {unassigned > 0 && (
-              <div className="text-[10px] font-bold text-gray-400 mt-3 text-center">
+              <div className="text-[0.625rem] font-bold text-gray-400 mt-3 text-center">
                 {f("unassignedCount", unassigned)}
               </div>
             )}

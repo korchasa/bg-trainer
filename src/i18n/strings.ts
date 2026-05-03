@@ -68,6 +68,9 @@ const PLAIN_RU = {
   paywallErrorRestoreNothing: "Покупок для восстановления не найдено.",
   paywallErrorOffline: "Нет связи с App Store. Проверь интернет.",
   paywallLockedHint: "Открыть в полной версии",
+  a11yBack: "Назад",
+  a11yAnswerCorrect: "Верно",
+  a11yAnswerWrong: "Неверно",
 } as const;
 
 const PLAIN_UK: Record<keyof typeof PLAIN_RU, string> = {
@@ -137,6 +140,9 @@ const PLAIN_UK: Record<keyof typeof PLAIN_RU, string> = {
   paywallErrorRestoreNothing: "Покупок для відновлення не знайдено.",
   paywallErrorOffline: "Немає зв'язку з App Store. Перевір інтернет.",
   paywallLockedHint: "Відкрити в повній версії",
+  a11yBack: "Назад",
+  a11yAnswerCorrect: "Правильно",
+  a11yAnswerWrong: "Неправильно",
 };
 
 const FMT_RU = {
@@ -148,6 +154,7 @@ const FMT_RU = {
   gameOfRound: (label: string, idx: number, total: number) => `${label} · ${idx}/${total}`,
   unassignedCount: (n: number) => `Без привязки к уроку: ${n}`,
   paceQuestions: (n: number) => `${n} вопр.`,
+  a11yProgress: (cur: number, total: number, score: number) => `Вопрос ${cur} из ${total}, очки: ${score}`,
 } as const;
 
 const FMT_UK: { [K in keyof typeof FMT_RU]: typeof FMT_RU[K] } = {
@@ -159,6 +166,7 @@ const FMT_UK: { [K in keyof typeof FMT_RU]: typeof FMT_RU[K] } = {
   gameOfRound: (label: string, idx: number, total: number) => `${label} · ${idx}/${total}`,
   unassignedCount: (n: number) => `Без прив'язки до уроку: ${n}`,
   paceQuestions: (n: number) => `${n} пит.`,
+  a11yProgress: (cur: number, total: number, score: number) => `Питання ${cur} з ${total}, очки: ${score}`,
 };
 
 export type StringKey = keyof typeof PLAIN_RU;

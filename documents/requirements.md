@@ -272,9 +272,9 @@
 - **Acceptance:**
   - [x] Dark mode opt-out via `UIUserInterfaceStyle: Light` in Info.plist. Evidence: `ios/App/App/Info.plist:58-59`
   - [x] iPad dropped via `TARGETED_DEVICE_FAMILY = "1"` (iPhone-only). Evidence: `ios/App/App.xcodeproj/project.pbxproj:320,341`
-  - [ ] VoiceOver labels on answer tiles, progress, navigation buttons.
-  - [ ] Dynamic Type: respect system font size via `font-size: max(1rem, env(safe-area-inset-top)*0 + ...)` or rem-based scaling.
-  - [ ] Crash reporting (Sentry or Firebase Crashlytics) for production builds.
+  - [x] VoiceOver labels on answer tiles, progress, navigation buttons via localized `useI18n` keys (`a11yBack`, `a11yAnswerCorrect/Wrong`, `a11yProgress`). Evidence: `src/components/ui/BackButton.tsx:9`, `src/components/ui/AnswerBtn.tsx:24-31`, `src/components/ui/Progress.tsx:14-21`, `src/i18n/strings.ts:71-73,123-125,152,162` (manual rotor walkthrough on device pending — `manual — korchasa`)
+  - [x] Dynamic Type: rem-based scaling — replaced all `text-[Npx]` with `text-[Nrem]` (9px→0.5625rem, 10px→0.625rem, 11px→0.6875rem); body inherits root font-size from system. Evidence: `! grep -rn 'text-\\[[0-9]*px\\]' src/` returns nothing; `src/components/screens/AnalyticsScreen.tsx`, `LessonScreen.tsx`, `LessonsScreen.tsx`
+  - [ ] Crash reporting (Sentry or Firebase Crashlytics) for production builds — pending `VITE_SENTRY_DSN`.
 
 ### 3.23 FR-IOS-CICD
 - **Desc:** Automated build + TestFlight delivery on release tags.

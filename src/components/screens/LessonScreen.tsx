@@ -45,7 +45,7 @@ export function LessonScreen({ lesson, mastery, pace, onChangePace, onPickGame, 
                 style={active ? { backgroundColor: ACCENT } : undefined}
               >
                 <div>{lbl}</div>
-                <div className={`text-[10px] ${active ? "opacity-80" : "text-gray-400"}`}>{n} {t("questionsAbbr")}</div>
+                <div className={`text-[0.625rem] ${active ? "opacity-80" : "text-gray-400"}`}>{n} {t("questionsAbbr")}</div>
               </button>
             );
           })}
@@ -75,13 +75,13 @@ export function LessonScreen({ lesson, mastery, pace, onChangePace, onPickGame, 
               <div className="mb-2 p-3 rounded-full bg-white text-gray-900 shadow-sm text-2xl leading-none flex items-center justify-center">
                 {m.icon}
               </div>
-              <span className="text-[11px] font-bold text-center leading-tight text-gray-800 mb-2">
+              <span className="text-[0.6875rem] font-bold text-center leading-tight text-gray-800 mb-2">
                 {L(m.label)}
               </span>
               <div className="w-full h-1 bg-white rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
               </div>
-              <span className="text-[9px] font-bold text-gray-400 mt-1">{s.atSeven}/{s.total}</span>
+              <span className="text-[0.5625rem] font-bold text-gray-400 mt-1">{s.atSeven}/{s.total}</span>
             </button>
           );
         })}

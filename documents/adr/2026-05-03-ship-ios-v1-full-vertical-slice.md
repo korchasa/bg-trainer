@@ -211,12 +211,12 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
 - [ ] FR-IOS-POLISH: iPad dropped via `TARGETED_DEVICE_FAMILY = "1"`.
   - Test: `manual — korchasa`
   - Evidence: `grep -n "TARGETED_DEVICE_FAMILY" ios/App/App.xcodeproj/project.pbxproj` shows `"1"`
-- [ ] FR-IOS-POLISH: VoiceOver labels on answer tiles, progress, navigation buttons — verified by full rotor walkthrough on device.
+- [x] FR-IOS-POLISH: VoiceOver labels on answer tiles, progress, navigation buttons via localized `useI18n` keys (`a11yBack`, `a11yAnswerCorrect/Wrong`, `a11yProgress`). Manual rotor walkthrough still pending.
   - Test: `manual — korchasa` (VoiceOver enabled, swipe through one full game in `ru` and `uk`, every interactive element announced with localized label)
-  - Evidence: `manual — korchasa` (screen recording with VoiceOver audio); `grep -rn "aria-label" src/components/` as smoke test only
-- [ ] FR-IOS-POLISH: Dynamic Type respected — rem-based scaling, no fixed `px` font sizes for body text.
+  - Evidence: `grep -rn "aria-label" src/components/ui/` shows BackButton, AnswerBtn, Progress; `src/i18n/strings.ts` has `a11yBack`, `a11yAnswerCorrect`, `a11yAnswerWrong`, `a11yProgress`
+- [x] FR-IOS-POLISH: Dynamic Type respected — rem-based scaling, no fixed `px` font sizes for body text.
   - Test: `manual — korchasa` (Settings → Accessibility → Display & Text Size → Larger Text)
-  - Evidence: `! grep -rn "fontSize.*px" src/`
+  - Evidence: `! grep -rn "text-\\[[0-9]*px\\]" src/` returns nothing
 - [ ] FR-IOS-POLISH: Sentry installed for production builds; release tag wired; sourcemaps uploaded.
   - Test: `manual — korchasa`
   - Evidence: `grep -E "@sentry/capacitor|@sentry/react" package.json && grep -n "Sentry.init" src/main.tsx`

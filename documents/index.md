@@ -10,7 +10,7 @@
 - [FR-IAP](requirements.md#325-fr-iap) — RevenueCat single non-consumable lifetime unlock — pending
 - [FR-IOS-APPSTORE](requirements.md#319-fr-ios-appstore) — App Store submission assets and metadata — partial (code-side closed: AppIcon, LaunchScreen, PrivacyInfo, encryption flag, portrait lock, Privacy Policy; manual ASC listing/signing/screenshots/TestFlight pending)
 - [FR-IOS-CICD](requirements.md#323-fr-ios-cicd) — TestFlight delivery on release tags — pending
-- [FR-IOS-POLISH](requirements.md#322-fr-ios-polish) — Native a11y, dark, iPad-drop, crash reporting — partial (dark opt-out + iPad drop done; VoiceOver, Dynamic Type, crash reporting pending)
+- [FR-IOS-POLISH](requirements.md#322-fr-ios-polish) — Native a11y, dark, iPad-drop, crash reporting — partial (dark opt-out, iPad drop, VoiceOver labels, Dynamic Type rem done; manual rotor walkthrough + Sentry pending)
 - [FR-IOS-STORAGE](requirements.md#321-fr-ios-storage) — Capacitor Preferences adapter + migration — partial (adapter + migration + bootReady done, on-device verification pending)
 - [FR-IOS-UX](requirements.md#320-fr-ios-ux) — Native splash, status-bar, haptics, fonts, gestures — implemented (Inter scope dropped — system fonts already meet the no-runtime-fetch requirement)
 - [FR-LESSONS](requirements.md#310-fr-lessons) — 8-lesson curriculum + tier field — implemented

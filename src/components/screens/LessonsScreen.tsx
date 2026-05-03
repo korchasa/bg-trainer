@@ -35,7 +35,7 @@ export function LessonsScreen({ history, mastery, proUnlocked, priceString, onPi
               <button
                 key={l}
                 onClick={() => setLocale(l)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${active ? "text-white" : "text-gray-500"}`}
+                className={`px-3 py-1 rounded-full text-[0.6875rem] font-bold transition-all ${active ? "text-white" : "text-gray-500"}`}
                 style={active ? { backgroundColor: ACCENT } : undefined}
               >
                 {LOCALE_LABELS[l]}
@@ -83,7 +83,7 @@ export function LessonsScreen({ history, mastery, proUnlocked, priceString, onPi
                   </div>
                   <div className="text-xs font-semibold text-gray-500 leading-tight truncate">{L(l.title)}</div>
                   {locked ? (
-                    <div className="mt-2 text-[11px] font-bold text-gray-500">
+                    <div className="mt-2 text-[0.6875rem] font-bold text-gray-500">
                       {priceString ? `${t("paywallLockedHint")} · ${priceString}` : t("paywallLockedHint")}
                     </div>
                   ) : (
@@ -95,7 +95,7 @@ export function LessonsScreen({ history, mastery, proUnlocked, priceString, onPi
                 {!locked && (
                   <div className="flex flex-col items-end shrink-0">
                     <span className="text-xs font-black text-gray-900">{pct}%</span>
-                    <span className="text-[10px] font-bold text-gray-400">{s.atSeven}/{s.total}</span>
+                    <span className="text-[0.625rem] font-bold text-gray-400">{s.atSeven}/{s.total}</span>
                   </div>
                 )}
               </button>
