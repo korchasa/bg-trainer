@@ -10,3 +10,5 @@ ios/App/Podfile.lock
 ios/DerivedData
 ios/App/build
 ios/App/App/public
+.env
+.claude/worktrees/
