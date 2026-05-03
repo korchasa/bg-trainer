@@ -49,6 +49,16 @@ Set in repo → Settings → Secrets and variables → Actions → New repositor
 - `ITMS-90809: Deprecated API usage` → bumped iOS deployment target needed; check the email diagnostic for the API.
 - Privacy manifest mismatch → an SDK added a new `NSPrivacyAccessedAPICategory*` reason that the merged manifest doesn't cover. Re-archive after `cap sync`.
 
+## Pre-flight URL checks
+
+Before configuring any URL field in App Store Connect (Privacy Policy, Marketing, Support), verify the URL serves HTTP 200.
+
+```sh
+curl -sI https://bgtrainer.korchasa.dev/privacy.html | head -1
+```
+
+ASC validates URLs with a HEAD request on blur and silently keeps the dialog's Save button disabled on 404. After pushing a CNAME or new file to gh-pages, give the deploy 1–2 minutes (or `gh run watch <id>`), then loop curl until 200 before opening the dialog. Configuring the URL before the asset is live wastes a round-trip and creates an ambiguous diagnostic ("Save disabled because URL invalid" vs "Save disabled for another reason").
+
 ## Manual fallback (no secrets yet)
 
 Until secrets are populated, archive locally:
