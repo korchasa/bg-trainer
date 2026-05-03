@@ -95,7 +95,7 @@ export interface GameResult {
   errors: number;
 }
 
-export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics";
+export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics" | "paywall";
 
 export type SessionPace = "quick" | "standard" | "deep";
 

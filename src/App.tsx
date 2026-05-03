@@ -5,6 +5,9 @@ import { loadHistory, saveHistory, clearHistory } from "./utils/history";
 import { loadMastery, saveMastery, clearMastery, applyAnswer } from "./utils/mastery";
 import { loadPace, savePace } from "./utils/pace";
 import { hapticRoundFinished } from "./utils/nativeUx";
+import { IS_NATIVE } from "./utils/platform";
+import { useIap } from "./services/iap";
+import { PaywallScreen } from "./components/screens/PaywallScreen";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
 import { SESSION_SIZE_BY_PACE, ROUND_GAMES, DEFAULT_PACE } from "./constants";
@@ -28,6 +31,7 @@ interface RoundState {
 
 export default function App() {
   const { t, f, L } = useI18n();
+  const { proUnlocked, priceString } = useIap();
   const [screen, setScreen] = useState<Screen>("lessons");
   const [lessonId, setLessonId] = useState<string | null>(null);
   const [modeId, setModeId] = useState<string | null>(null);
@@ -140,6 +144,13 @@ export default function App() {
   const openLesson = (id: string) => {
     const lesson = LESSON_BY_ID[id];
     if (!lesson?.available) return;
+    // FR-FREEMIUM, FR-MENU: native + pro + locked → route to paywall instead of opening the lesson.
+    // Web ignores tier (always free per FR-FREEMIUM).
+    if (IS_NATIVE && lesson.tier === "pro" && !proUnlocked) {
+      setLessonId(id);
+      setScreen("paywall");
+      return;
+    }
     setLessonId(id);
     setScreen("lesson");
   };
@@ -231,8 +242,19 @@ export default function App() {
           <LessonsScreen
             history={history}
             mastery={mastery}
+            proUnlocked={proUnlocked}
+            priceString={priceString}
             onPickLesson={openLesson}
             onAnalytics={() => setScreen("analytics")}
+          />
+        )}
+
+        {screen === "paywall" && (
+          <PaywallScreen
+            onClose={() => {
+              setLessonId(null);
+              setScreen("lessons");
+            }}
           />
         )}
 
