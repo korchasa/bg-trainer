@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Purpose:** Describe the client-side architecture of bg-trainer: how screens, hooks, engines, and data combine to deliver quiz sessions and analytics.
-- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE, FR-IOS-SHELL.
+- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE, FR-IOS-SHELL, FR-FREEMIUM, FR-IAP, FR-PAYWALL, FR-ANDROID-SHELL, FR-SYNC-PAID.
 
 ## 2. Arch
 - **Diagram:**
@@ -14,19 +14,27 @@
     App -->|screen=game| Engine[Engine*]
     App -->|screen=results| Results[ResultsScreen]
     App -->|screen=analytics| Analytics[AnalyticsScreen]
+    App -->|screen=paywall mobile only| Paywall[PaywallScreen]
     Engine --> useGame[(useGame hook)]
     Engine -.timed.-> useTimer[(useTimer hook)]
-    App --> History[(localStorage\n bg-trainer-v3)]
-    App --> Mastery[(localStorage\n bg-trainer-mastery-v1)]
+    App --> Storage[(StorageAdapter\n localStorage / Capacitor.Preferences)]
+    Storage --> History[(bg-trainer-v3)]
+    Storage --> Mastery[(bg-trainer-mastery-v1)]
+    App --> IAP[(IapService\n RevenueCat / web stub)]
+    Paywall --> IAP
+    Storage -.pro only.-> Sync[(SyncAdapter\n iCloud KVS / Auto Backup)]
     Analytics --> History
     Lessons --> Mastery
     Lesson --> Mastery
-    App --> Data[(data/index.ts\n + lesson1.ts + lesson2.ts\n + lesson3.ts + lesson4.ts)]
-    App --> Lessons2[(data/lessons.ts)]
+    App --> Data[(data/index.ts\n + lesson1..4.ts)]
+    App --> LessonsData[(data/lessons.ts)]
     App --> Slice[(utils/sliceData)]
   ```
 - **Subsystems:**
-  - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence.
+  - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence + tier-gating dispatch (paywall on locked-pro tap, mobile only).
+  - **Platform service (`services/platform.ts`):** `getPlatform()` returns `"web" | "ios" | "android"` from `VITE_PLATFORM` build flag (default `"web"`). All gating + IAP + sync paths branch on it.
+  - **IAP service (`services/iap.ts`):** abstracts RevenueCat. Native: `@revenuecat/purchases-capacitor`. Web: stub returning `proUnlocked=true`. Exposes `init()`, `getOfferings()`, `purchase()`, `restore()`, `isPro()`, plus an event emitter for entitlement changes. `proUnlocked` cached in storage (key `bg-trainer-pro-v1`) for offline tolerance.
+  - **Sync adapter (`services/sync.ts`):** Pro-only mirror of persistent state. iOS branch wraps `NSUbiquitousKeyValueStore` via Capacitor plugin; Android branch is a no-op (sync handled implicitly by Auto Backup configured in manifest). Reconcile-on-launch routine: max-`lastTs` per mastery item, dedupe history by `ts`.
   - **Engines (`components/engines/*`):** one React component per `EngineType`. Consumes `useGame`.
   - **State hooks (`hooks/*`):** `useGame` (scoring, advance, reaction), `useTimer` (countdown for timed mode).
   - **Data layer (`data/index.ts` + `data/lesson1.ts` + `data/lesson2.ts` + `data/lesson3.ts` + `data/lesson4.ts`):** exercises split per-lesson; `index.ts` is composition root — imports datasets from lesson files, re-exports via `export *`, defines `CATEGORIES` + `ALL_MODES`. Shared labels (`LABEL_M/F/N/PL`) live in `lesson1.ts` and are imported by later lessons. L10n fields stored as `Localized<string>`. Translation pairs inside `DataItem.q` use convention `"<ru> / <uk>"` — engines render via `Lq` helper which splits on " / " and picks side by current locale.
@@ -36,7 +44,7 @@
   - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`).
   - **i18n (`src/i18n/*`):** `LocaleProvider` + `useI18n` hook expose `t` (plain UI strings), `f` (parametric strings), `L` (resolves `Localized<T>`), `Lq` (splits `"<ru> / <uk>"` convention in `DataItem.q`). `STRINGS`/`FORMATS` dictionaries enforce locale completeness via `Record<Locale, …>`. Locale persisted under `bg-trainer-lang-v1`; first-run detection from `navigator.language` (only literal `uk` prefix triggers UK).
   - **UI atoms (`components/ui/*`):** `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`, `TaskPrompt`.
-  - **Screens (`components/screens/*`):** `ResultsScreen`, `AnalyticsScreen`.
+  - **Screens (`components/screens/*`):** `ResultsScreen`, `AnalyticsScreen`, `PaywallScreen` (mobile only).
 
 ## 3. Components
 
@@ -111,6 +119,40 @@
   - WKWebView `localStorage` path (simulator): `~/Library/Developer/CoreSimulator/Devices/<DEVICE>/data/Containers/Data/Application/<APP>/Library/WebKit/WebsiteData/LocalStorage/capacitor_localhost_0.localstorage`. Locate via `xcrun simctl get_app_container booted <bundle-id> data`.
   - `VITE_BASE_PATH=./` is mandatory for iOS build (relative paths for `capacitor://localhost`). Web build stays on `/bg-trainer/` for GH Pages.
 
+### 3.12 PaywallScreen
+- **Purpose:** Mobile-only purchase gate. Reached via `screen="paywall"` set by App when free user taps a `tier="pro"` lesson, or via "Pro" affordance in analytics.
+- **Interfaces:** Props `{ onClose, iap }`. Renders Pro benefits, `iap.getOfferings().monthly.priceString`, "Купить", "Восстановить покупки", EULA + Privacy links.
+- **Deps:** `services/iap`, `useI18n`, UI atoms.
+
+### 3.13 IapService (`services/iap.ts`)
+- **Purpose:** Single entry point for purchase state. Hides RevenueCat behind a stable interface; web build provides stub.
+- **Interfaces:** `init(): Promise<void>`, `getOfferings(): Promise<Package[]>`, `purchase(pkg): Promise<{ ok, error? }>`, `restore(): Promise<{ ok, error? }>`, `isPro(): boolean`, `onEntitlementChange(cb): () => void`.
+- **State:** In-memory `proUnlocked` mirrored to storage key `bg-trainer-pro-v1`. Source of truth on launch = local cache (instant); online RevenueCat fetch reconciles asynchronously and emits change event if differs.
+- **Web stub:** `init` no-op, `isPro()=true`, `purchase/restore` return `{ ok: true }`. No RevenueCat code shipped to web bundle (conditional import via `VITE_PLATFORM`).
+- **Deps:** `@revenuecat/purchases-capacitor` (mobile only), `services/storage`, `services/platform`.
+
+### 3.14 SyncAdapter (`services/sync.ts`)
+- **Purpose:** Pro-only cross-device mirror. Activates when `proUnlocked && platform != "web"`.
+- **iOS:** Wraps `NSUbiquitousKeyValueStore` via Capacitor plugin (community plugin or thin custom plugin). `mirror(key, value)` writes to KVS in addition to Preferences. Launch routine `reconcile()` reads KVS → merges into local: max-`lastTs` per mastery item, history dedupe by `ts`, pace/lang last-write-wins.
+- **Android:** No-op at runtime. Sync delivered transparently by Auto Backup (manifest `allowBackup=true` + `android/app/src/main/res/xml/backup_rules.xml` rules covering Capacitor SharedPrefs). `reconcile()` returns immediately.
+- **Free users:** All methods no-op.
+- **Conflict policy:** documented in `services/sync.ts`; tested via two-device manual scenario.
+- **Deps:** `services/storage`, `services/iap`, `services/platform`, iCloud Capacitor plugin (iOS).
+
+### 3.15 Android shell (Capacitor 8)
+- **Purpose:** Wrap the React SPA in a native Android app (WebView at `https://localhost`). Same JS bundle as web/iOS.
+- **Layout:** `capacitor.config.ts` (root, shared) + `android/` Gradle project. `cap sync android` copies `dist/` → `android/app/src/main/assets/public/` (gitignored).
+- **Lifecycle:** Single `MainActivity` extending `BridgeActivity`. Edge-to-edge layout via `WindowCompat.setDecorFitsSystemWindows(false)` + CSS `env(safe-area-inset-*)`.
+- **Hardware back:** Default `BridgeActivity` back-button handler invokes WebView `goBack()`; falls through to default activity finish when stack empty. App routes back-button events to `App.tsx` `onBack` listener via Capacitor `App.addListener('backButton', …)`.
+- **Backup:** `android:allowBackup="true"` + `fullBackupContent="@xml/backup_rules"` referencing SharedPrefs `Capacitor.Preferences`.
+- **Scripts:** `npm run build:android` (`VITE_BASE_PATH=./` + `VITE_PLATFORM=android`) → `android:sync` → `android:open`.
+- **Deps:** `@capacitor/android` v8, AGP 8.x, Gradle 8.x, JDK 17.
+- **Known gotchas:**
+  - Auto Backup excludes anything outside SharedPrefs/files dir by default — Capacitor `Preferences` plugin uses SharedPrefs file `CapacitorStorage`, must be explicitly included in `backup_rules.xml`.
+  - WebView third-party cookie behavior changed in API 33+; not relevant for `https://localhost` but watch for fetch failures on emulator.
+  - `versionCode` is a monotonic int — bumping must be CI-driven, not from git tag (tags can be re-cut).
+  - Google Play requires AAB (not APK) since 2021; `bundleRelease` is the canonical task.
+
 ## 4. Data
 - **Entities:**
   - `DataItem = { q, answer, hint, label?, decoys?, rule? }`
@@ -122,12 +164,15 @@
   - `Mode = { id, icon, label, desc, type: EngineType, data: () => Item[] }`
   - `SessionPace = "quick" | "standard" | "deep"` → `SESSION_SIZE_BY_PACE = {quick:3, standard:5, deep:8}`
   - `Category = { id, name, modes: Mode[] }`
-  - `Lesson = { id, num, title, modeIds: string[], available: boolean }`
+  - `Lesson = { id, num, title, modeIds: string[], available: boolean, tier: "free" | "pro" }`
+  - `Platform = "web" | "ios" | "android"`
+  - `ProState = { unlocked: boolean, lastChecked: ms }`
+  - `Screen = "lessons" | "lesson" | "game" | "results" | "analytics" | "paywall"`
   - `HistoryEntry = { mode, score, time, errors, ts, lessonId?, round?, qsTotal? }`
   - `ItemMastery = { level: 0..10, lastTs: ms, attempts }`
   - `ModeMastery = Record<itemId, ItemMastery>`; `MasteryStore = Record<modeId, ModeMastery>`
 - **ERD:** None (no relational data). `Category 1—n Mode 1—n Item` in-memory.
-- **Migration:** `localStorage` keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All four schemas are independent. `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning).
+- **Migration:** Storage keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale) + `bg-trainer-pro-v1` (Pro entitlement cache, mobile only). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All schemas are independent. `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning). Pro-only KVS mirror (iOS) writes the same keys to `NSUbiquitousKeyValueStore`; reconcile routine merges on launch.
 
 ## 5. Logic
 - **Algos:**
@@ -162,6 +207,9 @@
   - i18n covers only `ru` and `uk`. Bulgarian content shared. `DATA_GENDER` answers/options remain Russian (`мужской`/`женский`/`средний`) for v1 — Ukrainian users see Russian gender labels there.
   - No accessibility audit formalized.
   - iOS deployment target 15.0+, portrait+landscape allowed (to be locked portrait for App Store — FR-IOS-APPSTORE).
+  - Web is fully free — no paywall, no IAP, no tier enforcement. Strategic choice: mobile premium positioning vs free web reach.
+  - No cross-platform iOS↔Android sync — would require backend, ruled "complication" by product.
+  - One-time IAP only, no subscriptions, no consumables.
 - **Deferred:**
   - Test harness (Vitest/Playwright) — to add when regressions appear.
   - ESLint + Prettier — for consistent code quality.
@@ -171,3 +219,7 @@
   - Native integrations (splash, haptics, status-bar) — FR-IOS-UX.
   - Storage migration `localStorage` → `@capacitor/preferences` — FR-IOS-STORAGE.
   - iOS CI/CD to TestFlight — FR-IOS-CICD.
+  - Android shell + Play Store assets + CI/CD — FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD.
+  - Freemium gating + paywall + RevenueCat integration — FR-FREEMIUM, FR-IAP, FR-PAYWALL.
+  - Pro-only cloud sync (iCloud KVS / Auto Backup) — FR-SYNC-PAID.
+  - Lessons L5–L8 implementation — separate track, not blocking mobile release.

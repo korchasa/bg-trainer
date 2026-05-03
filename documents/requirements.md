@@ -1,28 +1,31 @@
 # SRS
 
 ## 1. Intro
-- **Desc:** bg-trainer — browser-based gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single-page React app hosted on GitHub Pages.
-- **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size).
+- **Desc:** bg-trainer — gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single React/TS codebase shipped as 3 surfaces: web (GitHub Pages, fully free), iOS (Capacitor WKWebView shell, freemium IAP), Android (Capacitor WebView shell, freemium IAP). Mobile gating: 3 of 8 lessons free, $4.99 lifetime unlock for the rest.
+- **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size). IAP = In-App Purchase. KVS = `NSUbiquitousKeyValueStore` (iCloud key-value sync). Tier = lesson access class (`free` | `pro`).
 
 ## 2. General
-- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages) and native iOS (Capacitor WKWebView shell).
+- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages, free), native iOS (Capacitor WKWebView shell, freemium IAP), native Android (Capacitor WebView shell, freemium IAP). Freemium gate is mobile-only; web ignores tier.
 - **Assumptions/Constraints:**
   - Modern evergreen browser with `localStorage` and ES2020+.
   - Mobile-first, max-width `md`, portrait-friendly.
-  - Static hosting for web (GitHub Pages at base `/bg-trainer/`); iOS build uses relative base `./`.
+  - Static hosting for web (GitHub Pages at base `/bg-trainer/`); iOS/Android builds use relative base `./`.
   - iOS deployment target 15.0+, Bundle ID `dev.korchasa.bgtrainer`, Capacitor 8.
-  - No server, no analytics backend.
+  - Android minSdk 24 (Android 7.0), targetSdk 34, package `dev.korchasa.bgtrainer`, Capacitor 8.
+  - IAP via RevenueCat (free tier ≤ $2.5k MTR/mo). Single non-consumable product `bgtrainer_pro_lifetime`.
+  - No server, no analytics backend, no auth.
   - i18n: 2 locales (`ru`, `uk`), client-side only, no external i18n library.
 
 ## 3. Functional Reqs
 
 ### 3.1 FR-MENU
-- **Desc:** Entry screen = list of lessons. Lessons carry a curated `modeIds` list. Available lessons open a per-lesson screen; upcoming lessons shown disabled with "Скоро" label.
-- **Scenario:** User opens app → sees lessons list → taps available lesson → lesson screen with round button + grid of lesson's games → taps a game → game starts.
+- **Desc:** Entry screen = list of lessons. Lessons carry a curated `modeIds` list and a `tier`. Available lessons open a per-lesson screen; upcoming lessons (`available=false`) shown disabled with "Скоро" label. On iOS/Android, tapping a `tier="pro"` lesson while Pro is locked routes to paywall (FR-PAYWALL); the tile shows lock icon + price. On web, all `available` lessons are tappable regardless of `tier`.
+- **Scenario:** User opens app → sees lessons list → taps available+unlocked lesson → lesson screen with round button + grid of lesson's games → taps a game → game starts. Free user on mobile taps pro lesson → paywall.
 - **Acceptance:**
   - [x] Lessons list rendered with two sections (available / upcoming). Evidence: `src/components/screens/LessonsScreen.tsx:16-62`, `src/data/lessons.ts`
   - [x] Only `available=true` lessons are tappable. Evidence: `src/App.tsx:89-94`, `src/components/screens/LessonsScreen.tsx:35-52`
   - [x] Lesson screen lists its modes + primary "Раунд" button. Evidence: `src/components/screens/LessonScreen.tsx`
+  - [ ] Mobile build: pro+locked lesson tile shows lock + price; tap → paywall. Web: tier ignored.
 
 ### 3.2 FR-GAME-SESSION
 - **Desc:** Session = N questions from the selected mode's data, where N = `SESSION_SIZE_BY_PACE[pace]` (see FR-PACE). `qsTotal` is fixed at session start. Wrong answers are re-queued 3–5 positions later within the same session (`retryBuffer`, non-mutating). Progress UI and history use `answered / qsTotal`. `errors` counts unique wrong indices (repeat-fails on the same item do not increment).
@@ -36,7 +39,7 @@
   - [x] On completion → `onComplete(score, time, errors)` fires once. Evidence: `src/hooks/useGame.ts:59-63`
 
 ### 3.10 FR-LESSONS
-- **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. Lessons 1–4 are fully playable; lessons 5–8 show as "Скоро" placeholders.
+- **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`, `tier`. Lessons 1–4 are fully playable (`available=true`); lessons 5–8 are stubs (`available=false`, "Скоро"). Tier split for mobile gating (FR-FREEMIUM): L1–L3 = `free`, L4–L8 = `pro`. Web ignores tier.
 - **Scenario:** User picks lesson 1 → sees games for L1 grammar (съм, казвам се, говоря, имам/нямам, страна→язык, национальность, профессия, приветствия, ответные реплики, Как си, Това е/са, предметы, нито/и, нали, ли-вопрос, отрицание). User picks lesson 2 → sees games for L2 grammar (род, артикль, мн.ч., согласование прил., полные притежательные, антонимы, предлоги места, има/няма, един/една/едно, счётная форма, Ето го/я/ги, словарь комнаты, север→северен). User picks lesson 3 → sees games for L3 (жильё, семья, краткие притежательные ми/ти/му/й/ни/ви/им/си, артикль+родство, показательные този/онзи, живея/зная/следвам/занимавам се, этажность, дни/месяцы, наречия места, числа 11–1000, порядковые, «на кого», время, вопросительные, даты). User picks lesson 4 → sees games for L4 (спряжения I/II/III: чета, уча, казвам, оправям, правя + ям; возвратный глагол мия се; словарь распорядка дня; время суток и указатели прошлого; частотные наречия; никога + не; антонимы рано/късно, бързо/бавно, често/рядко, влизам/излизам; предлоги времени в / преди / след / към / около / до / от / между; часы «Часът е…»; прошедшее бях; будущее ще бъда / няма да бъда).
 - **Acceptance:**
   - [x] `LESSONS` defined with 8 entries; L1, L2, L3, L4 `available=true`. Evidence: `src/data/lessons.ts`
@@ -49,6 +52,7 @@
   - [x] Each new L3 mode backed by ≥6 data items. Evidence: `src/data/lesson3.ts` (DATA_L3_HOUSE, DATA_L3_FAMILY, DATA_L3_POSS_SHORT, DATA_L3_POSS_ART, DATA_L3_DEMO, DATA_L3_ZHIVEYA, DATA_L3_ZNAYA, DATA_L3_SLEDVAM, DATA_L3_FLOOR, DATA_L3_DAYS, DATA_L3_MONTHS, DATA_L3_LOC_ADV, DATA_L3_NUM, DATA_L3_ORD, DATA_L3_MATCH_FAMILY, DATA_L3_MATCH_SHORT_POSS, DATA_L3_BUILD, DATA_L3_PARADIGM, DATA_L3_ODD, DATA_L3_NA_KOGO, DATA_L3_TIME, DATA_L3_QWORDS, DATA_L3_ZANIMAVAM, DATA_L3_DATE_BUILD)
   - [x] Each new L4 mode backed by ≥6 data items. Evidence: `src/data/lesson4.ts` (DATA_L4_CHETA, DATA_L4_UCHA, DATA_L4_KAZVAM, DATA_L4_OPRAVYAM, DATA_L4_PRAVYA, DATA_L4_YAM, DATA_L4_CONJ_TYPE, DATA_L4_MIYA_SE, DATA_L4_REFL_VOCAB, DATA_L4_TIME_PERIOD, DATA_L4_PAST_TIME, DATA_L4_FREQ, DATA_L4_NEVER, DATA_L4_ANT, DATA_L4_PREP_TIME, DATA_L4_HOURS, DATA_L4_HOURS_TYPE, DATA_L4_BYAH, DATA_L4_BYAH_TYPE, DATA_L4_SHTE_BADA, DATA_L4_SHTE_NEG, DATA_L4_PARADIGM, DATA_L4_BUILD, DATA_L4_HOURS_BUILD, DATA_L4_MATCH_ANT, DATA_L4_MATCH_CONJ, DATA_L4_ODD)
   - [x] Data split into per-lesson modules with composition root. Evidence: `src/data/index.ts`, `src/data/lesson1.ts`, `src/data/lesson2.ts`, `src/data/lesson3.ts`, `src/data/lesson4.ts`
+  - [ ] `Lesson.tier: "free" | "pro"` field added; L1–L3 = `free`, L4–L8 = `pro`.
 
 ### 3.11 FR-ROUND
 - **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
@@ -263,12 +267,93 @@
   - [ ] `MARKETING_VERSION` sourced from git tag.
 
 ### 3.9 FR-NAV
-- **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.
+- **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`, `paywall` (mobile only). Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar. Tap on locked pro lesson (mobile) → `paywall`; close paywall → back to `lessons`.
 - **Acceptance:**
   - [x] Screen state owned by `App.tsx`. Evidence: `src/App.tsx:29-38`
   - [x] Initial screen on load = `lessons`. Evidence: `src/App.tsx:29`
   - [x] Back during round shows `ConfirmBar` instead of browser confirm. Evidence: `src/App.tsx:114-129,190-198`
   - [x] `NavHeader` + `BackButton` provide navigation. Evidence: `src/components/ui/NavHeader.tsx`, `src/components/ui/BackButton.tsx`
+  - [ ] `paywall` screen registered in mobile builds; not reachable on web.
+
+### 3.24 FR-FREEMIUM
+- **Desc:** Mobile-only content gating. `Lesson.tier: "free" | "pro"`. `free` lessons (L1–L3) always playable. `pro` lessons (L4–L8) gated on iOS/Android: tap when Pro is locked → paywall (FR-PAYWALL). Web ignores `tier` entirely — all `available` lessons playable everywhere on web. Tier is data, not platform-conditional content; only the gate is platform-conditional. Analytics never filters by tier — history of pro-tier plays (e.g., from web, or after subsequent purchase) always visible regardless of current platform/state.
+- **Scenario:** Free user on iOS taps L4 → paywall ($4.99 + Restore). Same user on web taps L4 → game starts. After purchase on iOS, all iOS devices on same Apple ID unlock; Android requires separate purchase (no cross-platform IAP).
+- **Acceptance:**
+  - [ ] `Lesson.tier: "free" | "pro"` in `src/types.ts`.
+  - [ ] L1, L2, L3 set `tier="free"`; L4–L8 set `tier="pro"` in `src/data/lessons.ts`.
+  - [ ] Build-time platform flag (`VITE_PLATFORM=web|ios|android`) drives gate enforcement; web build short-circuits to "always free".
+  - [ ] iOS/Android: tapping pro lesson when `proUnlocked=false` → `screen="paywall"`.
+  - [ ] Analytics shows entries for all lessons regardless of current tier or platform.
+
+### 3.25 FR-IAP
+- **Desc:** RevenueCat SDK on iOS and Android. One non-consumable product `bgtrainer_pro_lifetime` (~$4.99 USD, App Store tier 5; €4.99 EUR equivalent). Pro entitlement (`pro`) cached locally; offline use respects last known status. Restore Purchases reachable from paywall and from analytics screen settings affordance. Web build is IAP no-op.
+- **Acceptance:**
+  - [ ] RevenueCat project configured; product `bgtrainer_pro_lifetime` registered in App Store Connect and Google Play Console under matching SKU.
+  - [ ] `@revenuecat/purchases-capacitor` plugin installed.
+  - [ ] App initializes RevenueCat with platform-specific public API key on cold start (iOS/Android only).
+  - [ ] `proUnlocked = customerInfo.entitlements.active["pro"] !== undefined`, persisted to local storage as backup.
+  - [ ] Purchase flow: paywall "Купить" → `Purchases.purchasePackage(pkg)` → on success update `proUnlocked` → close paywall → unlock taps.
+  - [ ] Restore flow: triggers `Purchases.restorePurchases()`; user-visible toast on success/failure.
+  - [ ] Offline tolerance: cached `proUnlocked` honored when RevenueCat fetch fails; verified at next online launch.
+  - [ ] Web build: IAP service is a stub returning `proUnlocked=true` (web is fully free).
+
+### 3.26 FR-PAYWALL
+- **Desc:** Paywall screen on iOS/Android shown when free user taps a pro lesson, or via "Pro" affordance on analytics. Lists Pro benefits (L4–L8 access + cross-device sync), one-button purchase showing localized price from RevenueCat, Restore Purchases link, EULA + Privacy Policy links (App Store mandatory).
+- **Acceptance:**
+  - [ ] `PaywallScreen` component rendered when `screen="paywall"`.
+  - [ ] Localized in `ru`/`uk` via existing `useI18n`.
+  - [ ] Buy button shows `Package.product.priceString` (currency-formatted by store).
+  - [ ] Restore Purchases button always visible (Apple guideline 3.1.1).
+  - [ ] Locked-lesson tile on `LessonsScreen` (mobile only) shows lock icon + price hint.
+  - [ ] EULA + Privacy Policy links open in-app browser or external browser.
+  - [ ] Web does not render paywall.
+
+### 3.27 FR-ANDROID-SHELL
+- **Desc:** Native Android shell via Capacitor 8 wrapping the React SPA. minSdk 24, targetSdk 34, package `dev.korchasa.bgtrainer`. Single Activity (`MainActivity`) hosting the WebView at `https://localhost`. Shared codebase with web/iOS; same `VITE_BASE_PATH=./` build.
+- **Scenario:** `npm run android:sync` rebuilds web assets with relative base and copies to `android/app/src/main/assets/public/`. Android Studio opens project, runs on emulator or device.
+- **Acceptance:**
+  - [ ] `@capacitor/android` v8 added.
+  - [ ] `build:android`, `android:sync`, `android:open` npm scripts.
+  - [ ] Android Studio project at `android/`.
+  - [ ] Edge-to-edge layout respects `WindowInsets` (parity with iOS safe-area handling).
+  - [ ] Status-bar style controlled (light content on dark background).
+  - [ ] Hardware back-button maps to in-app navigation (or default WebView back).
+  - [ ] App icon set in `android/app/src/main/res/mipmap-*/` (adaptive foreground + background).
+
+### 3.28 FR-ANDROID-PLAYSTORE
+- **Desc:** Assets and metadata required for Google Play Console submission.
+- **Acceptance:**
+  - [ ] Google Play Console developer account ($25 one-time).
+  - [ ] Adaptive launcher icons (foreground + background layers, 108×108 dp).
+  - [ ] Feature graphic 1024×500.
+  - [ ] Phone screenshots (320–3840 px, 16:9 to 9:16).
+  - [ ] Short description ≤80 chars; full description ≤4000 chars (RU/UK/EN).
+  - [ ] Publicly hosted Privacy Policy URL.
+  - [ ] Data Safety form completed (no data collection beyond local storage + IAP receipts).
+  - [ ] Content rating questionnaire (target: Everyone).
+  - [ ] Internal Testing → Closed Testing → Production rollout.
+
+### 3.29 FR-ANDROID-CICD
+- **Desc:** Automated Android build + Play Store delivery on release tags.
+- **Acceptance:**
+  - [ ] GitHub Actions workflow `android-release.yml` triggered on tag `v*`.
+  - [ ] `./gradlew bundleRelease` produces signed `.aab`.
+  - [ ] Signing keystore stored as base64 GitHub secret + passwords in secrets.
+  - [ ] `versionCode` auto-bumped from CI run number; `versionName` from git tag.
+  - [ ] Upload via `gradle-play-publisher` (default track: Internal Testing).
+
+### 3.30 FR-SYNC-PAID
+- **Desc:** Optional cross-device sync of progress (history + mastery + pace + lang) for Pro users only. Per-platform native sync; no backend; no cross-platform iOS↔Android sync. Web unaffected (always local). Conflict resolution: last-write-wins per item (mastery: max `lastTs`; history: dedupe by `ts`).
+- **iOS:** Mirror persistent state to `NSUbiquitousKeyValueStore` (iCloud KVS). Quotas: 1 MB total, 1024 keys, ≤ 1 MB per value. Active only when user signed into iCloud and Pro entitlement true.
+- **Android:** Use Auto Backup to Google Drive (manifest `android:allowBackup="true"`, `fullBackupContent` rules covering Capacitor `Preferences` SharedPrefs). Quota: 25 MB per app per Google account.
+- **Acceptance:**
+  - [ ] iCloud KVS bridge plugin installed (custom Capacitor plugin or community plugin).
+  - [ ] On Pro unlock event, history + mastery + pace + lang keys mirrored to KVS on every write.
+  - [ ] On launch (Pro active), KVS values reconciled with local: max `lastTs` wins per mastery item; history merged + deduped by `ts`; pace/lang last-write-wins by KVS metadata.
+  - [ ] Free users on iOS: zero KVS writes.
+  - [ ] Android `fullBackupContent` rules at `android/app/src/main/res/xml/backup_rules.xml` include Capacitor `Preferences` SharedPrefs.
+  - [ ] Auto Backup verified via `adb shell bmgr backupnow <package>`.
+  - [ ] Depends on FR-IOS-STORAGE (preferences abstraction must precede sync layer).
 
 ## 4. Non-Functional
 - **Perf:** Initial bundle small enough for mobile networks (Vite tree-shake + code-split). Interaction latency < 50ms on mid-range mobile.
@@ -279,10 +364,12 @@
 
 ## 5. Interfaces
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.
-- **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS target: migrate to `@capacitor/preferences` (FR-IOS-STORAGE).
+- **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. Mobile target: migrate to `@capacitor/preferences` (FR-IOS-STORAGE) + cloud sync for Pro (FR-SYNC-PAID).
+- **IAP:** RevenueCat SDK (`@revenuecat/purchases-capacitor`). Single non-consumable product `bgtrainer_pro_lifetime` ($4.99 / €4.99). Web stub returns unlocked.
 - **Deploy:**
-  - **Web:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`.
-  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store.
+  - **Web:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`. All lessons free.
+  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store. Freemium IAP (FR-FREEMIUM, FR-IAP).
+  - **Android:** Capacitor-wrapped Android WebView. Gradle project at `android/`. Build via `npm run android:sync` + `./gradlew bundleRelease`. Distribution via Google Play Console (Internal → Closed → Production). Freemium IAP (FR-FREEMIUM, FR-IAP).
 
 ## 6. Acceptance
 - **Criteria:**
