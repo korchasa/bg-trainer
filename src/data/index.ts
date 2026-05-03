@@ -53,11 +53,25 @@ import {
   DATA_L4_PARADIGM, DATA_L4_BUILD, DATA_L4_HOURS_BUILD,
   DATA_L4_MATCH_ANT, DATA_L4_MATCH_CONJ, DATA_L4_ODD,
 } from "./lesson4";
+import {
+  DATA_L5_BODY, DATA_L5_APPEARANCE, DATA_L5_HAIR, DATA_L5_EYES, DATA_L5_FACE,
+  DATA_L5_CHARACTER, DATA_L5_ANT, DATA_L5_COLORS, DATA_L5_CLOTHES,
+  DATA_L5_STYLE, L5_STYLE_OPTIONS,
+  DATA_L5_FUTURE_TIME,
+  DATA_L5_SHTE_NEG, L5_SHTE_NEG_OPTIONS,
+  DATA_L5_SHTE_AFF, DATA_L5_SHTE_NEG_ANS, DATA_L5_SHTE_PISHA,
+  DATA_L5_KOYTO, L5_KOYTO_OPTIONS,
+  DATA_L5_TAKAV, L5_TAKAV_OPTIONS,
+  DATA_L5_OBICHAM, L5_OBICHAM_OPTIONS,
+  DATA_L5_BUILD, DATA_L5_KOGATO_BUILD, DATA_L5_PARADIGM,
+  DATA_L5_MATCH_COLOR, DATA_L5_MATCH_ANT, DATA_L5_ODD,
+} from "./lesson5";
 
 export * from "./lesson1";
 export * from "./lesson2";
 export * from "./lesson3";
 export * from "./lesson4";
+export * from "./lesson5";
 
 export const CATEGORIES: Category[] = [
   {
@@ -236,6 +250,41 @@ export const CATEGORIES: Category[] = [
       { id: "l4_match_ant", icon: "🔗", label: { ru: "Антонимы: пары", uk: "Антоніми: пари" }, desc: { ru: "Соедини антонимические пары", uk: "З'єднай антонімічні пари" }, type: "match", data: () => DATA_L4_MATCH_ANT },
       { id: "l4_match_conj", icon: "🔗", label: { ru: "1л. ↔ 3л.", uk: "1ос. ↔ 3ос." }, desc: { ru: "Соедини 1-е лицо ед. ч. с 3-м лицом ед. ч.", uk: "З'єднай 1-у особу одн. з 3-ю особою одн." }, type: "match", data: () => DATA_L4_MATCH_CONJ },
       { id: "l4_odd", icon: "🙅", label: { ru: "Найди лишнее · L4", uk: "Знайди зайве · L4" }, desc: { ru: "Одно слово не подходит по спряжению / категории / времени", uk: "Одне слово не підходить за дієвідміною / категорією / часом" }, type: "odd", data: () => DATA_L4_ODD },
+    ],
+  },
+  {
+    id: "l5_extra",
+    name: { ru: "Урок 5 · внешность и характер", uk: "Урок 5 · зовнішність і характер" },
+    modes: [
+      { id: "l5_body_pick", icon: "🧍", label: { ru: "Части тела", uk: "Частини тіла" }, desc: { ru: "Выбери болгарское слово для части тела", uk: "Обери болгарське слово для частини тіла" }, type: "pickFrom", data: () => DATA_L5_BODY },
+      { id: "l5_body_type", icon: "⌨️", label: { ru: "Впиши часть тела", uk: "Впиши частину тіла" }, desc: { ru: "Напечатай болгарское слово для части тела", uk: "Надрукуй болгарське слово для частини тіла" }, type: "type", data: () => DATA_L5_BODY },
+      { id: "l5_appearance_pick", icon: "🧑", label: { ru: "Внешность", uk: "Зовнішність" }, desc: { ru: "Выбери болгарское прилагательное о внешности", uk: "Обери болгарський прикметник про зовнішність" }, type: "pickFrom", data: () => DATA_L5_APPEARANCE },
+      { id: "l5_appearance_type", icon: "⌨️", label: { ru: "Впиши внешность", uk: "Впиши зовнішність" }, desc: { ru: "Напечатай болгарское прилагательное о внешности", uk: "Надрукуй болгарський прикметник про зовнішність" }, type: "type", data: () => DATA_L5_APPEARANCE },
+      { id: "l5_hair_pick", icon: "💇", label: { ru: "Волосы", uk: "Волосся" }, desc: { ru: "Выбери прилагательное для описания волос (ж.р., ед.ч.)", uk: "Обери прикметник для опису волосся (ж.р., одн.)" }, type: "pickFrom", data: () => DATA_L5_HAIR },
+      { id: "l5_eyes_pick", icon: "👁️", label: { ru: "Глаза", uk: "Очі" }, desc: { ru: "Выбери цвет/описание глаз (мн.ч.)", uk: "Обери колір/опис очей (мн.)" }, type: "pickFrom", data: () => DATA_L5_EYES },
+      { id: "l5_face_pick", icon: "👃", label: { ru: "Лицо: нос, губы, выражение", uk: "Обличчя: ніс, губи, вираз" }, desc: { ru: "Выбери описание носа, губ или выражения лица", uk: "Обери опис носа, губ чи виразу обличчя" }, type: "pickFrom", data: () => DATA_L5_FACE },
+      { id: "l5_character_pick", icon: "🎭", label: { ru: "Характер", uk: "Характер" }, desc: { ru: "Выбери болгарскую черту характера", uk: "Обери болгарську рису характеру" }, type: "pickFrom", data: () => DATA_L5_CHARACTER },
+      { id: "l5_character_type", icon: "⌨️", label: { ru: "Впиши характер", uk: "Впиши характер" }, desc: { ru: "Напечатай болгарскую черту характера", uk: "Надрукуй болгарську рису характеру" }, type: "type", data: () => DATA_L5_CHARACTER },
+      { id: "l5_ant_pick", icon: "↔️", label: { ru: "Антонимы · L5", uk: "Антоніми · L5" }, desc: { ru: "Подбери антоним из урока 5 (внешность/характер)", uk: "Підбери антонім з уроку 5 (зовнішність/характер)" }, type: "pickFrom", data: () => DATA_L5_ANT },
+      { id: "l5_colors_pick", icon: "🎨", label: { ru: "Цвета", uk: "Кольори" }, desc: { ru: "Выбери болгарское название цвета", uk: "Обери болгарську назву кольору" }, type: "pickFrom", data: () => DATA_L5_COLORS },
+      { id: "l5_colors_type", icon: "⌨️", label: { ru: "Впиши цвет", uk: "Впиши колір" }, desc: { ru: "Напечатай болгарское название цвета", uk: "Надрукуй болгарську назву кольору" }, type: "type", data: () => DATA_L5_COLORS },
+      { id: "l5_clothes_pick", icon: "👔", label: { ru: "Одежда / обувь", uk: "Одяг / взуття" }, desc: { ru: "Выбери болгарский перевод одежды или обуви", uk: "Обери болгарський переклад одягу чи взуття" }, type: "pickFrom", data: () => DATA_L5_CLOTHES },
+      { id: "l5_clothes_type", icon: "⌨️", label: { ru: "Впиши одежду", uk: "Впиши одяг" }, desc: { ru: "Напечатай болгарский перевод одежды или обуви", uk: "Надрукуй болгарський переклад одягу чи взуття" }, type: "type", data: () => DATA_L5_CLOTHES },
+      { id: "l5_style_pick", icon: "🕴️", label: { ru: "Стиль одежды", uk: "Стиль одягу" }, desc: { ru: "Выбери стиль: делово / спортно / официално / елегантно / небрежно", uk: "Обери стиль: делово / спортно / официално / елегантно / небрежно" }, type: "pickOpt", data: () => ({ items: DATA_L5_STYLE, opts: L5_STYLE_OPTIONS }) },
+      { id: "l5_future_time_pick", icon: "⏩", label: { ru: "Указатели будущего", uk: "Вказівники майбутнього" }, desc: { ru: "Выбери болгарский указатель будущего времени", uk: "Обери болгарський вказівник майбутнього часу" }, type: "pickFrom", data: () => DATA_L5_FUTURE_TIME },
+      { id: "l5_shte_pisha_pick", icon: "✍️", label: { ru: "Ще пиша", uk: "Ще пиша" }, desc: { ru: "Выбери форму «ще пиша» для местоимения", uk: "Обери форму «ще пиша» для займенника" }, type: "pick", data: () => DATA_L5_SHTE_PISHA },
+      { id: "l5_shte_neg_pick", icon: "🔀", label: { ru: "Ще / няма да", uk: "Ще / няма да" }, desc: { ru: "Выбери «ще» (положит.) или «няма да» (отриц.) для будущего времени", uk: "Обери «ще» (стверд.) або «няма да» (запереч.) для майбутнього часу" }, type: "pickOpt", data: () => ({ items: DATA_L5_SHTE_NEG, opts: L5_SHTE_NEG_OPTIONS }) },
+      { id: "l5_shte_aff_pick", icon: "✅", label: { ru: "Ответь утвердительно", uk: "Відповідай ствердно" }, desc: { ru: "Преобразуй вопрос «Ще ___ ли?» в ответ «Да, ще + 1л.»", uk: "Перетвори питання «Ще ___ ли?» на відповідь «Да, ще + 1ос.»" }, type: "pickFrom", data: () => DATA_L5_SHTE_AFF },
+      { id: "l5_shte_neg_ans_pick", icon: "🚫", label: { ru: "Ответь отрицательно", uk: "Відповідай заперечно" }, desc: { ru: "Преобразуй вопрос «Ще ___ ли?» в ответ «Не, няма да + 1л.»", uk: "Перетвори питання «Ще ___ ли?» на відповідь «Не, няма да + 1ос.»" }, type: "pickFrom", data: () => DATA_L5_SHTE_NEG_ANS },
+      { id: "l5_koyto_pick", icon: "🔗", label: { ru: "Който / която / което / които", uk: "Який / яка / яке / які" }, desc: { ru: "Выбери относит. местоимение по роду/числу антецедента", uk: "Обери віднос. займенник за родом/числом антецедента" }, type: "pickOpt", data: () => ({ items: DATA_L5_KOYTO, opts: L5_KOYTO_OPTIONS }) },
+      { id: "l5_takav_pick", icon: "👉", label: { ru: "Такъв / такава / …", uk: "Такий / така / …" }, desc: { ru: "Выбери указат. качество по роду/числу: какъв→такъв, …", uk: "Обери вказів. якість за родом/числом: какъв→такъв, …" }, type: "pickOpt", data: () => ({ items: DATA_L5_TAKAV, opts: L5_TAKAV_OPTIONS }) },
+      { id: "l5_obicham_pick", icon: "❤️", label: { ru: "Харесвам / обичам / мразя", uk: "Харесвам / обичам / мразя" }, desc: { ru: "Выбери глагол отношения по чувству: 🙂/❤️/💢", uk: "Обери дієслово ставлення за почуттям: 🙂/❤️/💢" }, type: "pickOpt", data: () => ({ items: DATA_L5_OBICHAM, opts: L5_OBICHAM_OPTIONS }) },
+      { id: "l5_paradigm", icon: "🧱", label: { ru: "Парадигмы будущего · L5", uk: "Парадигми майбутнього · L5" }, desc: { ru: "Собери парадигму будущего: ще пиша, ще чета, ще ям, ще говоря, ще ходя, ще обичам", uk: "Склади парадигму майбутнього: ще пиша, ще чета, ще ям, ще говоря, ще ходя, ще обичам" }, type: "paradigm", data: () => DATA_L5_PARADIGM },
+      { id: "l5_build", icon: "🧩", label: { ru: "Собери предложение · L5", uk: "Склади речення · L5" }, desc: { ru: "Расставь слова в предложении про внешность, характер, будущее", uk: "Розстав слова в реченні про зовнішність, характер, майбутнє" }, type: "build", data: () => DATA_L5_BUILD },
+      { id: "l5_kogato_build", icon: "🧷", label: { ru: "Собери когато / който", uk: "Склади когато / който" }, desc: { ru: "Расставь слова в придаточном с «когато» или «който»", uk: "Розстав слова в підрядному з «когато» чи «който»" }, type: "build", data: () => DATA_L5_KOGATO_BUILD },
+      { id: "l5_match_color", icon: "🎨", label: { ru: "Цвет: RU/UK ↔ BG", uk: "Колір: RU/UK ↔ BG" }, desc: { ru: "Соедини русский/украинский цвет с болгарским", uk: "З'єднай російський/український колір з болгарським" }, type: "match", data: () => DATA_L5_MATCH_COLOR },
+      { id: "l5_match_ant", icon: "🔗", label: { ru: "Антонимы: пары · L5", uk: "Антоніми: пари · L5" }, desc: { ru: "Соедини антонимические пары: внешность и характер", uk: "З'єднай антонімічні пари: зовнішність і характер" }, type: "match", data: () => DATA_L5_MATCH_ANT },
+      { id: "l5_odd", icon: "🙅", label: { ru: "Найди лишнее · L5", uk: "Знайди зайве · L5" }, desc: { ru: "Одно слово не подходит по теме: внешность / характер / цвет / одежда / время", uk: "Одне слово не підходить за темою: зовнішність / характер / колір / одяг / час" }, type: "odd", data: () => DATA_L5_ODD },
     ],
   },
   {
