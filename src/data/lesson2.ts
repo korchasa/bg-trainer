@@ -30,6 +30,26 @@ export const DATA_AGREE: DataItem[] = [
   { q: "чист + стая", label: LABEL_F, answer: "чиста", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["чист", "чисто", "чисти"] },
   { q: "чист + легло", label: LABEL_N, answer: "чисто", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["чист", "чиста", "чисти"] },
   { q: "подреден + стая", label: LABEL_F, answer: "подредена", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["подреден", "подредено", "подредени"] },
+  { q: "светъл + бюро", label: LABEL_N, answer: "светло", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["светъл", "светла", "светли"] },
+  { q: "светъл + стаи", label: LABEL_PL, answer: "светли", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["светъл", "светла", "светло"] },
+  { q: "тъмен + килим", label: LABEL_M, answer: "тъмен", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["тъмна", "тъмно", "тъмни"] },
+  { q: "тъмен + стая", label: LABEL_F, answer: "тъмна", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["тъмен", "тъмно", "тъмни"] },
+  { q: "тъмен + бюро", label: LABEL_N, answer: "тъмно", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["тъмен", "тъмна", "тъмни"] },
+  { q: "мръсен + под", label: LABEL_M, answer: "мръсен", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["мръсна", "мръсно", "мръсни"] },
+  { q: "мръсен + чанта", label: LABEL_F, answer: "мръсна", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["мръсен", "мръсно", "мръсни"] },
+  { q: "мръсен + огледало", label: LABEL_N, answer: "мръсно", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["мръсен", "мръсна", "мръсни"] },
+  { q: "разхвърлян + стая", label: LABEL_F, answer: "разхвърляна", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["разхвърлян", "разхвърляно", "разхвърляни"] },
+  { q: "разхвърлян + бюро", label: LABEL_N, answer: "разхвърляно", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["разхвърлян", "разхвърляна", "разхвърляни"] },
+  { q: "тесен + стая", label: LABEL_F, answer: "тясна", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["тесен", "тясно", "тесни"] },
+  { q: "просторен + стая", label: LABEL_F, answer: "просторна", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["просторен", "просторно", "просторни"] },
+  { q: "просторен + бюро", label: LABEL_N, answer: "просторно", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["просторен", "просторна", "просторни"] },
+  { q: "красив + картина", label: LABEL_F, answer: "красива", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["красив", "красиво", "красиви"] },
+  { q: "красив + цвете", label: LABEL_N, answer: "красиво", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["красив", "красива", "красиви"] },
+  { q: "красив + цветя", label: LABEL_PL, answer: "красиви", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["красив", "красива", "красиво"] },
+  { q: "малък + столове", label: LABEL_PL, answer: "малки", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["малък", "малка", "малко"] },
+  { q: "чист + чанти", label: LABEL_PL, answer: "чисти", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["чист", "чиста", "чисто"] },
+  { q: "хубав + бюро", label: LABEL_N, answer: "хубаво", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["хубав", "хубава", "хубави"] },
+  { q: "грозен + килими", label: LABEL_PL, answer: "грозни", hint: AGREE_HINT, rule: AGREE_RULE, decoys: ["грозен", "грозна", "грозно"] },
 ];
 
 const POSS_FULL_RULE: Localized<string> = {
@@ -58,6 +78,26 @@ export const DATA_POSSESS_FULL: DataItem[] = [
   { q: "вие + легло", label: LABEL_N, answer: "вашето", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["вашият", "вашата", "вашите"] },
   { q: "те + стая", label: LABEL_F, answer: "тяхната", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["техният", "тяхното", "техните"] },
   { q: "те + бюро", label: LABEL_N, answer: "тяхното", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["техният", "тяхната", "техните"] },
+  { q: "аз + стол", label: LABEL_M, answer: "моят", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["моята", "моето", "моите"] },
+  { q: "аз + цвете", label: LABEL_N, answer: "моето", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["моят", "моята", "моите"] },
+  { q: "ти + килим", label: LABEL_M, answer: "твоят", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["твоята", "твоето", "твоите"] },
+  { q: "ти + чанта", label: LABEL_F, answer: "твоята", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["твоят", "твоето", "твоите"] },
+  { q: "ти + книги", label: LABEL_PL, answer: "твоите", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["твоят", "твоята", "твоето"] },
+  { q: "той + бюро", label: LABEL_N, answer: "неговото", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["неговият", "неговата", "неговите"] },
+  { q: "той + книги", label: LABEL_PL, answer: "неговите", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["неговият", "неговата", "неговото"] },
+  { q: "тя + килим", label: LABEL_M, answer: "нейният", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["нейната", "нейното", "нейните"] },
+  { q: "тя + цвете", label: LABEL_N, answer: "нейното", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["нейният", "нейната", "нейните"] },
+  { q: "тя + цветя", label: LABEL_PL, answer: "нейните", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["нейният", "нейната", "нейното"] },
+  { q: "ние + стая", label: LABEL_F, answer: "нашата", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["нашият", "нашето", "нашите"] },
+  { q: "ние + книги", label: LABEL_PL, answer: "нашите", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["нашият", "нашата", "нашето"] },
+  { q: "вие + стол", label: LABEL_M, answer: "вашият", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["вашата", "вашето", "вашите"] },
+  { q: "вие + чанти", label: LABEL_PL, answer: "вашите", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["вашият", "вашата", "вашето"] },
+  { q: "те + килим", label: LABEL_M, answer: "техният", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["тяхната", "тяхното", "техните"] },
+  { q: "те + книги", label: LABEL_PL, answer: "техните", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["техният", "тяхната", "тяхното"] },
+  { q: "аз + чанта", label: LABEL_F, answer: "моята", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["моят", "моето", "моите"] },
+  { q: "той + картина", label: LABEL_F, answer: "неговата", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["неговият", "неговото", "неговите"] },
+  { q: "ние + цвете", label: LABEL_N, answer: "нашето", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["нашият", "нашата", "нашите"] },
+  { q: "вие + бюро", label: LABEL_N, answer: "вашето", hint: POSS_FULL_HINT, rule: POSS_FULL_RULE, decoys: ["вашият", "вашата", "вашите"] },
 ];
 
 const PREP_RULE: Localized<string> = {
@@ -80,6 +120,20 @@ export const DATA_PREP_PLACE: DataItem[] = [
   { q: "Столът е ___ бюрото.", answer: "пред", hint: { ru: "спереди", uk: "спереду" }, rule: PREP_RULE },
   { q: "Огледалото е ___ вратата.", answer: "зад", hint: { ru: "сзади", uk: "ззаду" }, rule: PREP_RULE },
   { q: "Банката е ___ магазина.", answer: "срещу", hint: { ru: "напротив", uk: "навпроти" }, rule: PREP_RULE },
+  { q: "Молив е ___ тетрадката.", answer: "на", hint: { ru: "сверху (поверхность)", uk: "зверху (поверхня)" }, rule: PREP_RULE },
+  { q: "Чашата е ___ масата.", answer: "на", hint: { ru: "сверху", uk: "зверху" }, rule: PREP_RULE },
+  { q: "Обувките са ___ леглото.", answer: "под", hint: { ru: "снизу", uk: "знизу" }, rule: PREP_RULE },
+  { q: "Килимът е ___ масата.", answer: "под", hint: { ru: "снизу", uk: "знизу" }, rule: PREP_RULE },
+  { q: "Лампата е ___ бюрото.", answer: "над", hint: { ru: "сверху (висит)", uk: "зверху (висить)" }, rule: PREP_RULE },
+  { q: "Картината е ___ бюрото.", answer: "над", hint: { ru: "сверху (на стене)", uk: "зверху (на стіні)" }, rule: PREP_RULE },
+  { q: "Лампата е ___ леглото.", answer: "до", hint: { ru: "рядом", uk: "поряд" }, rule: PREP_RULE },
+  { q: "Шкафът е ___ вратата.", answer: "до", hint: { ru: "рядом", uk: "поряд" }, rule: PREP_RULE },
+  { q: "Бюрото е ___ шкафа и леглото.", answer: "между", hint: { ru: "посередине двух", uk: "посередині двох" }, rule: PREP_RULE },
+  { q: "Молив е ___ чантата.", answer: "в", hint: { ru: "внутри", uk: "всередині" }, rule: PREP_RULE },
+  { q: "Тетрадките са ___ чантата.", answer: "в", hint: { ru: "внутри", uk: "всередині" }, rule: PREP_RULE },
+  { q: "Котката е ___ телевизора.", answer: "пред", hint: { ru: "спереди", uk: "спереду" }, rule: PREP_RULE },
+  { q: "Чантата е ___ стола.", answer: "зад", hint: { ru: "сзади", uk: "ззаду" }, rule: PREP_RULE },
+  { q: "Леглото е ___ прозореца.", answer: "срещу", hint: { ru: "напротив", uk: "навпроти" }, rule: PREP_RULE },
 ];
 export const PREP_PLACE_OPTIONS = ["на", "под", "над", "до", "между", "в", "пред", "зад", "срещу"];
 
@@ -104,6 +158,20 @@ export const DATA_DIR_ADJ: DataItem[] = [
   { q: "дърво + стол", label: LABEL_M, answer: "дървен", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["дървена", "дървено", "дървени"] },
   { q: "дърво + маса", label: LABEL_F, answer: "дървена", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["дървен", "дървено", "дървени"] },
   { q: "дърво + бюро", label: LABEL_N, answer: "дървено", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["дървен", "дървена", "дървени"] },
+  { q: "дърво + столове", label: LABEL_PL, answer: "дървени", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["дървен", "дървена", "дървено"] },
+  { q: "изток + село", label: LABEL_N, answer: "източно", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["източен", "източна", "източни"] },
+  { q: "изток + страни", label: LABEL_PL, answer: "източни", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["източен", "източна", "източно"] },
+  { q: "запад + море", label: LABEL_N, answer: "западно", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["западен", "западна", "западни"] },
+  { q: "запад + страни", label: LABEL_PL, answer: "западни", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["западен", "западна", "западно"] },
+  { q: "север + град", label: LABEL_M, answer: "северен", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["северна", "северно", "северни"] },
+  { q: "юг + улица", label: LABEL_F, answer: "южна", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["южен", "южно", "южни"] },
+  { q: "север + морета", label: LABEL_PL, answer: "северни", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["северен", "северна", "северно"] },
+  { q: "юг + страни", label: LABEL_PL, answer: "южни", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["южен", "южна", "южно"] },
+  { q: "изток + улица", label: LABEL_F, answer: "източна", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["източен", "източно", "източни"] },
+  { q: "запад + бряг", label: LABEL_M, answer: "западен", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["западна", "западно", "западни"] },
+  { q: "дърво + врата", label: LABEL_F, answer: "дървена", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["дървен", "дървено", "дървени"] },
+  { q: "север + ветрове", label: LABEL_PL, answer: "северни", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["северен", "северна", "северно"] },
+  { q: "юг + бряг", label: LABEL_M, answer: "южен", hint: DIR_ADJ_HINT, rule: DIR_ADJ_RULE, decoys: ["южна", "южно", "южни"] },
 ];
 
 const ANT_HINT: Localized<string> = { ru: "подбери антоним", uk: "підбери антонім" };
@@ -120,6 +188,18 @@ export const DATA_ANTONYMS: DataItem[] = [
   { q: "мръсен", answer: "чист", hint: ANT_HINT, decoys: ["светъл", "хубав", "голям"] },
   { q: "подреден", answer: "разхвърлян", hint: ANT_HINT, decoys: ["мръсен", "тъмен", "грозен"] },
   { q: "разхвърлян", answer: "подреден", hint: ANT_HINT, decoys: ["чист", "светъл", "хубав"] },
+  { q: "хубава", answer: "грозна", hint: ANT_HINT, decoys: ["светла", "голяма", "чиста"] },
+  { q: "грозна", answer: "хубава", hint: ANT_HINT, decoys: ["малка", "мръсна", "тъмна"] },
+  { q: "светла", answer: "тъмна", hint: ANT_HINT, decoys: ["грозна", "малка", "мръсна"] },
+  { q: "тъмна", answer: "светла", hint: ANT_HINT, decoys: ["хубава", "голяма", "чиста"] },
+  { q: "голяма", answer: "малка", hint: ANT_HINT, decoys: ["тъмна", "грозна", "мръсна"] },
+  { q: "малка", answer: "голяма", hint: ANT_HINT, decoys: ["светла", "хубава", "чиста"] },
+  { q: "чиста", answer: "мръсна", hint: ANT_HINT, decoys: ["тъмна", "малка", "грозна"] },
+  { q: "мръсна", answer: "чиста", hint: ANT_HINT, decoys: ["светла", "хубава", "голяма"] },
+  { q: "подредена", answer: "разхвърляна", hint: ANT_HINT, decoys: ["мръсна", "тъмна", "грозна"] },
+  { q: "разхвърляна", answer: "подредена", hint: ANT_HINT, decoys: ["чиста", "светла", "хубава"] },
+  { q: "хубаво", answer: "грозно", hint: ANT_HINT, decoys: ["светло", "голямо", "чисто"] },
+  { q: "голямо", answer: "малко", hint: ANT_HINT, decoys: ["тъмно", "грозно", "мръсно"] },
 ];
 
 const IMA_RULE: Localized<string> = {
@@ -141,6 +221,17 @@ export const DATA_IMA_NYAMA: DataItem[] = [
   { q: "В секцията ___ много книги.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
   { q: "В стаята ___ телевизор.", answer: "няма", hint: IMA_HINT_NO, rule: IMA_RULE },
   { q: "На стената ___ огледало.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "В чантата ___ книга.", answer: "няма", hint: IMA_HINT_NO, rule: IMA_RULE },
+  { q: "До прозореца ___ маса.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "Под леглото ___ обувки.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "На бюрото ___ лампа.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "В стаята ___ диван.", answer: "няма", hint: IMA_HINT_NO, rule: IMA_RULE },
+  { q: "Между леглата ___ шкаф.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "На пода ___ цветя.", answer: "няма", hint: IMA_HINT_NO, rule: IMA_RULE },
+  { q: "В стаята ___ телефон.", answer: "няма", hint: IMA_HINT_NO, rule: IMA_RULE },
+  { q: "На прозореца ___ цвете.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "До бюрото ___ стол.", answer: "има", hint: IMA_HINT_YES, rule: IMA_RULE },
+  { q: "В стаята ___ картина.", answer: "няма", hint: IMA_HINT_NO, rule: IMA_RULE },
 ];
 export const IMA_NYAMA_OPTIONS = ["има", "няма"];
 
@@ -167,6 +258,21 @@ export const DATA_EDIN: DataItem[] = [
   { q: "___ диван", answer: "един", hint: EDIN_HINT_M, rule: EDIN_RULE },
   { q: "___ чанта", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
   { q: "___ шише", answer: "едно", hint: EDIN_HINT_N, rule: EDIN_RULE },
+  { q: "___ компютър", answer: "един", hint: EDIN_HINT_M, rule: EDIN_RULE },
+  { q: "___ молив", answer: "един", hint: EDIN_HINT_M, rule: EDIN_RULE },
+  { q: "___ телефон", answer: "един", hint: EDIN_HINT_M, rule: EDIN_RULE },
+  { q: "___ килим", answer: "един", hint: EDIN_HINT_M, rule: EDIN_RULE },
+  { q: "___ речник", answer: "един", hint: EDIN_HINT_M, rule: EDIN_RULE },
+  { q: "___ тетрадка", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
+  { q: "___ книга", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
+  { q: "___ китара", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
+  { q: "___ химикалка", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
+  { q: "___ стена", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
+  { q: "___ лампа", answer: "една", hint: EDIN_HINT_F, rule: EDIN_RULE },
+  { q: "___ дърво", answer: "едно", hint: EDIN_HINT_N, rule: EDIN_RULE },
+  { q: "___ момче", answer: "едно", hint: EDIN_HINT_N, rule: EDIN_RULE },
+  { q: "___ момиче", answer: "едно", hint: EDIN_HINT_N, rule: EDIN_RULE },
+  { q: "___ село", answer: "едно", hint: EDIN_HINT_N, rule: EDIN_RULE },
 ];
 export const EDIN_OPTIONS = ["един", "една", "едно"];
 
@@ -189,6 +295,18 @@ export const DATA_COUNT: DataItem[] = [
   { q: "2 + легло", label: LABEL_N, answer: "две легла", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["два легла", "две легло", "двете легло"] },
   { q: "4 + огледало", label: LABEL_N, answer: "четири огледала", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["четири огледало", "четири огледали", "четири огледалата"] },
   { q: "7 + шише", label: LABEL_N, answer: "седем шишета", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["седем шише", "седем шишеи", "седем шишетата"] },
+  { q: "3 + стол", label: LABEL_M, answer: "три стола", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["три столове", "три стол", "трите столове"] },
+  { q: "2 + диван", label: LABEL_M, answer: "два дивана", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["две дивана", "два диван", "два дивани"] },
+  { q: "5 + телевизор", label: LABEL_M, answer: "пет телевизора", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["пет телевизори", "пет телевизор", "пет телевизорите"] },
+  { q: "3 + килим", label: LABEL_M, answer: "три килима", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["три килими", "три килим", "три килимове"] },
+  { q: "6 + речник", label: LABEL_M, answer: "шест речника", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["шест речници", "шест речник", "шест речницата"] },
+  { q: "2 + молив", label: LABEL_M, answer: "два молива", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["две молива", "два молив", "два моливи"] },
+  { q: "5 + химикалка", label: LABEL_F, answer: "пет химикалки", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["пет химикалка", "пет химикалките", "петте химикалка"] },
+  { q: "6 + тетрадка", label: LABEL_F, answer: "шест тетрадки", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["шест тетрадка", "шест тетрадките", "шестте тетрадка"] },
+  { q: "4 + китара", label: LABEL_F, answer: "четири китари", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["четири китара", "четири китарите", "четирте китара"] },
+  { q: "5 + книга", label: LABEL_F, answer: "пет книги", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["пет книга", "пет книгите", "пет книжки"] },
+  { q: "3 + бюро", label: LABEL_N, answer: "три бюра", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["три бюро", "три бюрета", "три бюрата"] },
+  { q: "5 + цвете", label: LABEL_N, answer: "пет цветя", hint: COUNT_HINT, rule: COUNT_RULE, decoys: ["пет цвете", "пет цветета", "пет цветята"] },
 ];
 
 const ETO_RULE: Localized<string> = {
@@ -213,6 +331,19 @@ export const DATA_ETO: DataItem[] = [
   { q: "Къде са леглата?", answer: "Ето ги", hint: ETO_HINT_PL, rule: ETO_RULE },
   { q: "Къде е картината?", answer: "Ето я", hint: ETO_HINT_F, rule: ETO_RULE },
   { q: "Къде е огледалото?", answer: "Ето го", hint: ETO_HINT_M, rule: ETO_RULE },
+  { q: "Къде е лаптопът?", answer: "Ето го", hint: ETO_HINT_M, rule: ETO_RULE },
+  { q: "Къде е килимът?", answer: "Ето го", hint: ETO_HINT_M, rule: ETO_RULE },
+  { q: "Къде е телефонът?", answer: "Ето го", hint: ETO_HINT_M, rule: ETO_RULE },
+  { q: "Къде е телевизорът?", answer: "Ето го", hint: ETO_HINT_M, rule: ETO_RULE },
+  { q: "Къде е стаята?", answer: "Ето я", hint: ETO_HINT_F, rule: ETO_RULE },
+  { q: "Къде е масата?", answer: "Ето я", hint: ETO_HINT_F, rule: ETO_RULE },
+  { q: "Къде е лампата?", answer: "Ето я", hint: ETO_HINT_F, rule: ETO_RULE },
+  { q: "Къде е химикалката?", answer: "Ето я", hint: ETO_HINT_F, rule: ETO_RULE },
+  { q: "Къде са книгите?", answer: "Ето ги", hint: ETO_HINT_PL, rule: ETO_RULE },
+  { q: "Къде са тетрадките?", answer: "Ето ги", hint: ETO_HINT_PL, rule: ETO_RULE },
+  { q: "Къде са моливите?", answer: "Ето ги", hint: ETO_HINT_PL, rule: ETO_RULE },
+  { q: "Къде са картините?", answer: "Ето ги", hint: ETO_HINT_PL, rule: ETO_RULE },
+  { q: "Къде са дрехите?", answer: "Ето ги", hint: ETO_HINT_PL, rule: ETO_RULE },
 ];
 export const ETO_OPTIONS = ["Ето го", "Ето я", "Ето ги"];
 
@@ -239,6 +370,17 @@ export const DATA_ART_M_FULL_SHORT: DataItem[] = [
   { q: "Чантата е до ___. (телефон)", label: LABEL_SHORT_ART, answer: "телефона", hint: { ru: "краткий м.р. -а", uk: "короткий ч.р. -а" }, rule: ART_MAT_RULE, decoys: ["телефонът", "телефон", "телефони"] },
   { q: "___ е стар. (учител)", label: LABEL_FULL, answer: "Учителят", hint: { ru: "полный м.р. -ят", uk: "повний ч.р. -ят" }, rule: ART_MYAT_RULE, decoys: ["Учителя", "Учителът", "Учителите"] },
   { q: "Книгата е на ___. (учител)", label: LABEL_SHORT_ART, answer: "учителя", hint: { ru: "краткий м.р. -я", uk: "короткий ч.р. -я" }, rule: ART_MYAT_RULE, decoys: ["учителят", "учител", "учители"] },
+  { q: "___ е на пода. (килим)", label: LABEL_FULL, answer: "Килимът", hint: { ru: "полный м.р. -ът", uk: "повний ч.р. -ът" }, rule: ART_MAT_RULE, decoys: ["Килима", "Килим", "Килимите"] },
+  { q: "Котката е на ___. (килим)", label: LABEL_SHORT_ART, answer: "килима", hint: { ru: "краткий м.р. -а", uk: "короткий ч.р. -а" }, rule: ART_MAT_RULE, decoys: ["килимът", "килим", "килими"] },
+  { q: "___ е голям. (стол)", label: LABEL_FULL, answer: "Столът", hint: { ru: "полный м.р. -ът", uk: "повний ч.р. -ът" }, rule: ART_MAT_RULE, decoys: ["Стола", "Стол", "Столовете"] },
+  { q: "Книгата е на ___. (стол)", label: LABEL_SHORT_ART, answer: "стола", hint: { ru: "краткий м.р. -а", uk: "короткий ч.р. -а" }, rule: ART_MAT_RULE, decoys: ["столът", "стол", "столове"] },
+  { q: "___ е чист. (под)", label: LABEL_FULL, answer: "Подът", hint: { ru: "полный м.р. -ът", uk: "повний ч.р. -ът" }, rule: ART_MAT_RULE, decoys: ["Пода", "Под", "Подовете"] },
+  { q: "Килимът е на ___. (под)", label: LABEL_SHORT_ART, answer: "пода", hint: { ru: "краткий м.р. -а", uk: "короткий ч.р. -а" }, rule: ART_MAT_RULE, decoys: ["подът", "под", "подове"] },
+  { q: "___ е стар. (шкаф)", label: LABEL_FULL, answer: "Шкафът", hint: { ru: "полный м.р. -ът", uk: "повний ч.р. -ът" }, rule: ART_MAT_RULE, decoys: ["Шкафа", "Шкаф", "Шкафовете"] },
+  { q: "Чантата е до ___. (шкаф)", label: LABEL_SHORT_ART, answer: "шкафа", hint: { ru: "краткий м.р. -а", uk: "короткий ч.р. -а" }, rule: ART_MAT_RULE, decoys: ["шкафът", "шкаф", "шкафове"] },
+  { q: "___ е малък. (молив)", label: LABEL_FULL, answer: "Моливът", hint: { ru: "полный м.р. -ът", uk: "повний ч.р. -ът" }, rule: ART_MAT_RULE, decoys: ["Молива", "Молив", "Моливите"] },
+  { q: "Книгата е до ___. (молив)", label: LABEL_SHORT_ART, answer: "молива", hint: { ru: "краткий м.р. -а", uk: "короткий ч.р. -а" }, rule: ART_MAT_RULE, decoys: ["моливът", "молив", "моливи"] },
+  { q: "___ е дебел. (речник)", label: LABEL_FULL, answer: "Речникът", hint: { ru: "полный м.р. -ът", uk: "повний ч.р. -ът" }, rule: ART_MAT_RULE, decoys: ["Речника", "Речник", "Речниците"] },
 ];
 
 const NUM_RULE: Localized<string> = {
@@ -276,6 +418,17 @@ export const DATA_DVAMA: DataItem[] = [
   { q: "1 + човек", answer: "един човек", hint: { ru: "исключение (ед.)", uk: "виняток (одн.)" }, rule: DVAMA_RULE, decoys: ["едно човек", "един души", "един хора"] },
   { q: "2 + човек", answer: "двама души", hint: { ru: "исключение: 2 → души", uk: "виняток: 2 → души" }, rule: DVAMA_RULE, decoys: ["двама човек", "два човека", "двама хора"] },
   { q: "много + човек", answer: "много хора", hint: { ru: "исключение: много → хора", uk: "виняток: багато → хора" }, rule: DVAMA_RULE, decoys: ["много човек", "много души", "много човеци"] },
+  { q: "1 + учител", answer: "един учител", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["една учител", "двама учител", "един учители"] },
+  { q: "2 + учител", answer: "двама учители", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["два учителя", "двама учител", "две учители"] },
+  { q: "много + учител", answer: "много учители", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["много учител", "много учителя", "много учителе"] },
+  { q: "1 + лекар", answer: "един лекар", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["една лекар", "двама лекар", "един лекари"] },
+  { q: "2 + лекар", answer: "двама лекари", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["два лекара", "двама лекар", "две лекари"] },
+  { q: "много + лекар", answer: "много лекари", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["много лекар", "много лекара", "много лекаре"] },
+  { q: "1 + журналист", answer: "един журналист", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["една журналист", "двама журналист", "един журналисти"] },
+  { q: "2 + журналист", answer: "двама журналисти", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["два журналиста", "двама журналист", "две журналисти"] },
+  { q: "много + журналист", answer: "много журналисти", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["много журналист", "много журналиста", "много журналисте"] },
+  { q: "1 + мъж", answer: "един мъж", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["една мъж", "двама мъж", "един мъже"] },
+  { q: "2 + мъж", answer: "двама мъже", hint: DVAMA_HINT, rule: DVAMA_RULE, decoys: ["два мъжа", "двама мъж", "две мъже"] },
 ];
 
 const NYAMAGO_RULE: Localized<string> = {
@@ -295,6 +448,17 @@ export const DATA_NYAMA_GO: DataItem[] = [
   { q: "Къде са столовете? ___ (нет)", answer: "Няма ги", hint: ETO_HINT_PL, rule: NYAMAGO_RULE },
   { q: "Къде е картината? ___ (нет)", answer: "Няма я", hint: ETO_HINT_F, rule: NYAMAGO_RULE },
   { q: "Къде е огледалото? ___ (нет)", answer: "Няма го", hint: ETO_HINT_M, rule: NYAMAGO_RULE },
+  { q: "Къде е телефонът? ___ (нет)", answer: "Няма го", hint: ETO_HINT_M, rule: NYAMAGO_RULE },
+  { q: "Къде е компютърът? ___ (нет)", answer: "Няма го", hint: ETO_HINT_M, rule: NYAMAGO_RULE },
+  { q: "Къде е телевизорът? ___ (нет)", answer: "Няма го", hint: ETO_HINT_M, rule: NYAMAGO_RULE },
+  { q: "Къде е цветето? ___ (нет)", answer: "Няма го", hint: ETO_HINT_M, rule: NYAMAGO_RULE },
+  { q: "Къде е масата? ___ (нет)", answer: "Няма я", hint: ETO_HINT_F, rule: NYAMAGO_RULE },
+  { q: "Къде е стаята? ___ (нет)", answer: "Няма я", hint: ETO_HINT_F, rule: NYAMAGO_RULE },
+  { q: "Къде е лампата? ___ (нет)", answer: "Няма я", hint: ETO_HINT_F, rule: NYAMAGO_RULE },
+  { q: "Къде е химикалката? ___ (нет)", answer: "Няма я", hint: ETO_HINT_F, rule: NYAMAGO_RULE },
+  { q: "Къде са книгите? ___ (нет)", answer: "Няма ги", hint: ETO_HINT_PL, rule: NYAMAGO_RULE },
+  { q: "Къде са моливите? ___ (нет)", answer: "Няма ги", hint: ETO_HINT_PL, rule: NYAMAGO_RULE },
+  { q: "Къде са картините? ___ (нет)", answer: "Няма ги", hint: ETO_HINT_PL, rule: NYAMAGO_RULE },
 ];
 export const NYAMA_GO_OPTIONS = ["Няма го", "Няма я", "Няма ги"];
 
@@ -345,6 +509,13 @@ export const DATA_PRONOUN_ACC: DataItem[] = [
   { q: "Виждам ___ (него).", answer: "го", hint: { ru: "его", uk: "його" }, rule: PRON_ACC_RULE, decoys: ["я", "ги", "ме"] },
   { q: "Чуваш ли ___ (нея)?", answer: "я", hint: { ru: "её", uk: "її" }, rule: PRON_ACC_RULE, decoys: ["го", "те", "ги"] },
   { q: "Познаваш ли ___ (тях)?", answer: "ги", hint: { ru: "их", uk: "їх" }, rule: PRON_ACC_RULE, decoys: ["го", "я", "ни"] },
+  { q: "Чакам ___ (теб).", answer: "те", hint: { ru: "тебя", uk: "тебе" }, rule: PRON_ACC_RULE, decoys: ["ме", "ви", "ги"] },
+  { q: "Виждаш ли ___ (мен)?", answer: "ме", hint: { ru: "меня", uk: "мене" }, rule: PRON_ACC_RULE, decoys: ["те", "го", "ни"] },
+  { q: "Той чете ___ (книгата).", answer: "я", hint: { ru: "её (ж.р.)", uk: "її (ж.р.)" }, rule: PRON_ACC_RULE, decoys: ["го", "ги", "те"] },
+  { q: "Тя обича ___ (нас).", answer: "ни", hint: { ru: "нас", uk: "нас" }, rule: PRON_ACC_RULE, decoys: ["ви", "ги", "ме"] },
+  { q: "Чувам ___ (вас).", answer: "ви", hint: { ru: "вас", uk: "вас" }, rule: PRON_ACC_RULE, decoys: ["ни", "ги", "те"] },
+  { q: "Виждам ___ (книгата).", answer: "я", hint: { ru: "её (ж.р.)", uk: "її (ж.р.)" }, rule: PRON_ACC_RULE, decoys: ["го", "ги", "те"] },
+  { q: "Знам ___ (тях).", answer: "ги", hint: { ru: "их", uk: "їх" }, rule: PRON_ACC_RULE, decoys: ["го", "я", "ви"] },
 ];
 
 const KOLKO_RULE: Localized<string> = {
@@ -362,6 +533,16 @@ export const DATA_KOLKO_KUDE: DataItem[] = [
   { q: "___ е котката?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
   { q: "___ цветя има на прозореца?", answer: "колко", hint: { ru: "сколько", uk: "скільки" }, rule: KOLKO_RULE },
   { q: "___ са дрехите?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
+  { q: "___ маси има в стаята?", answer: "колко", hint: { ru: "сколько", uk: "скільки" }, rule: KOLKO_RULE },
+  { q: "___ е телефонът?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
+  { q: "___ врати има стаята?", answer: "колко", hint: { ru: "сколько", uk: "скільки" }, rule: KOLKO_RULE },
+  { q: "___ е огледалото?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
+  { q: "___ лампи има тук?", answer: "колко", hint: { ru: "сколько", uk: "скільки" }, rule: KOLKO_RULE },
+  { q: "___ е твоята чанта?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
+  { q: "___ книги има в секцията?", answer: "колко", hint: { ru: "сколько", uk: "скільки" }, rule: KOLKO_RULE },
+  { q: "___ са нашите тетрадки?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
+  { q: "___ моливи има на бюрото?", answer: "колко", hint: { ru: "сколько", uk: "скільки" }, rule: KOLKO_RULE },
+  { q: "___ е телевизорът?", answer: "къде", hint: { ru: "где", uk: "де" }, rule: KOLKO_RULE },
 ];
 export const KOLKO_KUDE_OPTIONS = ["колко", "къде"];
 
@@ -387,6 +568,21 @@ export const DATA_ROOM_PLURAL: DataItem[] = [
   { q: "стена", answer: "стени", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["стенове", "стенете", "стена"] },
   { q: "диван", answer: "дивани", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["диванове", "диване", "диван"] },
   { q: "телевизор", answer: "телевизори", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["телевизорове", "телевизор", "телевизоре"] },
+  { q: "молив", answer: "моливи", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["моливове", "молива", "молив"] },
+  { q: "тетрадка", answer: "тетрадки", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["тетрадка", "тетрадките", "тетрадкове"] },
+  { q: "химикалка", answer: "химикалки", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["химикалка", "химикалките", "химикалкове"] },
+  { q: "книга", answer: "книги", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["книгета", "книги́те", "книга"] },
+  { q: "чанта", answer: "чанти", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["чанта", "чантите", "чантове"] },
+  { q: "лампа", answer: "лампи", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["лампа", "лампите", "лампове"] },
+  { q: "компютър", answer: "компютри", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["компютърове", "компютъра", "компютър"] },
+  { q: "лаптоп", answer: "лаптопи", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["лаптопове", "лаптопа", "лаптоп"] },
+  { q: "шише", answer: "шишета", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["шишеи", "шише", "шишетата"] },
+  { q: "речник", answer: "речници", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["речникове", "речника", "речник"] },
+  { q: "китара", answer: "китари", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["китара", "китарите", "китарове"] },
+  { q: "под", answer: "подове", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["поди", "пода", "под"] },
+  { q: "таван", answer: "тавани", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["таванове", "тавана", "таван"] },
+  { q: "секция", answer: "секции", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["секция", "секциите", "секциове"] },
+  { q: "гардероб", answer: "гардероби", hint: HINT_ROOM_PL, rule: ROOM_PL_RULE, decoys: ["гардеробове", "гардероба", "гардероб"] },
 ];
 
 const HINT_POSSESS_PAIR: Localized<string> = { ru: "местоимение ↔ притяжательное (м.р.)", uk: "займенник ↔ присвійне (ч.р.)" };
@@ -412,6 +608,16 @@ export const DATA_MATCH_ARTICLE_ROOM: MatchItem[] = [
   { left: "компютър", right: "компютърът", hint: HINT_ART_PAIR },
   { left: "маса", right: "масата", hint: HINT_ART_PAIR },
   { left: "телефон", right: "телефонът", hint: HINT_ART_PAIR },
+  { left: "килим", right: "килимът", hint: HINT_ART_PAIR },
+  { left: "врата", right: "вратата", hint: HINT_ART_PAIR },
+  { left: "под", right: "подът", hint: HINT_ART_PAIR },
+  { left: "стена", right: "стената", hint: HINT_ART_PAIR },
+  { left: "цвете", right: "цветето", hint: HINT_ART_PAIR },
+  { left: "шкаф", right: "шкафът", hint: HINT_ART_PAIR },
+  { left: "картина", right: "картината", hint: HINT_ART_PAIR },
+  { left: "лампа", right: "лампата", hint: HINT_ART_PAIR },
+  { left: "молив", right: "моливът", hint: HINT_ART_PAIR },
+  { left: "тетрадка", right: "тетрадката", hint: HINT_ART_PAIR },
 ];
 
 const ODD_L2_GENDER_M: Localized<string> = { ru: "одно слово — не м.р.", uk: "одне слово — не ч.р." };
@@ -438,6 +644,21 @@ export const DATA_ODD_L2: OddItem[] = [
   { words: ["моят", "твоят", "нашият", "нейната"], odd: "нейната", hint: ODD_L2_GENDER_AGREE_M },
   { words: ["моето", "твоето", "нашето", "вашата"], odd: "вашата", hint: { ru: "одно — не ср.р.", uk: "одне — не с.р." } },
   { words: ["един", "една", "едно", "двама"], odd: "двама", hint: { ru: "одно — не форма «один»", uk: "одне — не форма «один»" } },
+  { words: ["шкаф", "килим", "компютър", "маса"], odd: "маса", hint: ODD_L2_GENDER_M },
+  { words: ["картина", "лампа", "тетрадка", "молив"], odd: "молив", hint: ODD_L2_GENDER_F },
+  { words: ["огледало", "цвете", "шише", "стена"], odd: "стена", hint: ODD_L2_GENDER_N },
+  { words: ["мръсен", "разхвърлян", "тъмен", "стол"], odd: "стол", hint: ODD_L2_NOT_ADJ },
+  { words: ["чист", "подреден", "просторен", "легло"], odd: "легло", hint: ODD_L2_NOT_ADJ },
+  { words: ["в", "пред", "срещу", "стая"], odd: "стая", hint: ODD_L2_NOT_PREP },
+  { words: ["на", "до", "над", "цвете"], odd: "цвете", hint: ODD_L2_NOT_PREP },
+  { words: ["север", "запад", "изток", "ляво"], odd: "ляво", hint: ODD_L2_NOT_DIR },
+  { words: ["горе", "долу", "ляво", "север"], odd: "север", hint: ODD_L2_NOT_DIR },
+  { words: ["две", "седем", "девет", "една"], odd: "една", hint: ODD_L2_NOT_NUM },
+  { words: ["три", "пет", "десет", "едно"], odd: "едно", hint: ODD_L2_NOT_NUM },
+  { words: ["голям", "светъл", "малък", "голяма"], odd: "голяма", hint: ODD_L2_GENDER_AGREE_M },
+  { words: ["твоят", "неговият", "вашият", "моята"], odd: "моята", hint: ODD_L2_GENDER_AGREE_M },
+  { words: ["моята", "твоята", "нашата", "неговото"], odd: "неговото", hint: { ru: "одно — не ж.р.", uk: "одне — не ж.р." } },
+  { words: ["стая", "врата", "стена", "цвете"], odd: "цвете", hint: ODD_L2_GENDER_F },
 ];
 
 export const DATA_ROOM_BUILD: BuildItem[] = [
@@ -451,6 +672,16 @@ export const DATA_ROOM_BUILD: BuildItem[] = [
   { words: ["В", "стаята", "има", "две", "легла"], translation: { ru: "В комнате две кровати.", uk: "У кімнаті два ліжка." } },
   { words: ["До", "прозореца", "има", "голямо", "бюро"], translation: { ru: "У окна большой стол.", uk: "Біля вікна великий стіл." } },
   { words: ["Тя", "е", "северна", "но", "светла"], translation: { ru: "Она северная, но светлая.", uk: "Вона північна, але світла." } },
+  { words: ["Под", "масата", "има", "котка"], translation: { ru: "Под столом кошка.", uk: "Під столом кішка." } },
+  { words: ["В", "чантата", "има", "молив"], translation: { ru: "В сумке карандаш.", uk: "У сумці олівець." } },
+  { words: ["На", "стената", "има", "огледало"], translation: { ru: "На стене зеркало.", uk: "На стіні дзеркало." } },
+  { words: ["Между", "леглата", "има", "шкаф"], translation: { ru: "Между кроватями шкаф.", uk: "Між ліжками шафа." } },
+  { words: ["Моят", "лаптоп", "е", "на", "бюрото"], translation: { ru: "Мой ноутбук на столе.", uk: "Мій ноутбук на столі." } },
+  { words: ["В", "стаята", "няма", "телевизор"], translation: { ru: "В комнате нет телевизора.", uk: "У кімнаті немає телевізора." } },
+  { words: ["Прозорецът", "е", "до", "леглото"], translation: { ru: "Окно рядом с кроватью.", uk: "Вікно поряд з ліжком." } },
+  { words: ["Това", "е", "моята", "стая"], translation: { ru: "Это моя комната.", uk: "Це моя кімната." } },
+  { words: ["Къде", "е", "моят", "лаптоп"], translation: { ru: "Где мой ноутбук?", uk: "Де мій ноутбук?" } },
+  { words: ["В", "секцията", "има", "три", "книги"], translation: { ru: "В секции три книги.", uk: "У секції три книги." } },
 ];
 
 const HINT_ROOM: Localized<string> = { ru: "предмет комнаты", uk: "предмет кімнати" };
@@ -471,5 +702,20 @@ export const DATA_ROOM: DataItem[] = [
   { q: "картина", answer: "картина", hint: HINT_ROOM, decoys: ["огледало", "стена", "прозорец"] },
   { q: "телевизор", answer: "телевизор", hint: HINT_ROOM, decoys: ["компютър", "телефон", "лаптоп"] },
   { q: "письменный стол / письмовий стіл", answer: "бюро", hint: HINT_ROOM, decoys: ["маса", "стол", "шкаф"] },
+  { q: "лампа", answer: "лампа", hint: HINT_ROOM, decoys: ["картина", "огледало", "стена"] },
+  { q: "телефон", answer: "телефон", hint: HINT_ROOM, decoys: ["телевизор", "лаптоп", "компютър"] },
+  { q: "ноутбук", answer: "лаптоп", hint: HINT_ROOM, decoys: ["компютър", "телефон", "телевизор"] },
+  { q: "диван", answer: "диван", hint: HINT_ROOM, decoys: ["легло", "стол", "маса"] },
+  { q: "потолок / стеля", answer: "таван", hint: HINT_ROOM, decoys: ["под", "стена", "врата"] },
+  { q: "секция / секція", answer: "секция", hint: HINT_ROOM, decoys: ["гардероб", "шкаф", "бюро"] },
+  { q: "сумка / сумка", answer: "чанта", hint: HINT_ROOM, decoys: ["шкаф", "секция", "тетрадка"] },
+  { q: "тетрадь / зошит", answer: "тетрадка", hint: HINT_ROOM, decoys: ["книга", "речник", "химикалка"] },
+  { q: "книга", answer: "книга", hint: HINT_ROOM, decoys: ["тетрадка", "речник", "молив"] },
+  { q: "карандаш / олівець", answer: "молив", hint: HINT_ROOM, decoys: ["химикалка", "речник", "тетрадка"] },
+  { q: "ручка / ручка", answer: "химикалка", hint: HINT_ROOM, decoys: ["молив", "тетрадка", "книга"] },
+  { q: "словарь / словник", answer: "речник", hint: HINT_ROOM, decoys: ["книга", "тетрадка", "молив"] },
+  { q: "одежда / одяг", answer: "дрехи", hint: HINT_ROOM, decoys: ["обувки", "чанта", "книги"] },
+  { q: "бутылка / пляшка", answer: "шише", hint: HINT_ROOM, decoys: ["чаша", "лампа", "огледало"] },
+  { q: "чашка / чашка", answer: "чаша", hint: HINT_ROOM, decoys: ["шише", "лампа", "картина"] },
 ];
 

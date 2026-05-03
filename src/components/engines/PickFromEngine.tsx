@@ -9,6 +9,7 @@ import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { AnswerBtn } from "../ui/AnswerBtn";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { ErrorDialog } from "../ui/ErrorDialog";
 
 interface Props {
   data: () => DataItem[];
@@ -25,7 +26,7 @@ export function PickFromEngine({ data, onComplete, onItemAnswer, prompt }: Props
   const [options, setOptions] = useState<DataItem[]>([]);
   const [showHint, setShowHint] = useState(false);
   const hintedRef = useRef(false);
-  const { cur, sel, reaction, score, answered, qsTotal, answer } =
+  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
     useGame(qs, onComplete, reactions, 10, 1000, onItemAnswer);
 
   useEffect(() => {
@@ -64,6 +65,17 @@ export function PickFromEngine({ data, onComplete, onItemAnswer, prompt }: Props
             onClick={() => answer(o.answer, item.answer, { hinted: hintedRef.current })} className="py-4 text-lg" />
         )}
       </div>
+      {errorPending && (
+        <ErrorDialog
+          title={t("errorTitle")}
+          correctLabel={t("correctAnswer")}
+          correct={item.answer}
+          hint={L(item.hint)}
+          rule={item.rule ? L(item.rule) : undefined}
+          continueLabel={t("continue")}
+          onContinue={dismissError}
+        />
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { ErrorDialog } from "../ui/ErrorDialog";
 import { itemKey } from "../../utils/itemKey";
 
 interface TimedItem extends DataItem {
@@ -40,7 +41,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
   );
   const [showHint, setShowHint] = useState(false);
   const hintedRef = useRef(false);
-  const { cur, sel, corr, reaction, score, answered, qsTotal, advance, answer } =
+  const { cur, sel, corr, reaction, score, answered, qsTotal, advance, answer, errorPending, dismissError } =
     useGame(qs, onComplete, reactions, 10, 1200, onItemAnswer);
 
   const { timeLeft, stop, reset } = useTimer(useCallback(() => {
@@ -92,6 +93,17 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
             onClick={() => go(o)} className="h-16 text-xl" />
         )}
       </div>
+      {errorPending && (
+        <ErrorDialog
+          title={t("errorTitle")}
+          correctLabel={t("correctAnswer")}
+          correct={item.answer}
+          hint={L(item.hint)}
+          rule={item.rule ? L(item.rule) : undefined}
+          continueLabel={t("continue")}
+          onContinue={dismissError}
+        />
+      )}
     </div>
   );
 }
