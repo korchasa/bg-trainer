@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BG Trainer — Privacy Policy</title>
+<style>
+  body { font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #111; background: #fff; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.15rem; margin-top: 1.75rem; }
+  h3 { font-size: 1rem; margin-top: 1.25rem; color: #555; }
+  p, li { font-size: 0.95rem; }
+  ul { padding-left: 1.25rem; }
+  hr { margin: 2.5rem 0; border: 0; border-top: 1px solid #ddd; }
+  code { background: #f2f2f2; padding: 0 0.25em; border-radius: 3px; font-size: 0.85em; }
+  .meta { color: #888; font-size: 0.85rem; }
+  a { color: #E60023; }
+</style>
+</head>
+<body>
+
+<h1>BG Trainer — Privacy Policy</h1>
+<p class="meta">Effective date: 2026-05-03 · Last updated: 2026-05-03</p>
+
+<p>This document describes how the <strong>BG Trainer</strong> mobile and web app handles user data. The app is published by <em>Stanislav Korchagin</em> (<code>dev.korchasa.bgtrainer</code>). The same policy applies to the iOS, Android, and web versions of the app.</p>
+
+<h2>Short summary</h2>
+<ul>
+  <li>The app does <strong>not</strong> collect, transmit, or store any personal data on remote servers controlled by us.</li>
+  <li>All learning progress (session history, mastery levels, language and pace preferences) is stored <strong>locally on your device</strong>.</li>
+  <li>Optional iCloud sync (iOS Pro users only) keeps your progress in sync across your own Apple devices, using Apple's iCloud Key-Value Store. We never see this data.</li>
+  <li>In-App Purchase receipts are handled by <strong>Apple</strong> and forwarded to <strong>RevenueCat</strong> using an anonymous user identifier. No name, email, or contact information is collected.</li>
+  <li>The app does not show ads, run analytics, or track you across other apps and websites.</li>
+</ul>
+
+<h2>Data we do not collect</h2>
+<p>We do not request, collect, or store any of the following: your name, email address, phone number, contact list, photos, location, microphone or camera input, browsing history, device identifiers for advertising, social media identities, or any biometric data. We do not run any first-party servers.</p>
+
+<h2>Data stored on your device</h2>
+<p>The following items are stored locally using either the browser's <code>localStorage</code> (web) or Apple's <code>UserDefaults</code> via the Capacitor Preferences plugin (iOS / Android):</p>
+<ul>
+  <li>Session history (scores, time, error counts, timestamps) — capped at 200 entries.</li>
+  <li>Per-item mastery levels (how well you remember each exercise).</li>
+  <li>Selected interface language (Russian or Ukrainian).</li>
+  <li>Selected session pace (quick / standard / deep).</li>
+  <li>Pro entitlement cache (a single <code>0</code> or <code>1</code> flag indicating whether your last known purchase status was active).</li>
+</ul>
+<p>This data never leaves your device unless you explicitly enable iCloud sync (Pro users on iOS).</p>
+
+<h2>iCloud sync (iOS Pro only)</h2>
+<p>If you have purchased the lifetime Pro upgrade and are signed into iCloud on your iOS device, the items listed above are mirrored to your personal <strong>iCloud Key-Value Store</strong>. This is an Apple service that only you can read; we do not have access to it. iCloud sync respects your Apple device-level privacy settings and is governed by Apple's iCloud privacy policy. You can wipe this data through <em>Settings → [your name] → iCloud → Manage Storage</em> on iOS.</p>
+
+<h2>In-App Purchases</h2>
+<p>The lifetime Pro upgrade is sold through Apple's App Store. The transaction is processed entirely by Apple. After a successful purchase, Apple issues a cryptographically signed receipt that is forwarded to <strong>RevenueCat</strong> (<a href="https://www.revenuecat.com/privacy">privacy policy</a>) for entitlement verification. RevenueCat receives an Apple-issued anonymous user identifier and does not receive your real name, email, or any other personal information.</p>
+
+<h2>Children's privacy</h2>
+<p>The app is rated <strong>4+</strong>. It does not target children under 13 and does not knowingly collect any personal data from any user, including children. If you believe a child has somehow shared personal information with us, contact us so we can take appropriate action.</p>
+
+<h2>Crash reports</h2>
+<p>The current public release does not bundle a third-party crash reporter. If a future release adds anonymous crash reporting, this section will be updated and a new effective date will be posted.</p>
+
+<h2>Cookies and tracking</h2>
+<p>The web build does not set cookies and does not embed third-party trackers, analytics scripts, or advertising identifiers. The iOS build is not configured for tracking and declares <code>NSPrivacyTracking = false</code> in its privacy manifest.</p>
+
+<h2>Your rights</h2>
+<p>Because we do not hold any data about you on our servers, there is no remote account to delete or export. To delete all data the app has stored on your device, uninstall the app (or, on web, clear the site's <code>localStorage</code>). To delete the iCloud sync copy, follow the iOS instructions above.</p>
+
+<h2>Changes to this policy</h2>
+<p>If we change how the app handles data, this page will be updated and the <em>Effective date</em> at the top will change. Material changes will also be communicated through the App Store release notes.</p>
+
+<h2>Contact</h2>
+<p>Questions, concerns, or data requests:</p>
+<ul>
+  <li>Email: <a href="mailto:coupes-cape.0o@icloud.com">coupes-cape.0o@icloud.com</a></li>
+  <li>GitHub Issues: <a href="https://github.com/korchasa/bg-trainer/issues">https://github.com/korchasa/bg-trainer/issues</a></li>
+</ul>
+
+<hr />
+
+<h1>BG Trainer — Политика конфиденциальности</h1>
+<p class="meta">Дата вступления в силу: 03.05.2026 · Последнее обновление: 03.05.2026</p>
+
+<p>Этот документ описывает, как мобильное и веб-приложение <strong>BG Trainer</strong> обрабатывает пользовательские данные. Приложение разработано <em>Станиславом Корчагиным</em> (<code>dev.korchasa.bgtrainer</code>). Политика одинакова для iOS, Android и web-версии.</p>
+
+<h2>Кратко</h2>
+<ul>
+  <li>Приложение <strong>не</strong> собирает, не передаёт и не хранит персональные данные на наших серверах.</li>
+  <li>Прогресс обучения (история сессий, уровни освоения, язык и темп) хранится <strong>локально на твоём устройстве</strong>.</li>
+  <li>Опциональная iCloud-синхронизация (только для iOS Pro) держит прогресс в актуальном состоянии между твоими собственными Apple-устройствами через Apple iCloud Key-Value Store. Мы эти данные не видим.</li>
+  <li>Чеки встроенных покупок обрабатываются <strong>Apple</strong> и передаются в <strong>RevenueCat</strong> с анонимным идентификатором, выданным Apple. Имя, email или контакты не собираются.</li>
+  <li>Никакой рекламы, аналитики, трекинга между приложениями и сайтами.</li>
+</ul>
+
+<h2>Что мы НЕ собираем</h2>
+<p>Имя, email, телефон, контакты, фото, геопозицию, аудио/видео, историю браузера, рекламные идентификаторы устройства, аккаунты в социальных сетях, биометрию. У нас нет ни одного собственного сервера.</p>
+
+<h2>Что хранится на устройстве</h2>
+<p>Через <code>localStorage</code> в браузере или через Apple <code>UserDefaults</code> (плагин Capacitor Preferences) на iOS / Android:</p>
+<ul>
+  <li>История сессий (очки, время, ошибки, timestamps) — не больше 200 записей.</li>
+  <li>Уровни освоения по каждому упражнению.</li>
+  <li>Выбранный язык интерфейса (русский / украинский).</li>
+  <li>Выбранный темп сессии (быстро / стандарт / глубоко).</li>
+  <li>Кэш Pro-доступа (один флаг <code>0</code>/<code>1</code> — был ли последний известный статус активным).</li>
+</ul>
+<p>Эти данные не покидают устройство, если ты не включил iCloud-синхронизацию (Pro-пользователи на iOS).</p>
+
+<h2>iCloud-синхронизация (только iOS Pro)</h2>
+<p>Если ты купил пожизненный Pro-доступ и залогинен в iCloud на iOS-устройстве, перечисленные выше данные зеркалируются в твой личный <strong>iCloud Key-Value Store</strong>. Это Apple-сервис, доступный только тебе; у нас доступа к нему нет. Удалить эти данные можно через <em>Настройки → [твоё имя] → iCloud → Управление хранилищем</em>.</p>
+
+<h2>Встроенные покупки</h2>
+<p>Pro-покупка проходит через App Store. Apple обрабатывает транзакцию и выдаёт криптографически подписанный чек, который передаётся в <strong>RevenueCat</strong> для проверки entitlement. RevenueCat получает анонимный Apple-идентификатор пользователя и не получает имя, email или другую личную информацию.</p>
+
+<h2>Конфиденциальность детей</h2>
+<p>Возрастной рейтинг — <strong>4+</strong>. Приложение не таргетирует детей младше 13 и не собирает персональные данные ни у кого, включая детей.</p>
+
+<h2>Краш-репорты</h2>
+<p>Текущая публичная версия не включает сторонний crash-reporter. Если в будущей версии появится анонимная отправка краш-репортов, эта секция будет обновлена и поставлена новая дата вступления в силу.</p>
+
+<h2>Cookies и трекинг</h2>
+<p>Web-версия не использует cookies и не подключает сторонние трекеры, скрипты аналитики или рекламные идентификаторы. iOS-сборка декларирует <code>NSPrivacyTracking = false</code> в privacy manifest.</p>
+
+<h2>Твои права</h2>
+<p>Поскольку у нас нет данных о тебе на серверах, нет удалённого аккаунта, который нужно удалять или экспортировать. Чтобы стереть локальные данные — удали приложение (или на web — очисти <code>localStorage</code> сайта). Удаление iCloud-копии — через настройки выше.</p>
+
+<h2>Изменения политики</h2>
+<p>Если способ обработки данных изменится, эта страница обновится, и <em>Дата вступления в силу</em> сверху сменится. Существенные изменения также будут отражены в release notes App Store.</p>
+
+<h2>Контакт</h2>
+<ul>
+  <li>Email: <a href="mailto:coupes-cape.0o@icloud.com">coupes-cape.0o@icloud.com</a></li>
+  <li>GitHub Issues: <a href="https://github.com/korchasa/bg-trainer/issues">https://github.com/korchasa/bg-trainer/issues</a></li>
+</ul>
+
+</body>
+</html>
