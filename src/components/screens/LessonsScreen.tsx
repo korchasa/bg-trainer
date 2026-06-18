@@ -4,7 +4,6 @@ import { ALL_MODES } from "../../data";
 import { lessonStats } from "../../utils/mastery";
 import { useI18n } from "../../i18n/context";
 import { LOCALES, Locale } from "../../i18n/types";
-import { IS_NATIVE } from "../../utils/platform";
 import type { HistoryEntry, MasteryStore, Mode } from "../../types";
 
 const MODE_BY_ID: Record<string, Mode> = Object.fromEntries(ALL_MODES.map(m => [m.id, m]));
@@ -13,15 +12,13 @@ const modeOf = (id: string) => MODE_BY_ID[id];
 interface Props {
   history: HistoryEntry[];
   mastery: MasteryStore;
-  proUnlocked: boolean;
-  priceString: string | null;
   onPickLesson: (lessonId: string) => void;
   onAnalytics: () => void;
 }
 
 const LOCALE_LABELS: Record<Locale, string> = { ru: "РУ", uk: "UK" };
 
-export function LessonsScreen({ history, mastery, proUnlocked, priceString, onPickLesson, onAnalytics }: Props) {
+export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: Props) {
   const { t, f, L, locale, setLocale } = useI18n();
   const available = LESSONS.filter(l => l.available);
   const upcoming = LESSONS.filter(l => !l.available);
@@ -63,9 +60,6 @@ export function LessonsScreen({ history, mastery, proUnlocked, priceString, onPi
           {available.map(l => {
             const s = lessonStats(mastery, l, modeOf);
             const pct = Math.round(s.ratio * 100);
-            // FR-MENU: pro lessons on native render with a lock badge + price hint until unlocked.
-            // The button still routes through onPickLesson, which redirects to paywall in App.
-            const locked = IS_NATIVE && l.tier === "pro" && !proUnlocked;
             return (
               <button
                 key={l.id}
@@ -78,26 +72,17 @@ export function LessonsScreen({ history, mastery, proUnlocked, priceString, onPi
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex items-center gap-2">
                     <div className="text-sm font-black text-gray-900">{f("lessonNum", l.num)}</div>
-                    {locked && <span className="text-xs">🔒</span>}
                     {s.mastered && <span className="text-xs font-bold" style={{ color: ACCENT }}>✓</span>}
                   </div>
                   <div className="text-xs font-semibold text-gray-500 leading-tight truncate">{L(l.title)}</div>
-                  {locked ? (
-                    <div className="mt-2 text-[0.6875rem] font-bold text-gray-500">
-                      {priceString ? `${t("paywallLockedHint")} · ${priceString}` : t("paywallLockedHint")}
-                    </div>
-                  ) : (
-                    <div className="mt-2 h-1.5 w-full bg-white rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
-                    </div>
-                  )}
-                </div>
-                {!locked && (
-                  <div className="flex flex-col items-end shrink-0">
-                    <span className="text-xs font-black text-gray-900">{pct}%</span>
-                    <span className="text-[0.625rem] font-bold text-gray-400">{s.atSeven}/{s.total}</span>
+                  <div className="mt-2 h-1.5 w-full bg-white rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
                   </div>
-                )}
+                </div>
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-xs font-black text-gray-900">{pct}%</span>
+                  <span className="text-[0.625rem] font-bold text-gray-400">{s.atSeven}/{s.total}</span>
+                </div>
               </button>
             );
           })}

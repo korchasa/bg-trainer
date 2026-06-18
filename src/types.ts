@@ -11,15 +11,12 @@ export interface HistoryEntry {
   qsTotal?: number;
 }
 
-export type LessonTier = "free" | "pro";
-
 export interface Lesson {
   id: string;
   num: number;
   title: Localized<string>;
   modeIds: string[];
   available: boolean;
-  tier: LessonTier;
 }
 
 export interface DataItem {
@@ -95,7 +92,7 @@ export interface GameResult {
   errors: number;
 }
 
-export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics" | "paywall";
+export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics";
 
 export type SessionPace = "quick" | "standard" | "deep";
 

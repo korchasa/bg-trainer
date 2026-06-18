@@ -1,6 +1,6 @@
 ---
 id: ADR-0001
-status: accepted
+status: superseded-in-part
 date: 2026-05-03
 implements:
   - FR-LESSONS
@@ -11,10 +11,7 @@ implements:
   - FR-IOS-STORAGE
   - FR-IOS-POLISH
   - FR-IOS-CICD
-  - FR-FREEMIUM
-  - FR-IAP
-  - FR-PAYWALL
-  - FR-SYNC-PAID
+  - FR-PAID
 tags:
   - ios
   - mobile
@@ -23,9 +20,11 @@ tags:
 ---
 # Ship iOS v1.0 as Full Vertical Slice
 
+> **Update:** the monetization slice (FR-FREEMIUM tier gating, FR-IAP RevenueCat, FR-PAYWALL, FR-SYNC-PAID iCloud sync) was **dropped**. The app now ships as a **simple paid one-time download** (App Store tier $1.99 USD ≈ €2.49 EUR) with all 8 lessons unlocked for everyone — see [FR-PAID](../requirements.md#324-fr-paid). RevenueCat, the paywall, lesson tiers, the Pro entitlement, and iCloud KVS sync are removed. The DoD items below for those four FRs are superseded; the App Store / native-UX / storage / polish / CI-CD readiness work stands.
+
 ## Context
 
-iOS shell is already in place ([FR-IOS-SHELL](../requirements.md#318-fr-ios-shell) closed: Capacitor 8, WKWebView, UIScene, safe-area, splash, code-split). Nine remaining iOS-scoped FRs are open in [SRS](../requirements.md): App Store readiness, native UX, storage migration, polish, CI/CD, freemium gate, IAP, paywall, iCloud sync. The user requires v1.0 to land as one fully-featured release rather than a multi-stage rollout. Decision scope is iOS only — Android (FR-ANDROID-*) is parallel and out of scope here.
+iOS shell is already in place ([FR-IOS-SHELL](../requirements.md#318-fr-ios-shell) closed: Capacitor 8, WKWebView, UIScene, safe-area, splash, code-split). The original plan covered nine iOS-scoped FRs: App Store readiness, native UX, storage migration, polish, CI/CD, plus monetization (freemium gate, IAP, paywall, iCloud sync). The monetization four were later cut in favor of a paid app (FR-PAID). The user requires v1.0 to land as one release rather than a multi-stage rollout. Decision scope is iOS only — Android (FR-ANDROID-*) is parallel and out of scope here.
 
 ## Alternatives
 
@@ -51,34 +50,33 @@ iOS shell is already in place ([FR-IOS-SHELL](../requirements.md#318-fr-ios-shel
 
 ## Decision
 
-Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native UX, storage migration, polish, CI/CD, freemium tier model, RevenueCat IAP, paywall, iCloud KVS sync). Web build remains unchanged and platform-agnostic; gating is mobile-only via build-time `VITE_PLATFORM` flag. Android is tracked separately and is not blocked by, nor a blocker of, this ADR.
+Ship a single iOS v1.0 (App Store assets, native UX, storage migration, polish, CI/CD). Monetization is a **paid one-time download** at App Store tier $1.99 USD (≈ €2.49 EUR) — no IAP, no paywall, no lesson tier, no Pro entitlement, no iCloud sync (FR-PAID). All 8 lessons are unlocked for everyone on web and iOS. Web build remains unchanged and free on GitHub Pages. Android is tracked separately and is not blocked by, nor a blocker of, this ADR.
+
+> Originally this ADR chose to build the freemium tier model + RevenueCat IAP + paywall + iCloud KVS sync. That scope was dropped in favor of the paid-app model above; the related DoD items are marked superseded below.
 
 ## Consequences
 
-- **Largest scope** of any release to date; expect 6–10 weeks of focused work before App Store submission.
-- **Custom Capacitor plugin** authored under `ios/App/App/Plugins/ICloudKVS.swift` adds a new code surface to maintain (Swift + JS bridge).
-- **`VITE_PLATFORM` build flag** introduced; web/iOS bundles diverge in code paths (gate, IAP, sync) but share UI.
-- **PrivacyInfo.xcprivacy** required: `UserDefaults` (CA92.1), Sentry SDK reasons, RevenueCat SDK reasons (network for receipts), iCloud KVS reasons.
+- **Paid-app pivot** cut the monetization slice: no RevenueCat, no paywall, no lesson tier, no iCloud KVS sync. Net code surface shrank (deleted `src/services/iap.ts`, `PaywallScreen.tsx`, the ICloudKVS plugin was never authored).
+- **PrivacyInfo.xcprivacy** required: only `UserDefaults` (CA92.1); no RevenueCat / iCloud / receipt reasons. App Privacy questionnaire = "Data Not Collected".
 - **Apple Developer account ($99/yr)** is a hard prerequisite; Bundle ID `dev.korchasa.bgtrainer` must be registered before signing.
-- **RevenueCat dashboard + ASC product `bgtrainer_pro_lifetime`** must be created before sandbox testing; both are external services with their own setup latency.
-- **SRS unchanged** structurally — every DoD item maps to an existing acceptance bullet already in [requirements.md](../requirements.md). No new FR-IDs are introduced.
+- **ASC Pricing** must be set to paid tier $1.99 USD (≈ €2.49 EUR) before submission; no IAP product to register.
+- **SRS updated**: FR-FREEMIUM / FR-IAP / FR-PAYWALL collapsed into FR-PAID; FR-SYNC-PAID removed.
 - **No tests** in the project today; verification leans on `npm run build`, `xcodebuild`, file/grep checks, and manual reviewer (`korchasa`) for store-policy and on-device items.
-- **Android (FR-ANDROID-*, FR-SYNC-PAID Android half)** stays open; this ADR does NOT close them.
-- **iCloud KVS quota risk**: history can grow to 200 sessions × ~200 B = ~40 KB JSON, well under 1 MB; mastery + pace + lang together < 50 KB. Acceptable headroom but verified empirically (see DoD).
-- **Default sub-decisions baked in**: drop iPad (`TARGETED_DEVICE_FAMILY = "1"`); opt out of dark mode (`UIUserInterfaceStyle = Light`); use Sentry for crash reporting (lighter than Firebase Crashlytics, easier sourcemap upload).
+- **Android (FR-ANDROID-*)** stays open; this ADR does NOT close it.
+- **Default sub-decisions baked in**: drop iPad (`TARGETED_DEVICE_FAMILY = "1"`); opt out of dark mode (`UIUserInterfaceStyle = Light`); Sentry for crash reporting still pending.
 
 ## Definition of Done
 
 > Notation: each item lists its FR, the verification method (Test / Benchmark / `manual — <reviewer>`), and an Evidence command that should pass iff the item is done. Project has no automated test suite; most items use `manual — korchasa` or build/grep commands.
 
-### Foundation (data model + platform flag)
+### Foundation (data model)
 
-- [x] FR-LESSONS: `Lesson.tier: "free" | "pro"` field present in types and all 8 lesson records (L1–L3 = `free`, L4–L8 = `pro`).
+- [x] FR-LESSONS / FR-PAID: no tier/entitlement field on `Lesson`; all 8 lesson records open directly (all unlocked).
   - Test: `manual — korchasa` (no test runner)
-  - Evidence: `src/types.ts:14-22`, `src/data/lessons.ts:12,45,80,119,156,194,230,270`; `npm run build` clean
-- [x] FR-FREEMIUM: build-time `VITE_PLATFORM=web|ios|android` flag exposed; web short-circuits to "always free" via `IS_WEB`. Gate enforcement in App.tsx still pending (Phase 4).
+  - Evidence: `src/types.ts:14-20`, `src/data/lessons.ts`; `npm run build` clean
+- [x] FR-PAID: no IAP code — `src/services/iap.ts` and `src/components/screens/PaywallScreen.tsx` absent; no RevenueCat dependency; `Screen` type has no `paywall`.
   - Test: `manual — korchasa`
-  - Evidence: `src/utils/platform.ts`, `src/vite-env.d.ts`, `package.json:10`; both `npm run build` and `npm run build:ios` clean
+  - Evidence: `! ls src/services/iap.ts src/components/screens/PaywallScreen.tsx`; `! grep -rn "revenuecat\|proUnlocked" src/`; `src/types.ts:95`
 
 ### Storage migration
 
@@ -116,38 +114,21 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
   - Test: `manual — korchasa`
   - Evidence: `src/utils/motion.ts`, `src/hooks/useGame.ts:7,118`
 
-### Freemium + IAP + Paywall
+### Monetization — paid app (FR-PAID; supersedes FR-FREEMIUM / FR-IAP / FR-PAYWALL)
 
-- [ ] FR-IAP: RevenueCat project provisioned; `bgtrainer_pro_lifetime` registered in App Store Connect (matching SKU).
+- [x] FR-PAID: no RevenueCat IAP — paid one-time download instead. `src/services/iap.ts` and `src/components/screens/PaywallScreen.tsx` removed; no `@revenuecat/*` dependency.
   - Test: `manual — korchasa`
-  - Evidence: `manual — korchasa` (ASC + RC dashboard screenshots in PR)
-- [ ] FR-IAP: `@revenuecat/purchases-capacitor` installed; `Purchases.configure({ apiKey })` called on cold start (iOS only).
+  - Evidence: `! ls src/services/iap.ts src/components/screens/PaywallScreen.tsx`; `! grep -rn "revenuecat\|Purchases\.\|proUnlocked\|entitlements" src/ package.json`
+- [x] FR-PAID / FR-MENU: no lesson tier and no locked tiles — every `available` lesson opens directly on web and iOS.
   - Test: `manual — korchasa`
-  - Evidence: `grep -E "@revenuecat/purchases-capacitor" package.json && grep -rn "Purchases.configure" src/`
-- [ ] FR-IAP: `proUnlocked = customerInfo.entitlements.active["pro"] !== undefined`, persisted to storage adapter.
+  - Evidence: `! grep -rn "tier\|priceString\|lock" src/components/screens/LessonsScreen.tsx`; `! grep -n "tier" src/types.ts`
+- [x] FR-PAID / FR-NAV: no `paywall` screen — `Screen` type = `"lessons" | "lesson" | "game" | "results" | "analytics"`.
   - Test: `manual — korchasa`
-  - Evidence: `grep -rn 'entitlements.active\["pro"\]\|proUnlocked' src/`
-- [ ] FR-IAP: purchase flow (`Purchases.purchasePackage`) updates `proUnlocked`, closes paywall, unlocks tiles.
-  - Test: `manual — korchasa` (sandbox Apple ID, sandbox tester scenario in TestFlight)
-  - Evidence: `manual — korchasa` (screen recording)
-- [ ] FR-IAP: `Restore Purchases` triggers `Purchases.restorePurchases()` with success/failure toast.
+  - Evidence: `src/types.ts:95`; `! grep -rn '"paywall"' src/`
+- [ ] FR-PAID: App Store Connect Pricing form set to paid tier $1.99 USD; App Privacy questionnaire = "Data Not Collected".
   - Test: `manual — korchasa`
-  - Evidence: `manual — korchasa` (screen recording)
-- [ ] FR-IAP: cached `proUnlocked` honored offline; verified at next online launch.
-  - Test: `manual — korchasa` (airplane-mode relaunch)
-  - Evidence: `manual — korchasa`
-- [ ] FR-IAP: web build IAP service is a stub returning `proUnlocked=true`.
-  - Test: `manual — korchasa`
-  - Evidence: `VITE_PLATFORM=web npm run build && grep -rn "iap.*stub\|web.*proUnlocked" src/`
-- [ ] FR-PAYWALL: `PaywallScreen` rendered when `screen="paywall"`; localized in `ru`/`uk`; shows `Package.product.priceString`; Restore button always visible; EULA + Privacy links open in browser; not rendered on web.
-  - Test: `manual — korchasa`
-  - Evidence: `ls src/components/screens/PaywallScreen.tsx && grep -n "paywall" src/i18n/strings.ts`
-- [ ] FR-MENU: locked pro lesson tile shows lock icon + price hint (mobile only); tap → `screen="paywall"`.
-  - Test: `manual — korchasa`
-  - Evidence: `grep -rn "lock\|priceString" src/components/screens/LessonsScreen.tsx`
-- [ ] FR-NAV: `paywall` screen registered; reachable on iOS, not on web.
-  - Test: `manual — korchasa`
-  - Evidence: `grep -n '"paywall"' src/App.tsx src/types.ts`
+  - Evidence: `manual — korchasa` (ASC Pricing + App Privacy pages for app `6766068069`)
+- ~~FR-IAP / FR-PAYWALL / FR-FREEMIUM~~: **superseded by FR-PAID** — RevenueCat IAP, paywall screen, and freemium tier gating are no longer part of the product. Items removed.
 
 ### App Store readiness (FR-IOS-APPSTORE)
 
@@ -169,9 +150,9 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
 - [x] FR-IOS-APPSTORE: Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered; ASC app `6766068069` ("BG Trainer A0") created. Automatic signing tied to team — pending Xcode wiring.
   - Test: `manual — korchasa`
   - Evidence: ASC dashboard for app `6766068069` (manual)
-- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain via `public/CNAME`, deployed via `gh-pages` action). HTTP 200 verified post-deploy. Bilingual EN+RU; localStorage-only; RC receipts anonymized.
+- [x] FR-IOS-APPSTORE: Privacy Policy authored and hosted live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain via `public/CNAME`, deployed via `gh-pages` action). HTTP 200 verified post-deploy. Bilingual EN+RU; localStorage-only; no data collected (no IAP/receipts).
   - Test: `curl -sI https://bgtrainer.korchasa.dev/privacy.html | head -1`
-  - Evidence: `public/privacy.html`, `public/CNAME`, `.github/workflows/deploy.yml` (`VITE_BASE_PATH: /`); `src/components/screens/PaywallScreen.tsx:7` (PRIVACY_URL constant)
+  - Evidence: `public/privacy.html`, `public/CNAME`, `.github/workflows/deploy.yml` (`VITE_BASE_PATH: /`)
 - [~] FR-IOS-APPSTORE: ASC listing — partial. Done: primary category=Education, content rights=no third-party, age rating=4+, Localized App Information (Name, Subtitle) for English (U.S.) + Russian + Ukrainian, App Store version 1.0 metadata (promotional text, description, keywords, support URL, marketing URL, copyright) filled in all three locales. Pending: Privacy Policy URL save (Apple form-library does not register programmatic value updates — manual entry required), App Privacy data-collection questionnaire, Pricing form.
   - Test: `manual — korchasa`
   - Evidence: ASC distribution → version page + App Information page for app `6766068069` (manual)
@@ -182,26 +163,9 @@ Ship a single iOS v1.0 covering all nine open iOS FRs (App Store assets, native 
   - Test: `manual — korchasa`
   - Evidence: `xcrun altool --validate-app -f build/App.ipa --type ios --apiKey $ASC_KEY_ID --apiIssuer $ASC_ISSUER_ID` exits 0
 
-### iCloud KVS sync (FR-SYNC-PAID, iOS half)
+### iCloud KVS sync (FR-SYNC-PAID) — REMOVED
 
-- [ ] FR-SYNC-PAID: custom Capacitor plugin `ICloudKVS` exposes `get`, `set`, `remove`, `sync`, `addListener('change')` from `NSUbiquitousKeyValueStore`; iCloud capability enabled in entitlements.
-  - Test: `manual — korchasa`
-  - Evidence: `ls ios/App/App/Plugins/ICloudKVS.swift && grep -n "iCloud" ios/App/App/App.entitlements`
-- [ ] FR-SYNC-PAID: on Pro unlock, `bg-trainer-v3`, `bg-trainer-mastery-v1`, `bg-trainer-pace-v1`, `bg-trainer-lang-v1` mirrored to KVS on every write.
-  - Test: `manual — korchasa`
-  - Evidence: `grep -rn "ICloudKVS\|kvsSet\|mirrorToCloud" src/utils/`
-- [ ] FR-SYNC-PAID: on launch (Pro active), KVS values reconciled — mastery max `lastTs`, history merge+dedupe by `ts`, pace/lang last-write-wins.
-  - Test: `manual — korchasa` (two-device sandbox: device A purchase + play, device B launch, verify history merged)
-  - Evidence: `manual — korchasa`
-- [ ] FR-SYNC-PAID: free users perform zero KVS writes.
-  - Test: `manual — korchasa`
-  - Evidence: `grep -rn "if.*proUnlocked.*kvs\|if.*pro.*Cloud" src/`
-- [ ] FR-SYNC-PAID: empirical KVS payload size measured under worst-case (200 sessions + full mastery) ≤ 800 KB (1 MB quota with 20% safety margin).
-  - Benchmark: `manual — korchasa` (script that seeds storage, dumps JSON sizes)
-  - Evidence: `node scripts/measure-kvs-payload.mjs` outputs total ≤ 800 KB
-- [ ] FR-SYNC-PAID: `@capacitor/app` `appStateChange` listener flushes pending KVS writes via `ICloudKVS.sync()` before backgrounding.
-  - Test: `manual — korchasa` (two-device test: device A play→swipe-away mid-write, device B launch within 30s, verify last entry present)
-  - Evidence: `grep -rn "appStateChange\|App.addListener" src/`
+- ~~FR-SYNC-PAID~~: **removed** — was Pro-only iCloud KVS cross-device sync. No Pro tier exists in the paid-app model. Progress stays local-only via Capacitor Preferences (FR-IOS-STORAGE). No `ICloudKVS` plugin, no iCloud entitlement, no sync layer.
 
 ### Polish (FR-IOS-POLISH)
 
@@ -378,9 +342,8 @@ Phased delivery within a single v1.0 release. Each phase ends with a green `npm 
 
 ## Follow-ups
 
-- Android parity (FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD, FR-SYNC-PAID Android half) — separate ADR, separate tagging.
+- Android parity (FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD) — separate ADR, separate tagging. Same paid-app model.
 - Localized App Store screenshots for additional languages beyond launch set.
-- If KVS payload approaches quota, add per-session pruning beyond the existing 200-cap; benchmark should also vary mastery breadth (every L1–L8 item touched), not just session count.
-- Custom EULA replacing Apple stdeula — important for clarifying lifetime non-consumable refund/family-sharing terms; not a v1.0 blocker since stdeula is App Review-acceptable.
 - Revisit dark-mode opt-in once core CSS palette is theme-driven.
-- Cross-platform IAP signature unification — addressed in the future Android ADR.
+
+> The Alternatives and Phase 4 / Phase 6 plan sections below describe the original freemium/IAP/sync approach and are retained as historical record only; that scope was dropped (see Update note at top). FR-PAID is the current model.

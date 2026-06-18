@@ -9,7 +9,6 @@ export const LESSONS: Lesson[] = [
       uk: "Знайомство. Съм, казвам се, говоря, нали",
     },
     available: true,
-    tier: "free",
     modeIds: [
       "sym_pick",
       "sym_fill",
@@ -42,7 +41,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l2", num: 2, available: true, tier: "free",
+    id: "l2", num: 2, available: true,
     title: {
       ru: "Моята стая. Род, артикль, мн.ч., притежательные, числа, предлоги",
       uk: "Моята стая. Рід, артикль, мн., присвійні, числа, прийменники",
@@ -77,7 +76,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l3", num: 3, available: true, tier: "free",
+    id: "l3", num: 3, available: true,
     title: {
       ru: "Моето семейство. Краткие притежательные, показательные, живея",
       uk: "Моето семейство. Короткі присвійні, вказівні, живея",
@@ -116,7 +115,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l4", num: 4, available: true, tier: "pro",
+    id: "l4", num: 4, available: true,
     title: {
       ru: "Времена «съм», спряжения, часы, предлоги",
       uk: "Часи «съм», дієвідміни, години, прийменники",
@@ -153,7 +152,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l5", num: 5, available: true, tier: "pro",
+    id: "l5", num: 5, available: true,
     title: {
       ru: "Внешность, характер, цвета, бъдеще, който/когато",
       uk: "Зовнішність, характер, кольори, майбутнє, який/когато",
@@ -191,7 +190,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l6", num: 6, available: true, tier: "pro",
+    id: "l6", num: 6, available: true,
     title: {
       ru: "Да-конструкция, вид глагола, движение",
       uk: "Да-конструкція, вид дієслова, рух",
@@ -227,7 +226,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l7", num: 7, available: true, tier: "pro",
+    id: "l7", num: 7, available: true,
     title: {
       ru: "Покупки. Степени сравнения, диминутивы, нещо/нищо, дательный",
       uk: "Покупки. Ступені порівняння, демінутиви, нещо/нищо, давальний",
@@ -267,7 +266,7 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
-    id: "l8", num: 8, available: true, tier: "pro",
+    id: "l8", num: 8, available: true,
     title: {
       ru: "Ям, минало неопределено, ресторан",
       uk: "Ям, минуле неозначене, ресторан",

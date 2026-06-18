@@ -1,31 +1,29 @@
 # SRS
 
 ## 1. Intro
-- **Desc:** bg-trainer — gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single React/TS codebase shipped as 3 surfaces: web (GitHub Pages, fully free), iOS (Capacitor WKWebView shell, freemium IAP), Android (Capacitor WebView shell, freemium IAP). Mobile gating: 3 of 8 lessons free, $4.99 lifetime unlock for the rest.
-- **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size). IAP = In-App Purchase. KVS = `NSUbiquitousKeyValueStore` (iCloud key-value sync). Tier = lesson access class (`free` | `pro`).
+- **Desc:** bg-trainer — gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single React/TS codebase shipped as 2 surfaces: web (GitHub Pages, free) and iOS (Capacitor WKWebView shell, paid one-time download at App Store tier $1.99 USD ≈ €2.49 EUR). All 8 lessons unlocked for everyone on every surface; no IAP, no paywall.
+- **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size).
 
 ## 2. General
-- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages, free), native iOS (Capacitor WKWebView shell, freemium IAP), native Android (Capacitor WebView shell, freemium IAP). Freemium gate is mobile-only; web ignores tier.
+- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages, free) and native iOS (Capacitor WKWebView shell, paid one-time download). All content included on every surface — no gating, no IAP.
 - **Assumptions/Constraints:**
   - Modern evergreen browser with `localStorage` and ES2020+.
   - Mobile-first, max-width `md`, portrait-friendly.
   - Static hosting for web (GitHub Pages at base `/bg-trainer/`); iOS/Android builds use relative base `./`.
   - iOS deployment target 15.0+, Bundle ID `dev.korchasa.bgtrainer`, Capacitor 8.
-  - Android minSdk 24 (Android 7.0), targetSdk 34, package `dev.korchasa.bgtrainer`, Capacitor 8.
-  - IAP via RevenueCat (free tier ≤ $2.5k MTR/mo). Single non-consumable product `bgtrainer_pro_lifetime`.
+  - Paid app: single App Store price tier $1.99 USD. No IAP, no subscriptions, no in-app unlock.
   - No server, no analytics backend, no auth.
   - i18n: 2 locales (`ru`, `uk`), client-side only, no external i18n library.
 
 ## 3. Functional Reqs
 
 ### 3.1 FR-MENU
-- **Desc:** Entry screen = list of lessons. Lessons carry a curated `modeIds` list and a `tier`. Available lessons open a per-lesson screen; upcoming lessons (`available=false`) shown disabled with "Скоро" label. On iOS/Android, tapping a `tier="pro"` lesson while Pro is locked routes to paywall (FR-PAYWALL); the tile shows lock icon + price. On web, all `available` lessons are tappable regardless of `tier`.
-- **Scenario:** User opens app → sees lessons list → taps available+unlocked lesson → lesson screen with round button + grid of lesson's games → taps a game → game starts. Free user on mobile taps pro lesson → paywall.
+- **Desc:** Entry screen = list of lessons. Lessons carry a curated `modeIds` list. Available lessons open a per-lesson screen; upcoming lessons (`available=false`) shown disabled with "Скоро" label. All `available` lessons are tappable and open directly — web and iOS behave identically (no gating).
+- **Scenario:** User opens app → sees lessons list → taps an available lesson → lesson screen with round button + grid of lesson's games → taps a game → game starts.
 - **Acceptance:**
   - [x] Lessons list rendered with two sections (available / upcoming). Evidence: `src/components/screens/LessonsScreen.tsx:16-62`, `src/data/lessons.ts`
   - [x] Only `available=true` lessons are tappable. Evidence: `src/App.tsx:89-94`, `src/components/screens/LessonsScreen.tsx:35-52`
   - [x] Lesson screen lists its modes + primary "Раунд" button. Evidence: `src/components/screens/LessonScreen.tsx`
-  - [ ] Mobile build: pro+locked lesson tile shows lock + price; tap → paywall. Web: tier ignored.
 
 ### 3.2 FR-GAME-SESSION
 - **Desc:** Session = N questions from the selected mode's data, where N = `SESSION_SIZE_BY_PACE[pace]` (see FR-PACE). `qsTotal` is fixed at session start. On a wrong answer the question is **not** advanced — user must retry the same item until correct (see FR-RETRY). A slot is consumed only when the user answers correctly, so the session always ends after `qsTotal` correctly-answered slots. Progress UI uses `answered / qsTotal`. `errors` counts unique wrong indices (only the first wrong attempt per question counts; retries do not).
@@ -48,7 +46,7 @@
   - [x] i18n strings `errorTitle`, `correctAnswer` defined for `ru` and `uk`. Evidence: `src/i18n/strings.ts`
 
 ### 3.10 FR-LESSONS
-- **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`, `tier`. All 8 lessons are fully playable (`available=true`). Tier split for mobile gating (FR-FREEMIUM): L1–L3 = `free`, L4–L8 = `pro`. Web ignores tier.
+- **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. All 8 lessons are fully playable (`available=true`) and unlocked for everyone on every surface.
 - **Scenario:** User picks lesson 1 → sees games for L1 grammar (съм, казвам се, говоря, имам/нямам, страна→язык, национальность, профессия, приветствия, ответные реплики, Как си, Това е/са, предметы, нито/и, нали, ли-вопрос, отрицание). User picks lesson 2 → sees games for L2 grammar (род, артикль, мн.ч., согласование прил., полные притежательные, антонимы, предлоги места, има/няма, един/една/едно, счётная форма, Ето го/я/ги, словарь комнаты, север→северен). User picks lesson 3 → sees games for L3 (жильё, семья, краткие притежательные ми/ти/му/й/ни/ви/им/си, артикль+родство, показательные този/онзи, живея/зная/следвам/занимавам се, этажность, дни/месяцы, наречия места, числа 11–1000, порядковые, «на кого», время, вопросительные, даты). User picks lesson 4 → sees games for L4 (спряжения I/II/III: чета, уча, казвам, оправям, правя + ям; возвратный глагол мия се; словарь распорядка дня; время суток и указатели прошлого; частотные наречия; никога + не; антонимы рано/късно, бързо/бавно, често/рядко, влизам/излизам; предлоги времени в / преди / след / към / около / до / от / между; часы «Часът е…»; прошедшее бях; будущее ще бъда / няма да бъда). User picks lesson 5 → sees games for L5 (части тела; внешность висок/нисък/дебел/слаб/стар/млад; волосы дълга/къса/права/чуплива/къдрава/руса/кестенява; глаза сини/зелени/кафяви/пъстри; описания носа/губ/выражения; характер добър/лош/честен/щедър/смел/работлив/…; цвета бял/черен/червен/зелен/жълт/син/кафяв/розов/сив/лилав/оранжев + светлосин/тъмносин; одежда блуза/риза/тениска/пуловер/рокля/панталон/дънки/яке/палто/костюм/обувки/чорапи; стилевые наречия делово/спортно/официално/елегантно/небрежно; будущее время «ще» / «няма да»; отвечать «Да, ще + 1л.» / «Не, няма да + 1л.»; парадигма «ще пиша/чета/ям/говоря/ходя/обичам»; относит. местоимения който/която/което/които; указат. качества такъв/такава/такова/такива; глаголы харесвам/обичам/мразя; придаточные с «когато»). User picks lesson 6 → sees games for L6 (улица/адрес/транспорт; учтивые формулы Заповядайте/Благодаря/Извинете/Моля; обращения господин/госпожа/госпожица + сокращения г-н/г-жа/г-ца/ул./бул./ет./ап./гр./пл./№; парадигмы мога/обичам; модальные глаголы да-конструкции (искам/мога/трябва/обичам/започвам/спирам); глаголы движения вървя/ходя/идвам/отивам/връщам се/тръгвам/спирам/минавам/завивам/стигам/пресичам/разхождам се/влизам/излизам/качвам се/слизам/карам/паркирам; вид глагола несвършен↔свършен (идвам↔дойда, отивам↔отида, …); императив положит. ед./мн., отрицат. (только несвършен), неправильные бъди/ела/виж/яж/дай/иди/влез/излез; направления наляво/надясно/направо/назад; стороны света север/юг/изток/запад; фразы дороги Завийте/Карайте/Вземете/Слезте/Минете). User picks lesson 7 → sees games for L7 (магазины: типы/роли/термины, что-где-продают, глаголы шопинга купувам/продавам/давам/плащам/пазарувам, сравнит./превосх. степень по-/най-, диминутивы магазинче/момиченце, ще / няма да + трансформация, нещо/нищо, краткое дательное ми/ти/му/й/ни/ви/им + трансформация на→DAT, харесва/отива/става + согласование, приблизит. количество няколко/около/към/десетина, счёт денег лев/стотинка, продавач или клиент, парадигмы, build предложений и реплик рынка, match местоимение↔DAT / ACC↔DAT / антонимы / магазин↔товар, odd). User picks lesson 8 → sees games for L8 (питание: храна, плодове, зеленчуци, месо/млечни, подправки, напитки, съдове; вкус сладък/солен/лют/горчив/кисел; глаголи готовки варя/пека/пържа/задушавам + способ; гладен/жаден съгласуване; «яде/ядат ми се», «пие/пият ми се»; български ястия и ресторант; минало неопределено: причастия ял/яла/яло/яли, спомагателен съм/си/е/сме/сте/са, ред на думите Аз съм ял / Ял съм / Не съм ял, въпрос «Ял ли си?», кратки отговори).
 - **Acceptance:**
   - [x] `LESSONS` defined with 8 entries; L1–L8 all `available=true`. Evidence: `src/data/lessons.ts`
@@ -69,7 +67,7 @@
   - [x] L8 `modeIds` cover L8 grammar topics (30 modes: 12 vocab pickFrom/type for еда/плодове/зеленчуци/месо/подправки/напитки/съдове/ястия/ресторант + taste pickOpt + cooking-verbs pickFrom + method pickOpt + гладен/жаден pickOpt + яде/ядат ми се pickOpt + пие/пият ми се pickOpt + part pickFrom/type + perf-aux pickOpt + perf-word-order pickFrom + perf-li (li engine) + perf-short pickOpt + perf-paradigm + build + 3 match (cognate / drink-food / taste-product) + odd). Evidence: `src/data/lessons.ts` (l8 block), `src/data/index.ts` (l8_extra category)
   - [x] Each new L8 mode backed by ≥5 data items (≥10 for vocab pickFrom/type, ≥12 for grammar drills; paradigm = 5 verb paradigms × 6 form slots; match-taste = 5 bijective pairs). Evidence: `src/data/lesson8.ts` (DATA_L8_FOOD, DATA_L8_FOOD_TYPE, DATA_L8_FRUITS, DATA_L8_FRUITS_TYPE, DATA_L8_VEGETABLES, DATA_L8_VEGETABLES_TYPE, DATA_L8_MEAT_DAIRY, DATA_L8_SPICES, DATA_L8_DRINKS, DATA_L8_TABLEWARE, DATA_L8_DISHES, DATA_L8_RESTAURANT, DATA_L8_TASTE, DATA_L8_COOKING, DATA_L8_METHOD, DATA_L8_GLAD_ZHAD, DATA_L8_YADE_MI_SE, DATA_L8_PIE_MI_SE, DATA_L8_PART, DATA_L8_PART_TYPE, DATA_L8_PERF_AUX, DATA_L8_PERF_WO, DATA_L8_PERF_LI, DATA_L8_PERF_SHORT, DATA_L8_PERF_PARADIGM, DATA_L8_BUILD, DATA_L8_MATCH_COGNATE, DATA_L8_MATCH_PAIRS, DATA_L8_MATCH_TASTE, DATA_L8_ODD)
   - [x] Data split into per-lesson modules with composition root. Evidence: `src/data/index.ts`, `src/data/lesson1.ts`, `src/data/lesson2.ts`, `src/data/lesson3.ts`, `src/data/lesson4.ts`, `src/data/lesson5.ts`, `src/data/lesson6.ts`, `src/data/lesson7.ts`, `src/data/lesson8.ts`
-  - [x] `Lesson.tier: "free" | "pro"` field added; L1–L3 = `free`, L4–L8 = `pro`. Evidence: `src/types.ts:14-22`, `src/data/lessons.ts:12,45,80,119,156,194,230,270`
+  - [x] `Lesson` shape = `{ id, num, title, modeIds, available }`; no tier/access field (all lessons unlocked). Evidence: `src/types.ts:14-20`, `src/data/lessons.ts`
 
 ### 3.11 FR-ROUND
 - **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
@@ -236,12 +234,12 @@
 - **Acceptance:**
   - [x] AppIcon set: single 1024×1024 universal sRGB 8-bit no-alpha (Xcode 14+ accepts a single source; iOS scales). Brand red `#E60023` background with white «БГ» monogram. Evidence: `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png`, `Contents.json`
   - [x] `LaunchScreen.storyboard` uses literal white `backgroundColor` (not `systemBackgroundColor` reference) so launch never flashes black even if Splash image fails to load. Splash image flattened to plain white 2732×2732. Evidence: `ios/App/App/Base.lproj/LaunchScreen.storyboard:18`, `ios/App/App/Assets.xcassets/Splash.imageset/`
-  - [x] `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, and one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` with reason `CA92.1` (own defaults). Wired into Xcode project as a build resource. SDK manifests (RC, Capacitor plugins) merge in at archive time. Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries with IDs `B6010101000000000000PRIV`/`B6010102000000000000PRIV`)
+  - [x] `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, and one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` with reason `CA92.1` (own defaults). Wired into Xcode project as a build resource. No IAP/RevenueCat SDK; only Capacitor plugin manifests merge in at archive time. Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries with IDs `B6010101000000000000PRIV`/`B6010102000000000000PRIV`)
   - [x] `ITSAppUsesNonExemptEncryption: false` in Info.plist. Evidence: `ios/App/App/Info.plist:60-61`
   - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
   - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain). Evidence: `public/privacy.html`, `public/CNAME`, `.github/workflows/deploy.yml` (`VITE_BASE_PATH: /`); HTTP 200 verified post-deploy.
   - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
-  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Pending: Privacy Policy URL save (Apple form-library quirk, manual entry), App Privacy data-collection questionnaire, Pricing form.
+  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Pending (manual, no IAP/receipts → simpler): Privacy Policy URL save, App Privacy questionnaire = "Data Not Collected", Pricing form = paid tier $1.99 USD.
   - [ ] Code signing configured (automatic signing with team) — pending Xcode setup.
   - [ ] Screenshots for iPhone 6.7" (1290×2796); optional 6.5" and 5.5" for older devices — pending (require simulator capture or device).
   - [ ] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` or `xcrun altool` — pending CI secrets population (see `documents/ios-release-setup.md`).
@@ -288,46 +286,21 @@
   - [ ] First tagged build reaches ASC TestFlight "Ready to Test" — pending secrets population + manual run. Setup: `documents/ios-release-setup.md`.
 
 ### 3.9 FR-NAV
-- **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`, `paywall` (mobile only). Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar. Tap on locked pro lesson (mobile) → `paywall`; close paywall → back to `lessons`.
+- **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.
 - **Acceptance:**
   - [x] Screen state owned by `App.tsx`. Evidence: `src/App.tsx:29-38`
   - [x] Initial screen on load = `lessons`. Evidence: `src/App.tsx:29`
   - [x] Back during round shows `ConfirmBar` instead of browser confirm. Evidence: `src/App.tsx:114-129,190-198`
   - [x] `NavHeader` + `BackButton` provide navigation. Evidence: `src/components/ui/NavHeader.tsx`, `src/components/ui/BackButton.tsx`
-  - [ ] `paywall` screen registered in mobile builds; not reachable on web.
+  - [x] `Screen` type = `"lessons" | "lesson" | "game" | "results" | "analytics"` (no `paywall`). Evidence: `src/types.ts:95`
 
-### 3.24 FR-FREEMIUM
-- **Desc:** Mobile-only content gating. `Lesson.tier: "free" | "pro"`. `free` lessons (L1–L3) always playable. `pro` lessons (L4–L8) gated on iOS/Android: tap when Pro is locked → paywall (FR-PAYWALL). Web ignores `tier` entirely — all `available` lessons playable everywhere on web. Tier is data, not platform-conditional content; only the gate is platform-conditional. Analytics never filters by tier — history of pro-tier plays (e.g., from web, or after subsequent purchase) always visible regardless of current platform/state.
-- **Scenario:** Free user on iOS taps L4 → paywall ($4.99 + Restore). Same user on web taps L4 → game starts. After purchase on iOS, all iOS devices on same Apple ID unlock; Android requires separate purchase (no cross-platform IAP).
+### 3.24 FR-PAID
+- **Desc:** iOS app is a paid one-time download at App Store price tier $1.99 USD (≈ €2.49 EUR). No IAP, no subscription, no in-app unlock, no Pro entitlement, no lesson tier. Every buyer gets all 8 lessons. Web build stays free on GitHub Pages. Single codebase; no platform-conditional content gating. Supersedes the removed FR-FREEMIUM / FR-IAP / FR-PAYWALL.
+- **Scenario:** User buys the app once on the App Store → installs → all 8 lessons open immediately. Web user opens `bgtrainer.korchasa.dev` → all 8 lessons open, free.
 - **Acceptance:**
-  - [x] `Lesson.tier: "free" | "pro"` in `src/types.ts`. Evidence: `src/types.ts:14-22`
-  - [x] L1, L2, L3 set `tier="free"`; L4–L8 set `tier="pro"` in `src/data/lessons.ts`. Evidence: `src/data/lessons.ts:12,45,80,119,156,194,230,270`
-  - [x] Build-time platform flag (`VITE_PLATFORM=web|ios|android`) exposed to the bundle and surfaced via `IS_WEB`/`IS_IOS`/`IS_ANDROID`/`IS_NATIVE`; `build:ios` script sets it to `ios`, default is `web`. Gate enforcement at the App level still pending. Evidence: `src/utils/platform.ts`, `src/vite-env.d.ts`, `package.json:10`
-  - [ ] iOS/Android: tapping pro lesson when `proUnlocked=false` → `screen="paywall"`.
-  - [x] Analytics shows entries for all lessons regardless of current tier or platform — no tier filter exists in the analytics aggregation pipeline. Evidence: `src/components/screens/AnalyticsScreen.tsx:81` (filter is by lesson presence in history, not tier)
-
-### 3.25 FR-IAP
-- **Desc:** RevenueCat SDK on iOS and Android. One non-consumable product `bgtrainer_pro_lifetime` (~$4.99 USD, App Store tier 5; €4.99 EUR equivalent). Pro entitlement (`pro`) cached locally; offline use respects last known status. Restore Purchases reachable from paywall and from analytics screen settings affordance. Web build is IAP no-op.
-- **Acceptance:**
-  - [ ] RevenueCat project configured; product `bgtrainer_pro_lifetime` registered in App Store Connect and Google Play Console under matching SKU.
-  - [ ] `@revenuecat/purchases-capacitor` plugin installed.
-  - [ ] App initializes RevenueCat with platform-specific public API key on cold start (iOS/Android only).
-  - [ ] `proUnlocked = customerInfo.entitlements.active["pro"] !== undefined`, persisted to local storage as backup.
-  - [ ] Purchase flow: paywall "Купить" → `Purchases.purchasePackage(pkg)` → on success update `proUnlocked` → close paywall → unlock taps.
-  - [ ] Restore flow: triggers `Purchases.restorePurchases()`; user-visible toast on success/failure.
-  - [ ] Offline tolerance: cached `proUnlocked` honored when RevenueCat fetch fails; verified at next online launch.
-  - [ ] Web build: IAP service is a stub returning `proUnlocked=true` (web is fully free).
-
-### 3.26 FR-PAYWALL
-- **Desc:** Paywall screen on iOS/Android shown when free user taps a pro lesson, or via "Pro" affordance on analytics. Lists Pro benefits (L4–L8 access + cross-device sync), one-button purchase showing localized price from RevenueCat, Restore Purchases link, EULA + Privacy Policy links (App Store mandatory).
-- **Acceptance:**
-  - [ ] `PaywallScreen` component rendered when `screen="paywall"`.
-  - [ ] Localized in `ru`/`uk` via existing `useI18n`.
-  - [ ] Buy button shows `Package.product.priceString` (currency-formatted by store).
-  - [ ] Restore Purchases button always visible (Apple guideline 3.1.1).
-  - [ ] Locked-lesson tile on `LessonsScreen` (mobile only) shows lock icon + price hint.
-  - [ ] EULA + Privacy Policy links open in-app browser or external browser.
-  - [ ] Web does not render paywall.
+  - [x] No tier/entitlement field on `Lesson`; all `available` lessons open directly. Evidence: `src/types.ts:14-20`, `src/components/screens/LessonsScreen.tsx`
+  - [x] No IAP code: `src/services/iap.ts` and `src/components/screens/PaywallScreen.tsx` absent; no RevenueCat dependency. Evidence: `! ls src/services/iap.ts src/components/screens/PaywallScreen.tsx`; `! grep -rn "revenuecat\|proUnlocked\|purchasePackage" src/`
+  - [ ] ASC Pricing form set to paid tier $1.99 USD (manual — outside repo).
 
 ### 3.27 FR-ANDROID-SHELL
 - **Desc:** Native Android shell via Capacitor 8 wrapping the React SPA. minSdk 24, targetSdk 34, package `dev.korchasa.bgtrainer`. Single Activity (`MainActivity`) hosting the WebView at `https://localhost`. Shared codebase with web/iOS; same `VITE_BASE_PATH=./` build.
@@ -350,7 +323,7 @@
   - [ ] Phone screenshots (320–3840 px, 16:9 to 9:16).
   - [ ] Short description ≤80 chars; full description ≤4000 chars (RU/UK/EN).
   - [ ] Publicly hosted Privacy Policy URL.
-  - [ ] Data Safety form completed (no data collection beyond local storage + IAP receipts).
+  - [ ] Data Safety form completed (no data collection; local storage only).
   - [ ] Content rating questionnaire (target: Everyone).
   - [ ] Internal Testing → Closed Testing → Production rollout.
 
@@ -363,18 +336,8 @@
   - [ ] `versionCode` auto-bumped from CI run number; `versionName` from git tag.
   - [ ] Upload via `gradle-play-publisher` (default track: Internal Testing).
 
-### 3.30 FR-SYNC-PAID
-- **Desc:** Optional cross-device sync of progress (history + mastery + pace + lang) for Pro users only. Per-platform native sync; no backend; no cross-platform iOS↔Android sync. Web unaffected (always local). Conflict resolution: last-write-wins per item (mastery: max `lastTs`; history: dedupe by `ts`).
-- **iOS:** Mirror persistent state to `NSUbiquitousKeyValueStore` (iCloud KVS). Quotas: 1 MB total, 1024 keys, ≤ 1 MB per value. Active only when user signed into iCloud and Pro entitlement true.
-- **Android:** Use Auto Backup to Google Drive (manifest `android:allowBackup="true"`, `fullBackupContent` rules covering Capacitor `Preferences` SharedPrefs). Quota: 25 MB per app per Google account.
-- **Acceptance:**
-  - [ ] iCloud KVS bridge plugin installed (custom Capacitor plugin or community plugin).
-  - [ ] On Pro unlock event, history + mastery + pace + lang keys mirrored to KVS on every write.
-  - [ ] On launch (Pro active), KVS values reconciled with local: max `lastTs` wins per mastery item; history merged + deduped by `ts`; pace/lang last-write-wins by KVS metadata.
-  - [ ] Free users on iOS: zero KVS writes.
-  - [ ] Android `fullBackupContent` rules at `android/app/src/main/res/xml/backup_rules.xml` include Capacitor `Preferences` SharedPrefs.
-  - [ ] Auto Backup verified via `adb shell bmgr backupnow <package>`.
-  - [ ] Depends on FR-IOS-STORAGE (preferences abstraction must precede sync layer).
+### 3.30 FR-SYNC-PAID — REMOVED
+- **Status:** Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the paid-app model. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
 
 ## 4. Non-Functional
 - **Perf:** Initial bundle small enough for mobile networks (Vite tree-shake + code-split). Interaction latency < 50ms on mid-range mobile.
@@ -385,12 +348,10 @@
 
 ## 5. Interfaces
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.
-- **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. Mobile target: migrate to `@capacitor/preferences` (FR-IOS-STORAGE) + cloud sync for Pro (FR-SYNC-PAID).
-- **IAP:** RevenueCat SDK (`@revenuecat/purchases-capacitor`). Single non-consumable product `bgtrainer_pro_lifetime` ($4.99 / €4.99). Web stub returns unlocked.
+- **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS: `@capacitor/preferences` (FR-IOS-STORAGE), local-only (no cloud sync).
 - **Deploy:**
-  - **Web:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`. All lessons free.
-  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store. Freemium IAP (FR-FREEMIUM, FR-IAP).
-  - **Android:** Capacitor-wrapped Android WebView. Gradle project at `android/`. Build via `npm run android:sync` + `./gradlew bundleRelease`. Distribution via Google Play Console (Internal → Closed → Production). Freemium IAP (FR-FREEMIUM, FR-IAP).
+  - **Web:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`. Free; all lessons included.
+  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store. Paid app ($1.99), all lessons included (FR-PAID).
 
 ## 6. Acceptance
 - **Criteria:**
