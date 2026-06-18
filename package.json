@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "build:ios": "VITE_BASE_PATH=./ VITE_PLATFORM=ios tsc && VITE_BASE_PATH=./ VITE_PLATFORM=ios vite build",
     "ios:sync": "npm run build:ios && cap sync ios",
-    "ios:open": "cap open ios"
+    "ios:open": "cap open ios",
+    "dist": "bash scripts/build-ios-archive.sh"
   },
   "dependencies": {
     "@capacitor/haptics": "^8.0.2",
