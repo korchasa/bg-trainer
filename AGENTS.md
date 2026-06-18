@@ -30,7 +30,7 @@ Interactive Bulgarian language trainer for A0-level learners. UI in Russian or U
 - **Charts:** Recharts 2
 - **Persistence:** Browser `localStorage` (key `bg-trainer-v3`, max 200 sessions)
 - **Package manager:** npm
-- **Hosting:** GitHub Pages (Vite base path `/bg-trainer/`)
+- **Hosting:** GitHub Pages, custom domain `bgtrainer.korchasa.dev`. Two surfaces: marketing site at root (`/`, static `site/`), web app at `/app/` (Vite base path `/app/`)
 - **CI/CD:** GitHub Actions (`deploy.yml`, `preview.yml`, `cleanup-preview.yml`)
 
 ## Architecture
@@ -72,6 +72,14 @@ src/
 └── utils/
     ├── history.ts           # localStorage read/write
     └── shuffle.ts           # Fisher-Yates shuffle
+
+site/                        # Static marketing surface (no build), deployed to domain root
+├── index.html               # Landing page (RU)
+├── privacy.html             # Privacy policy (EN+RU)
+├── terms.html               # Terms of use
+├── CNAME                    # Custom domain → lands at dist root
+├── favicon.svg              # Site favicon
+└── assets/                  # Landing images (e.g. screenshot)
 ```
 
 ### Key Types (`src/types.ts`)
@@ -108,9 +116,10 @@ Each mode has a `data()` returning the exercise array. A session = 15 questions 
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
 - **Deployment:**
-  - Push to `main` → GitHub Pages deploy via `.github/workflows/deploy.yml`
-  - Feature branches → preview at `/bg-trainer/preview/{branch-name}/` via `preview.yml`
+  - Push to `main` → `deploy.yml`: builds app (`VITE_BASE_PATH=/app/`, `VITE_OUT_DIR=dist/app`) → app at `dist/app/`; copies `site/.` to `dist/` root (landing, privacy.html, terms.html, CNAME, favicon) → GitHub Pages. Result: `/` = landing, `/app/` = web app
+  - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (app-only, built at that base)
   - Branch delete → cleanup via `cleanup-preview.yml`
+- **Site/app split:** `site/` is the static marketing surface (hand-written HTML, no build). The Vite app is the `/app/` surface. CNAME and privacy/terms live in `site/` (not `public/`) so they land at dist root, not under `/app/`. `public/` assets ship inside the app build (`/app/...`)
 - **Adding a new mode:**
   1. Add `DataItem[]` / `BuildItem[]` / `LiItem[]` to `src/data/index.ts`
   2. Add `Mode` entry to the relevant `Category` (or create new `Category`)
@@ -304,7 +313,7 @@ When the root cause is outside your control (missing API keys/URLs, missing gene
 Project uses npm scripts (`package.json`). No standardized `check/test/prod` scripts configured — no test runner or linter installed. Mapping:
 
 - `npm install` — install dependencies
-- `npm run dev` — Vite dev server at http://localhost:5173/bg-trainer/ (maps to `dev`)
+- `npm run dev` — Vite dev server at http://localhost:5173/app/ (maps to `dev`)
 - `npm run build` — `tsc` type-check + Vite bundle → `dist/` (closest to `check`; no linter or tests)
 - `npm run preview` — serve the production build locally (maps to `prod`)
 - `test` — **not configured**. No test suite exists.

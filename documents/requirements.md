@@ -9,7 +9,7 @@
 - **Assumptions/Constraints:**
   - Modern evergreen browser with `localStorage` and ES2020+.
   - Mobile-first, max-width `md`, portrait-friendly.
-  - Static hosting for web (GitHub Pages at base `/bg-trainer/`); iOS/Android builds use relative base `./`.
+  - Static hosting on GitHub Pages (custom domain): marketing site at root `/`, web app at base `/app/`; iOS/Android builds use relative base `./`.
   - iOS deployment target 15.0+, Bundle ID `dev.korchasa.bgtrainer`, Capacitor 8.
   - Paid app: single App Store price tier $1.99 USD. No IAP, no subscriptions, no in-app unlock.
   - No server, no analytics backend, no auth.
@@ -237,7 +237,7 @@
   - [x] `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, and one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` with reason `CA92.1` (own defaults). Wired into Xcode project as a build resource. No IAP/RevenueCat SDK; only Capacitor plugin manifests merge in at archive time. Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries with IDs `B6010101000000000000PRIV`/`B6010102000000000000PRIV`)
   - [x] `ITSAppUsesNonExemptEncryption: false` in Info.plist. Evidence: `ios/App/App/Info.plist:60-61`
   - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
-  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain). Evidence: `public/privacy.html`, `public/CNAME`, `.github/workflows/deploy.yml` (`VITE_BASE_PATH: /`); HTTP 200 verified post-deploy.
+  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain, served from site root). Evidence: `site/privacy.html`, `site/CNAME`, `.github/workflows/deploy.yml` (site/ copied to dist root); HTTP 200 verified post-deploy.
   - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
   - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Pending (manual, no IAP/receipts → simpler): Privacy Policy URL save, App Privacy questionnaire = "Data Not Collected", Pricing form = paid tier $1.99 USD.
   - [ ] Code signing configured (automatic signing with team) — pending Xcode setup.
@@ -350,7 +350,7 @@
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.
 - **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS: `@capacitor/preferences` (FR-IOS-STORAGE), local-only (no cloud sync).
 - **Deploy:**
-  - **Web:** GitHub Pages. Vite base path `/bg-trainer/`. Branch previews at `/bg-trainer/preview/{branch}/`. Free; all lessons included.
+  - **Web:** GitHub Pages, custom domain `bgtrainer.korchasa.dev`. Marketing site at root `/` (static `site/`: landing, privacy, terms); web app at `/app/` (Vite base path `/app/`). Branch previews at `/preview/{branch}/`. Free; all lessons included.
   - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store. Paid app ($1.99), all lessons included (FR-PAID).
 
 ## 6. Acceptance

@@ -53,7 +53,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173/bg-trainer/ in your browser.
+Open http://localhost:5173/app/ in your browser.
 
 ### Production build
 
@@ -66,10 +66,13 @@ Output is written to `dist/`.
 
 ## Deployment
 
-Pushes to `main` automatically deploy to GitHub Pages via the workflow in `.github/workflows/deploy.yml`.
+Pushes to `main` automatically deploy to GitHub Pages via the workflow in `.github/workflows/deploy.yml`. The site is split across two surfaces on one domain:
+
+- `bgtrainer.korchasa.dev/` — marketing landing + policies (static files from `site/`)
+- `bgtrainer.korchasa.dev/app/` — the React web app (Vite build with `base=/app/`)
 
 ```
-main branch push → build → upload artifact → deploy to GitHub Pages
+main push → build app (base=/app/, outDir=dist/app) → copy site/ to dist root → deploy to GitHub Pages
 ```
 
 You can also trigger a deployment manually from the **Actions** tab in GitHub.
@@ -82,7 +85,13 @@ bg-trainer/
 │   ├── App.tsx        # Main application — all game engines, data, and UI
 │   ├── main.tsx       # React entry point
 │   └── index.css      # Global styles
-├── index.html
+├── site/              # Static marketing site, served at domain root
+│   ├── index.html     # Landing page
+│   ├── privacy.html   # Privacy policy
+│   ├── terms.html     # Terms of use
+│   ├── CNAME          # Custom domain (lands at dist root)
+│   └── favicon.svg
+├── index.html         # Web app entry (served at /app/)
 ├── vite.config.ts
 ├── tailwind.config.js
 └── .github/

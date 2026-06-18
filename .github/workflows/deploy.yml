@@ -25,10 +25,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build web app (served at /app/)
         run: npm run build
         env:
-          VITE_BASE_PATH: /
+          VITE_BASE_PATH: /app/
+          VITE_OUT_DIR: dist/app
+
+      - name: Assemble site (landing + policies at root)
+        # site/ holds the marketing landing, privacy/terms, CNAME, favicon.
+        # Copy it over dist root; the web app already lives in dist/app.
+        run: cp -R site/. dist/
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
