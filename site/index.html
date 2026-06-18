@@ -14,174 +14,394 @@
 <style>
   :root {
     --accent: #E60023;
-    --ink: #111111;
-    --muted: #6b7280;
-    --line: #e5e7eb;
-    --bg: #ffffff;
-    --soft: #f7f7f8;
+    --accentSoft: rgba(230,0,35,.08);
+    --accentShadow: rgba(230,0,35,.32);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
-    color: var(--ink);
-    background: var(--bg);
-    -webkit-font-smoothing: antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, Roboto, sans-serif;
+    background: #ffffff; color: #111111;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  ::selection { background: rgba(230,0,35,.16); }
+  @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  a { text-decoration: none; }
 
-  /* Top bar */
-  .topbar { display: flex; align-items: center; justify-content: space-between; padding-top: 22px; }
-  .logo {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-weight: 800; font-size: 20px; letter-spacing: -0.01em;
+  /* Language pills (nav) */
+  .lang-pill {
+    border: none; cursor: pointer; padding: 5px 13px; border-radius: 999px;
+    font-size: 12px; font-weight: 800; transition: all .2s ease;
+    background: transparent; color: #6b7280;
   }
-  .logo .dot { width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
-  .lang { display: inline-flex; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; }
-  .lang-btn {
-    appearance: none; border: 0; background: transparent; color: #cfcfd2;
-    font: 600 14px inherit; padding: 7px 14px; cursor: pointer;
-  }
-  .lang-btn.active { background: var(--accent); color: #fff; }
+  .lang-pill.active { background: var(--accent); color: #fff; }
 
-  /* Hero */
-  header.hero {
-    background: linear-gradient(180deg, #111 0%, #1c1c1c 100%);
-    color: #fff;
-    padding-bottom: 64px;
-  }
-  .hero-body { text-align: center; padding-top: 56px; }
-  .badge {
-    display: inline-block; margin-bottom: 22px;
-    background: rgba(230,0,35,.15); color: #ff5a73;
-    border: 1px solid rgba(230,0,35,.45);
-    font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 999px;
-  }
-  h1 {
-    font-size: clamp(32px, 6vw, 52px); line-height: 1.08;
-    font-weight: 800; letter-spacing: -0.02em; margin: 0 auto 18px; max-width: 18ch;
-  }
-  h1 .hl { color: var(--accent); }
-  .sub { font-size: clamp(17px, 2.4vw, 21px); color: #cfcfd2; max-width: 42ch; margin: 0 auto 36px; }
-  .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 14px 26px; border-radius: 12px; font-weight: 700; font-size: 16px;
-    transition: transform .12s ease, opacity .12s ease;
-  }
-  .btn:hover { text-decoration: none; transform: translateY(-1px); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-ghost { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.22); }
+  /* In-phone language pill */
+  .phone-lang { font-weight: 800; font-size: 11px; padding: 4px 11px; border-radius: 999px; color: #9ca3af; }
+  .phone-lang.active { background: #E60023; color: #fff; }
 
-  /* Sections */
-  section { padding: 64px 0; }
-  section h2 { font-size: clamp(24px, 4vw, 34px); font-weight: 800; letter-spacing: -0.02em; margin: 0 0 8px; text-align: center; }
-  section .lead { color: var(--muted); text-align: center; max-width: 54ch; margin: 0 auto 44px; }
-
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-  .card { background: var(--soft); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
-  .card .ic { font-size: 26px; margin-bottom: 12px; }
-  .card h3 { font-size: 18px; margin: 0 0 6px; font-weight: 700; }
-  .card p { margin: 0; color: var(--muted); font-size: 15px; }
-
-  .showcase { background: var(--soft); }
-  .gallery {
-    display: flex; gap: 18px; margin-top: 36px; padding: 4px 4px 14px;
-    overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-  }
-  .gallery::-webkit-scrollbar { height: 6px; }
-  .gallery::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 999px; }
-  @media (min-width: 780px) { .gallery { justify-content: center; flex-wrap: wrap; overflow-x: visible; } }
-  .shot { flex: 0 0 auto; width: 200px; margin: 0; scroll-snap-align: center; text-align: center; }
-  .shot img { width: 100%; display: block; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 44px rgba(0,0,0,.16); }
-  .shot figcaption { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--muted); }
-
-  /* Final CTA */
-  .final { text-align: center; }
-  .final .cta { margin-top: 28px; }
-  .price { color: var(--muted); font-size: 15px; margin-top: 16px; }
-
-  footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--muted); font-size: 14px; }
-  footer .row { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; align-items: center; }
-  footer .links a { color: var(--muted); margin: 0 10px; }
-  footer .copy { width: 100%; text-align: center; margin-top: 18px; }
+  /* Hover states (inline styles set the base; !important wins over inline on hover) */
+  .nav-cta:hover { transform: translateY(-2px) !important; box-shadow: 0 12px 26px rgba(230,0,35,.4) !important; }
+  .btn-accent:hover { transform: translateY(-2px) !important; box-shadow: 0 14px 32px rgba(230,0,35,.42) !important; }
+  .btn-soft:hover { background: #E8E8E8 !important; transform: translateY(-2px) !important; }
+  .feature-card:hover { transform: translateY(-5px) !important; box-shadow: 0 16px 36px rgba(0,0,0,.09) !important; }
+  .cta-white:hover { transform: translateY(-2px) !important; }
+  .cta-ghost:hover { background: rgba(255,255,255,.24) !important; }
+  .foot-link:hover { color: #111 !important; }
 </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="topbar">
-      <div class="logo"><span class="dot"></span> BG Trainer</div>
-      <div class="lang" role="group" aria-label="Язык / Мова">
-        <button class="lang-btn" data-lang="ru" type="button">Рус</button>
-        <button class="lang-btn" data-lang="uk" type="button">Укр</button>
+<!-- ===================== NAV ===================== -->
+<header style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #EAEAEA;">
+  <div style="max-width:1140px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <div style="position:relative;width:30px;height:22px;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.14);outline:1px solid rgba(0,0,0,.05);">
+        <div style="position:absolute;top:0;left:0;right:0;height:33.34%;background:#fff;"></div>
+        <div style="position:absolute;top:33.33%;left:0;right:0;height:33.34%;background:#00966E;"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:33.34%;background:#D62612;"></div>
       </div>
+      <span style="font-size:19px;font-weight:900;letter-spacing:-.02em;color:#111;">BG&nbsp;Trainer</span>
     </div>
-
-    <div class="hero-body">
-      <span class="badge" data-i18n="badge">Только уровень A0 — с абсолютного нуля</span>
-      <h1><span data-i18n="h1a">Болгарский с нуля — </span><span class="hl" data-i18n="h1hl">в игровой форме</span></h1>
-      <p class="sub" data-i18n="sub">Грамматические тренировки только для уровня A0. Интерфейс на русском или украинском — для тех, кто говорит на восточнославянских языках.</p>
-      <div class="cta">
-        <a class="btn btn-primary" href="/app/" data-i18n="ctaWeb">Открыть веб-версию →</a>
-        <a class="btn btn-ghost" href="https://apps.apple.com/app/id6766068069" data-i18n="ctaIos">Скачать для iPhone</a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div role="group" aria-label="Язык / Мова" style="display:inline-flex;background:#F2F2F2;border-radius:999px;padding:3px;">
+        <button class="lang-pill" data-lang="ru" type="button">РУ</button>
+        <button class="lang-pill" data-lang="uk" type="button">UK</button>
       </div>
+      <a class="nav-cta" href="/app/" data-i18n="ctaWeb" style="display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 18px;border-radius:999px;box-shadow:0 8px 20px var(--accentShadow);transition:transform .2s ease, box-shadow .2s ease;">Открыть веб-версию →</a>
     </div>
   </div>
 </header>
 
-<section>
-  <div class="wrap">
-    <h2 data-i18n="featTitle">Что внутри</h2>
-    <p class="lead" data-i18n="featLead">8 уроков, согласованных с учебником, и десятки коротких упражнений на ключевые темы грамматики уровня A0.</p>
-    <div class="grid">
-      <div class="card"><div class="ic">📚</div><h3 data-i18n="c1t">8 уроков</h3><p data-i18n="c1d">От глагола «съм» до порядка слов в вопросах. Каждый урок — свой набор упражнений.</p></div>
-      <div class="card"><div class="ic">🧩</div><h3 data-i18n="c2t">3700+ упражнений</h3><p data-i18n="c2d">Десятки форматов: выбор варианта, ввод с клавиатуры, перетаскивание, сопоставление, игра на скорость.</p></div>
-      <div class="card"><div class="ic">🔁</div><h3 data-i18n="c3t">Умное повторение</h3><p data-i18n="c3d">Слабые и просроченные карточки всплывают первыми. Ошибки возвращаются позже в той же сессии.</p></div>
-      <div class="card"><div class="ic">📊</div><h3 data-i18n="c4t">Аналитика</h3><p data-i18n="c4d">История результатов и статистика по урокам — видно, что уже освоено.</p></div>
-      <div class="card"><div class="ic">⚡</div><h3 data-i18n="c5t">Темп под себя</h3><p data-i18n="c5d">Три режима: 3, 5 или 8 вопросов на игру. Настройка сохраняется в браузере.</p></div>
-      <div class="card"><div class="ic">🔒</div><h3 data-i18n="c6t">Без сбора данных</h3><p data-i18n="c6d">Весь прогресс хранится локально на устройстве. Ничего не уходит на серверы.</p></div>
+<!-- ===================== HERO ===================== -->
+<section style="max-width:1140px;margin:0 auto;padding:64px 24px 40px;display:flex;flex-wrap:wrap;align-items:center;gap:48px;">
+  <div style="flex:1 1 420px;min-width:320px;">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:var(--accentSoft);color:var(--accent);font-weight:800;font-size:12.5px;letter-spacing:.01em;padding:8px 14px;border-radius:999px;margin-bottom:24px;">
+      <span style="width:7px;height:7px;border-radius:999px;background:var(--accent);"></span>
+      <span data-i18n="badge">Только уровень A0 — с абсолютного нуля</span>
+    </div>
+    <h1 data-i18n-html="h1" style="font-size:clamp(38px,5.4vw,62px);font-weight:900;letter-spacing:-.035em;line-height:1.02;margin:0 0 20px;color:#111;">
+      Болгарский с нуля —<br>в игровой форме
+    </h1>
+    <p data-i18n="heroSub" style="font-size:clamp(16px,1.6vw,19px);line-height:1.55;color:#6b7280;font-weight:500;max-width:480px;margin:0 0 32px;">
+      Грамматические тренировки только для уровня A0. Интерфейс на русском или украинском — для тех, кто говорит на восточнославянских языках.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+      <a class="btn-accent" href="/app/" data-i18n="ctaWeb" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:800;font-size:16px;padding:15px 26px;border-radius:999px;box-shadow:0 10px 26px var(--accentShadow);transition:transform .2s ease, box-shadow .2s ease;">Открыть веб-версию →</a>
+      <a class="btn-soft" href="https://apps.apple.com/app/id6766068069" style="display:inline-flex;align-items:center;gap:9px;background:#F2F2F2;color:#111;font-weight:800;font-size:16px;padding:15px 24px;border-radius:999px;transition:background .2s ease, transform .2s ease;">
+        <svg width="16" height="19" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+        <span data-i18n="ctaIos">Скачать для iPhone</span>
+      </a>
+    </div>
+    <div style="display:flex;align-items:center;gap:22px;margin-top:28px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;color:#9ca3af;font-weight:700;font-size:13.5px;"><span style="color:#10b981;font-size:15px;">✓</span> <span data-i18n="trust1">Бесплатно в браузере</span></div>
+      <div style="display:flex;align-items:center;gap:8px;color:#9ca3af;font-weight:700;font-size:13.5px;"><span style="color:#10b981;font-size:15px;">✓</span> <span data-i18n="trust2">Без регистрации</span></div>
+      <div style="display:flex;align-items:center;gap:8px;color:#9ca3af;font-weight:700;font-size:13.5px;"><span style="color:#10b981;font-size:15px;">✓</span> <span data-i18n="trust3">Прогресс на устройстве</span></div>
+    </div>
+  </div>
+
+  <!-- HERO PHONE: Lessons screen -->
+  <div style="flex:0 0 auto;margin:0 auto;transform:rotate(-3deg);">
+    <div style="animation:floaty 6s ease-in-out infinite;">
+      <div style="position:relative;width:300px;height:620px;background:#0d0d0f;border-radius:46px;padding:11px;box-shadow:0 40px 80px rgba(0,0,0,.24),0 12px 26px rgba(0,0,0,.14);">
+        <div style="position:absolute;top:22px;left:50%;transform:translateX(-50%);width:92px;height:26px;background:#0d0d0f;border-radius:999px;z-index:20;"></div>
+        <div style="width:100%;height:100%;background:#fff;border-radius:36px;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 26px 0;font-size:13px;font-weight:700;color:#111;">
+            <span>9:41</span>
+            <span style="display:flex;gap:6px;align-items:center;">
+              <svg width="17" height="12" viewBox="0 0 18 12" fill="#111"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="1.5" width="3" height="10.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".3"/></svg>
+              <svg width="23" height="12" viewBox="0 0 24 12"><rect x="1" y="1" width="19" height="10" rx="3" fill="none" stroke="#111" stroke-opacity=".4"/><rect x="2.5" y="2.5" width="13" height="7" rx="1.5" fill="#111"/><rect x="21" y="4" width="2" height="4" rx="1" fill="#111" fill-opacity=".4"/></svg>
+            </span>
+          </div>
+          <div style="padding:6px 16px 0;display:flex;flex-direction:column;flex:1;overflow:hidden;">
+            <div style="display:flex;justify-content:flex-end;">
+              <div style="display:inline-flex;background:#F2F2F2;border-radius:999px;padding:3px;">
+                <span class="phone-lang" data-phone-lang="ru">РУ</span>
+                <span class="phone-lang" data-phone-lang="uk">UK</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;margin:8px 0 16px;">
+              <div style="position:relative;width:34px;height:24px;border-radius:6px;overflow:hidden;margin-bottom:9px;box-shadow:0 1px 3px rgba(0,0,0,.12);outline:1px solid rgba(0,0,0,.05);">
+                <div style="position:absolute;top:0;left:0;right:0;height:33.34%;background:#fff;"></div>
+                <div style="position:absolute;top:33.33%;left:0;right:0;height:33.34%;background:#00966E;"></div>
+                <div style="position:absolute;bottom:0;left:0;right:0;height:33.34%;background:#D62612;"></div>
+              </div>
+              <div style="font-size:27px;font-weight:900;letter-spacing:-.02em;color:#111;line-height:1;">Български</div>
+              <div data-i18n="phLangSub" style="font-size:12px;font-weight:700;color:#9ca3af;margin-top:5px;">Грамматика · A0</div>
+            </div>
+            <div data-i18n="phLessonsLabel" style="font-size:11px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;">Уроки</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <!-- card 1 -->
+              <div style="background:#F2F2F2;border-radius:22px;padding:11px 12px;display:flex;align-items:center;gap:11px;">
+                <div style="width:40px;height:40px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#111;flex:none;">1</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:5px;"><span data-i18n="phL1" style="font-weight:900;font-size:12.5px;color:#111;">Урок 1</span><span style="color:#E60023;font-weight:900;font-size:11px;">✓</span></div>
+                  <div data-i18n="phL1d" style="font-size:10.5px;font-weight:600;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Глагол «съм»</div>
+                  <div style="margin-top:6px;height:5px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:100%;background:#E60023;border-radius:999px;"></div></div>
+                </div>
+                <div style="text-align:right;flex:none;"><div style="font-weight:900;font-size:11.5px;color:#111;">100%</div><div style="font-size:9px;font-weight:700;color:#9ca3af;">7/7</div></div>
+              </div>
+              <!-- card 2 -->
+              <div style="background:#F2F2F2;border-radius:22px;padding:11px 12px;display:flex;align-items:center;gap:11px;">
+                <div style="width:40px;height:40px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#111;flex:none;">2</div>
+                <div style="flex:1;min-width:0;">
+                  <div data-i18n="phL2" style="font-weight:900;font-size:12.5px;color:#111;">Урок 2</div>
+                  <div data-i18n="phL2d" style="font-size:10.5px;font-weight:600;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Род и артикль</div>
+                  <div style="margin-top:6px;height:5px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:64%;background:#E60023;border-radius:999px;"></div></div>
+                </div>
+                <div style="text-align:right;flex:none;"><div style="font-weight:900;font-size:11.5px;color:#111;">64%</div><div style="font-size:9px;font-weight:700;color:#9ca3af;">5/8</div></div>
+              </div>
+              <!-- card 3 -->
+              <div style="background:#F2F2F2;border-radius:22px;padding:11px 12px;display:flex;align-items:center;gap:11px;">
+                <div style="width:40px;height:40px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#111;flex:none;">3</div>
+                <div style="flex:1;min-width:0;">
+                  <div data-i18n="phL3" style="font-weight:900;font-size:12.5px;color:#111;">Урок 3</div>
+                  <div data-i18n="phL3d" style="font-size:10.5px;font-weight:600;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Настоящее время</div>
+                  <div style="margin-top:6px;height:5px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:20%;background:#E60023;border-radius:999px;"></div></div>
+                </div>
+                <div style="text-align:right;flex:none;"><div style="font-weight:900;font-size:11.5px;color:#111;">20%</div><div style="font-size:9px;font-weight:700;color:#9ca3af;">2/9</div></div>
+              </div>
+            </div>
+            <button style="margin-top:auto;margin-bottom:14px;width:100%;padding:13px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;background:#E60023;color:#fff;font-weight:800;font-size:14px;box-shadow:0 8px 18px rgba(230,0,35,.3);">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span data-i18n="phAnalytics">Аналитика</span> <span style="opacity:.7;font-size:12px;">(14)</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="showcase">
-  <div class="wrap" style="text-align:center">
-    <h2 data-i18n="showTitle">Просто и наглядно</h2>
-    <p class="lead" data-i18n="showLead">Уроки, тренировки и наглядный прогресс — в одном понятном интерфейсе.</p>
-    <div class="gallery">
-      <figure class="shot"><img src="/assets/app-lessons.png?v=2" data-i18n-alt="capLessons" alt="Уроки" /><figcaption data-i18n="capLessons">Уроки</figcaption></figure>
-      <figure class="shot"><img src="/assets/app-lesson.png?v=2" data-i18n-alt="capLesson" alt="Игры урока" /><figcaption data-i18n="capLesson">Игры урока</figcaption></figure>
-      <figure class="shot"><img src="/assets/app-game.png?v=2" data-i18n-alt="capGame" alt="Упражнение" /><figcaption data-i18n="capGame">Упражнение</figcaption></figure>
-      <figure class="shot"><img src="/assets/app-analytics.png?v=2" data-i18n-alt="capAnalytics" alt="Прогресс" /><figcaption data-i18n="capAnalytics">Прогресс</figcaption></figure>
+<!-- ===================== STATS BAND ===================== -->
+<section style="max-width:1140px;margin:0 auto;padding:24px;">
+  <div style="display:flex;flex-wrap:wrap;background:#F2F2F2;border-radius:30px;padding:8px;">
+    <div style="flex:1 1 200px;text-align:center;padding:24px 16px;">
+      <div style="font-size:clamp(34px,4.4vw,46px);font-weight:900;letter-spacing:-.03em;color:var(--accent);line-height:1;">8</div>
+      <div data-i18n="stat1" style="font-size:13.5px;font-weight:700;color:#6b7280;margin-top:8px;">уроков с учебником</div>
+    </div>
+    <div style="flex:1 1 200px;text-align:center;padding:24px 16px;border-left:1px solid #E4E4E4;">
+      <div style="font-size:clamp(34px,4.4vw,46px);font-weight:900;letter-spacing:-.03em;color:#111;line-height:1;">3700<span style="color:var(--accent);">+</span></div>
+      <div data-i18n="stat2" style="font-size:13.5px;font-weight:700;color:#6b7280;margin-top:8px;">упражнений</div>
+    </div>
+    <div style="flex:1 1 200px;text-align:center;padding:24px 16px;border-left:1px solid #E4E4E4;">
+      <div style="font-size:clamp(34px,4.4vw,46px);font-weight:900;letter-spacing:-.03em;color:#111;line-height:1;">10+</div>
+      <div data-i18n="stat3" style="font-size:13.5px;font-weight:700;color:#6b7280;margin-top:8px;">форматов игр</div>
+    </div>
+    <div style="flex:1 1 200px;text-align:center;padding:24px 16px;border-left:1px solid #E4E4E4;">
+      <div style="font-size:clamp(34px,4.4vw,46px);font-weight:900;letter-spacing:-.03em;color:#111;line-height:1;">0<span style="font-size:.55em;">₽</span></div>
+      <div data-i18n="stat4" style="font-size:13.5px;font-weight:700;color:#6b7280;margin-top:8px;">веб-версия</div>
     </div>
   </div>
 </section>
 
-<section class="final">
-  <div class="wrap">
-    <h2 data-i18n="finalTitle">Начните прямо сейчас</h2>
-    <p class="lead" data-i18n="finalLead">Тренажёр рассчитан только на уровень A0. Веб-версия бесплатна и работает в любом браузере. Приложение для iPhone — разовая покупка, все уроки сразу.</p>
-    <div class="cta">
-      <a class="btn btn-primary" href="/app/" data-i18n="ctaWeb">Открыть веб-версию →</a>
-      <a class="btn btn-ghost" style="background:#111;border-color:#111" href="https://apps.apple.com/app/id6766068069" data-i18n="ctaIos">Скачать для iPhone</a>
+<!-- ===================== FEATURES ===================== -->
+<section style="max-width:1140px;margin:0 auto;padding:56px 24px 24px;">
+  <div style="text-align:center;margin-bottom:40px;">
+    <div data-i18n="featKicker" style="font-size:12px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Что внутри</div>
+    <h2 data-i18n="featTitle" style="font-size:clamp(28px,3.6vw,40px);font-weight:900;letter-spacing:-.03em;line-height:1.08;margin:0 auto;max-width:640px;color:#111;">Всё для уровня A0 — и ничего лишнего</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;">
+    <div class="feature-card" style="background:#F2F2F2;border-radius:28px;padding:26px;transition:transform .25s ease, box-shadow .25s ease;">
+      <div style="width:54px;height:54px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">📚</div>
+      <h3 data-i18n="c1t" style="font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 7px;color:#111;">8 уроков</h3>
+      <p data-i18n="c1d" style="font-size:14.5px;line-height:1.5;color:#6b7280;font-weight:500;margin:0;">От глагола «съм» до порядка слов в вопросах. Каждый урок — свой набор упражнений.</p>
     </div>
-    <p class="price" data-i18n="price">iOS — разовая покупка $1.99. Без подписок и встроенных покупок.</p>
+    <div class="feature-card" style="background:#F2F2F2;border-radius:28px;padding:26px;transition:transform .25s ease, box-shadow .25s ease;">
+      <div style="width:54px;height:54px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">🧩</div>
+      <h3 data-i18n="c2t" style="font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 7px;color:#111;">3700+ упражнений</h3>
+      <p data-i18n="c2d" style="font-size:14.5px;line-height:1.5;color:#6b7280;font-weight:500;margin:0;">Десятки форматов: выбор варианта, ввод с клавиатуры, перетаскивание, сопоставление, игра на скорость.</p>
+    </div>
+    <div class="feature-card" style="background:#F2F2F2;border-radius:28px;padding:26px;transition:transform .25s ease, box-shadow .25s ease;">
+      <div style="width:54px;height:54px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">🔁</div>
+      <h3 data-i18n="c3t" style="font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 7px;color:#111;">Умное повторение</h3>
+      <p data-i18n="c3d" style="font-size:14.5px;line-height:1.5;color:#6b7280;font-weight:500;margin:0;">Слабые и просроченные карточки всплывают первыми. Ошибки возвращаются позже в той же сессии.</p>
+    </div>
+    <div class="feature-card" style="background:#F2F2F2;border-radius:28px;padding:26px;transition:transform .25s ease, box-shadow .25s ease;">
+      <div style="width:54px;height:54px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">📊</div>
+      <h3 data-i18n="c4t" style="font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 7px;color:#111;">Аналитика</h3>
+      <p data-i18n="c4d" style="font-size:14.5px;line-height:1.5;color:#6b7280;font-weight:500;margin:0;">История результатов и статистика по урокам — видно, что уже освоено.</p>
+    </div>
+    <div class="feature-card" style="background:#F2F2F2;border-radius:28px;padding:26px;transition:transform .25s ease, box-shadow .25s ease;">
+      <div style="width:54px;height:54px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">⚡</div>
+      <h3 data-i18n="c5t" style="font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 7px;color:#111;">Темп под себя</h3>
+      <p data-i18n="c5d" style="font-size:14.5px;line-height:1.5;color:#6b7280;font-weight:500;margin:0;">Три режима: 3, 5 или 8 вопросов на игру. Настройка сохраняется в браузере.</p>
+    </div>
+    <div class="feature-card" style="background:#F2F2F2;border-radius:28px;padding:26px;transition:transform .25s ease, box-shadow .25s ease;">
+      <div style="width:54px;height:54px;border-radius:999px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">🔒</div>
+      <h3 data-i18n="c6t" style="font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 7px;color:#111;">Без сбора данных</h3>
+      <p data-i18n="c6d" style="font-size:14.5px;line-height:1.5;color:#6b7280;font-weight:500;margin:0;">Весь прогресс хранится локально на устройстве. Ничего не уходит на серверы.</p>
+    </div>
   </div>
 </section>
 
-<footer>
-  <div class="wrap">
-    <div class="row links">
-      <a href="/privacy.html" data-i18n="ftPrivacy">Политика конфиденциальности</a>
-      <a href="/terms.html" data-i18n="ftTerms">Условия использования</a>
-      <a href="https://github.com/korchasa/bg-trainer">GitHub</a>
-      <a href="https://github.com/korchasa/bg-trainer/issues" data-i18n="ftSupport">Поддержка</a>
+<!-- ===================== SHOWCASE ===================== -->
+<section style="background:#F7F7F8;border-top:1px solid #EEE;border-bottom:1px solid #EEE;margin-top:48px;">
+  <div style="max-width:1140px;margin:0 auto;padding:64px 24px;">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div data-i18n="showKicker" style="font-size:12px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Просто и наглядно</div>
+      <h2 data-i18n="showTitle" style="font-size:clamp(28px,3.6vw,40px);font-weight:900;letter-spacing:-.03em;line-height:1.08;margin:0 auto 14px;max-width:640px;color:#111;">Уроки, тренировки и прогресс — в одном интерфейсе</h2>
+      <p data-i18n="showLead" style="font-size:16px;color:#6b7280;font-weight:500;max-width:520px;margin:0 auto;">Открыл, выбрал урок, сыграл раунд из трёх коротких игр. На всё — меньше десяти секунд на вопрос.</p>
     </div>
-    <div class="copy">© 2026 Stanislav Korchagin · BG Trainer</div>
+
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:40px;">
+
+      <!-- PHONE A: lesson games grid -->
+      <div style="flex:0 0 auto;text-align:center;">
+        <div style="position:relative;width:280px;height:580px;background:#0d0d0f;border-radius:44px;padding:10px;box-shadow:0 26px 60px rgba(0,0,0,.16);margin:0 auto;">
+          <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);width:84px;height:24px;background:#0d0d0f;border-radius:999px;z-index:20;"></div>
+          <div style="width:100%;height:100%;background:#fff;border-radius:35px;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0;font-size:12.5px;font-weight:700;color:#111;"><span>9:41</span><span style="display:flex;gap:6px;"><svg width="16" height="11" viewBox="0 0 18 12" fill="#111"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="1.5" width="3" height="10.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".3"/></svg><svg width="22" height="11" viewBox="0 0 24 12"><rect x="1" y="1" width="19" height="10" rx="3" fill="none" stroke="#111" stroke-opacity=".4"/><rect x="2.5" y="2.5" width="13" height="7" rx="1.5" fill="#111"/></svg></span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 18px 4px;">
+              <div style="width:30px;height:30px;border-radius:999px;background:#F2F2F2;display:flex;align-items:center;justify-content:center;color:#111;font-weight:900;">‹</div>
+              <div data-i18n="phaL1" style="font-weight:900;font-size:15px;color:#111;">Урок 1</div>
+            </div>
+            <div style="padding:6px 18px;flex:1;overflow:hidden;display:flex;flex-direction:column;">
+              <div data-i18n="phaL1" style="font-size:10.5px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Урок 1</div>
+              <div data-i18n="phaTitle" style="font-size:21px;font-weight:900;letter-spacing:-.02em;color:#111;line-height:1.1;margin-bottom:14px;">Глагол «съм»</div>
+              <div data-i18n="phaPace" style="font-size:10px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;">Темп</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px;">
+                <div style="background:#F2F2F2;color:#6b7280;border-radius:999px;padding:7px 0;text-align:center;"><div data-i18n="phaFast" style="font-size:11px;font-weight:800;">Быстро</div><div data-i18n="phaQ3" style="font-size:9px;color:#9ca3af;font-weight:700;">3 в.</div></div>
+                <div style="background:#E60023;color:#fff;border-radius:999px;padding:7px 0;text-align:center;box-shadow:0 4px 10px rgba(230,0,35,.28);"><div data-i18n="phaNormal" style="font-size:11px;font-weight:800;">Обычно</div><div data-i18n="phaQ5" style="font-size:9px;opacity:.85;font-weight:700;">5 в.</div></div>
+                <div style="background:#F2F2F2;color:#6b7280;border-radius:999px;padding:7px 0;text-align:center;"><div data-i18n="phaLong" style="font-size:11px;font-weight:800;">Длинно</div><div data-i18n="phaQ8" style="font-size:9px;color:#9ca3af;font-weight:700;">8 в.</div></div>
+              </div>
+              <button data-i18n="phaRound" style="width:100%;border:none;border-radius:999px;background:#E60023;color:#fff;font-weight:800;font-size:13px;padding:12px;box-shadow:0 8px 18px rgba(230,0,35,.3);margin-bottom:16px;">🎲 Раунд · 3 игры × 5</button>
+              <div data-i18n="phaGames" style="font-size:10px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Игры урока</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;">
+                <div style="background:#F2F2F2;border-radius:22px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+                  <div style="width:34px;height:34px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:6px;">✏️</div>
+                  <span data-i18n="tilePick" style="font-size:9px;font-weight:800;color:#374151;text-align:center;line-height:1.1;margin-bottom:5px;">Выбор</span>
+                  <div style="width:80%;height:3px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:100%;background:#E60023;"></div></div>
+                </div>
+                <div style="background:#F2F2F2;border-radius:22px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+                  <div style="width:34px;height:34px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:6px;">⌨️</div>
+                  <span data-i18n="tileInput" style="font-size:9px;font-weight:800;color:#374151;text-align:center;line-height:1.1;margin-bottom:5px;">Ввод</span>
+                  <div style="width:80%;height:3px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:70%;background:#E60023;"></div></div>
+                </div>
+                <div style="background:#F2F2F2;border-radius:22px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+                  <div style="width:34px;height:34px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:6px;">🔗</div>
+                  <span data-i18n="tilePairs" style="font-size:9px;font-weight:800;color:#374151;text-align:center;line-height:1.1;margin-bottom:5px;">Пары</span>
+                  <div style="width:80%;height:3px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:40%;background:#E60023;"></div></div>
+                </div>
+                <div style="background:#F2F2F2;border-radius:22px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+                  <div style="width:34px;height:34px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:6px;">⚡</div>
+                  <span data-i18n="tileSpeed" style="font-size:9px;font-weight:800;color:#374151;text-align:center;line-height:1.1;margin-bottom:5px;">Скорость</span>
+                  <div style="width:80%;height:3px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:55%;background:#E60023;"></div></div>
+                </div>
+                <div style="background:#F2F2F2;border-radius:22px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+                  <div style="width:34px;height:34px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:6px;">🧩</div>
+                  <span data-i18n="tileBuild" style="font-size:9px;font-weight:800;color:#374151;text-align:center;line-height:1.1;margin-bottom:5px;">Сборка</span>
+                  <div style="width:80%;height:3px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:20%;background:#E60023;"></div></div>
+                </div>
+                <div style="background:#F2F2F2;border-radius:22px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;">
+                  <div style="width:34px;height:34px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:6px;">🎯</div>
+                  <span data-i18n="tileOdd" style="font-size:9px;font-weight:800;color:#374151;text-align:center;line-height:1.1;margin-bottom:5px;">Лишнее</span>
+                  <div style="width:80%;height:3px;background:#fff;border-radius:999px;overflow:hidden;"><div style="height:100%;width:85%;background:#E60023;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-i18n="capA" style="font-size:13px;font-weight:800;color:#111;margin-top:18px;">Игры урока</div>
+        <div data-i18n="capAsub" style="font-size:12px;font-weight:500;color:#9ca3af;margin-top:2px;">Раунд и отдельные форматы</div>
+      </div>
+
+      <!-- PHONE B: exercise (Pick) -->
+      <div style="flex:0 0 auto;text-align:center;">
+        <div style="position:relative;width:280px;height:580px;background:#0d0d0f;border-radius:44px;padding:10px;box-shadow:0 30px 66px rgba(0,0,0,.2);margin:0 auto;">
+          <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);width:84px;height:24px;background:#0d0d0f;border-radius:999px;z-index:20;"></div>
+          <div style="width:100%;height:100%;background:#fff;border-radius:35px;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0;font-size:12.5px;font-weight:700;color:#111;"><span>9:41</span><span style="display:flex;gap:6px;"><svg width="16" height="11" viewBox="0 0 18 12" fill="#111"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="1.5" width="3" height="10.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".3"/></svg><svg width="22" height="11" viewBox="0 0 24 12"><rect x="1" y="1" width="19" height="10" rx="3" fill="none" stroke="#111" stroke-opacity=".4"/><rect x="2.5" y="2.5" width="13" height="7" rx="1.5" fill="#111"/></svg></span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 18px 4px;">
+              <div style="width:30px;height:30px;border-radius:999px;background:#F2F2F2;display:flex;align-items:center;justify-content:center;color:#111;font-weight:900;">‹</div>
+              <div data-i18n="phbHeader" style="font-weight:900;font-size:14px;color:#111;">Выбор формы</div>
+            </div>
+            <div style="padding:14px 22px 18px;flex:1;display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#9ca3af;margin-bottom:8px;"><span>3/5</span><span>40 pts</span></div>
+              <div style="width:100%;height:7px;background:#F2F2F2;border-radius:999px;overflow:hidden;margin-bottom:30px;"><div style="height:100%;width:40%;background:#111;border-radius:999px;"></div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div data-i18n="phbPrompt" style="font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">Выбери форму глагола «съм»</div>
+                <div style="font-size:52px;font-weight:900;letter-spacing:-.04em;color:#111;line-height:1;">ти ___</div>
+                <div data-i18n="phbGloss" style="font-size:14px;font-weight:600;color:#9ca3af;margin-top:10px;">(ты есть)</div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:24px;">
+                <div style="height:56px;border-radius:20px;background:#10b981;color:#fff;border:2px solid #10b981;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;">си</div>
+                <div style="height:56px;border-radius:20px;background:#fff;color:#d1d5db;border:2px solid #E9E9E9;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;">съм</div>
+                <div style="height:56px;border-radius:20px;background:#fff;color:#d1d5db;border:2px solid #E9E9E9;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;">е</div>
+              </div>
+              <div style="text-align:center;font-size:18px;font-weight:900;color:#10b981;margin-top:14px;">Браво!</div>
+            </div>
+          </div>
+        </div>
+        <div data-i18n="capB" style="font-size:13px;font-weight:800;color:#111;margin-top:18px;">Упражнение</div>
+        <div data-i18n="capBsub" style="font-size:12px;font-weight:500;color:#9ca3af;margin-top:2px;">Мгновенная обратная связь</div>
+      </div>
+
+      <!-- PHONE C: results -->
+      <div style="flex:0 0 auto;text-align:center;">
+        <div style="position:relative;width:280px;height:580px;background:#0d0d0f;border-radius:44px;padding:10px;box-shadow:0 26px 60px rgba(0,0,0,.16);margin:0 auto;">
+          <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);width:84px;height:24px;background:#0d0d0f;border-radius:999px;z-index:20;"></div>
+          <div style="width:100%;height:100%;background:#fff;border-radius:35px;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0;font-size:12.5px;font-weight:700;color:#111;"><span>9:41</span><span style="display:flex;gap:6px;"><svg width="16" height="11" viewBox="0 0 18 12" fill="#111"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="1.5" width="3" height="10.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".3"/></svg><svg width="22" height="11" viewBox="0 0 24 12"><rect x="1" y="1" width="19" height="10" rx="3" fill="none" stroke="#111" stroke-opacity=".4"/><rect x="2.5" y="2.5" width="13" height="7" rx="1.5" fill="#111"/></svg></span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 18px 4px;">
+              <div style="width:30px;height:30px;border-radius:999px;background:#F2F2F2;display:flex;align-items:center;justify-content:center;color:#111;font-weight:900;">‹</div>
+              <div data-i18n="phcHeader" style="font-weight:900;font-size:14px;color:#111;">Раунд завершён</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;">
+              <div style="font-size:76px;line-height:1;">🏆</div>
+              <div data-i18n="phcDone" style="font-size:28px;font-weight:900;letter-spacing:-.02em;color:#111;">Готово!</div>
+              <div style="font-size:62px;font-weight:900;letter-spacing:-.03em;color:#E60023;line-height:1;">92</div>
+              <div style="display:flex;gap:20px;color:#6b7280;font-size:13px;font-weight:700;">
+                <span>⏱ 18с</span><span>❌ 1</span><span>🎯 89%</span>
+              </div>
+              <div style="display:flex;gap:10px;width:100%;max-width:230px;margin-top:6px;">
+                <button data-i18n="phcRetry" style="flex:1;border:none;border-radius:999px;background:#E60023;color:#fff;font-weight:800;font-size:14px;padding:13px 0;box-shadow:0 8px 18px rgba(230,0,35,.3);">Ещё раз</button>
+                <button data-i18n="phcMenu" style="flex:1;border:none;border-radius:999px;background:#F2F2F2;color:#111;font-weight:800;font-size:14px;padding:13px 0;">Меню</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-i18n="capC" style="font-size:13px;font-weight:800;color:#111;margin-top:18px;">Результат</div>
+        <div data-i18n="capCsub" style="font-size:12px;font-weight:500;color:#9ca3af;margin-top:2px;">Очки, время и точность</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FINAL CTA ===================== -->
+<section style="background:var(--accent);">
+  <div style="max-width:880px;margin:0 auto;padding:80px 24px;text-align:center;">
+    <h2 data-i18n="finalTitle" style="font-size:clamp(30px,4vw,46px);font-weight:900;letter-spacing:-.03em;line-height:1.05;color:#fff;margin:0 0 18px;">Начните прямо сейчас</h2>
+    <p data-i18n="finalLead" style="font-size:clamp(16px,1.7vw,19px);line-height:1.55;color:rgba(255,255,255,.88);font-weight:500;max-width:520px;margin:0 auto 36px;">Тренажёр рассчитан только на уровень A0. Веб-версия бесплатна и работает в любом браузере. Приложение для iPhone — разовая покупка, все уроки сразу.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:13px;justify-content:center;">
+      <a class="cta-white" href="/app/" data-i18n="ctaWeb" style="display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--accent);font-weight:800;font-size:16px;padding:16px 28px;border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,.16);transition:transform .2s ease;">Открыть веб-версию →</a>
+      <a class="cta-ghost" href="https://apps.apple.com/app/id6766068069" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.14);color:#fff;font-weight:800;font-size:16px;padding:16px 26px;border-radius:999px;border:1.5px solid rgba(255,255,255,.5);transition:background .2s ease;">
+        <svg width="16" height="19" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+        <span data-i18n="ctaIos">Скачать для iPhone</span>
+      </a>
+    </div>
+    <p data-i18n="price" style="font-size:13.5px;color:rgba(255,255,255,.78);font-weight:600;margin:24px 0 0;">iOS — разовая покупка $1.99. Без подписок и встроенных покупок.</p>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer style="background:#fff;border-top:1px solid #EAEAEA;">
+  <div style="max-width:1140px;margin:0 auto;padding:36px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="position:relative;width:26px;height:19px;border-radius:5px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.12);outline:1px solid rgba(0,0,0,.05);">
+        <div style="position:absolute;top:0;left:0;right:0;height:33.34%;background:#fff;"></div>
+        <div style="position:absolute;top:33.33%;left:0;right:0;height:33.34%;background:#00966E;"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:33.34%;background:#D62612;"></div>
+      </div>
+      <span style="font-size:14px;font-weight:800;color:#6b7280;">© 2026 Stanislav Korchagin · BG Trainer</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:22px;">
+      <a class="foot-link" href="/privacy.html" data-i18n="ftPrivacy" style="font-size:13.5px;font-weight:700;color:#9ca3af;transition:color .2s;">Политика конфиденциальности</a>
+      <a class="foot-link" href="/terms.html" data-i18n="ftTerms" style="font-size:13.5px;font-weight:700;color:#9ca3af;transition:color .2s;">Условия использования</a>
+      <a class="foot-link" href="https://github.com/korchasa/bg-trainer" style="font-size:13.5px;font-weight:700;color:#9ca3af;transition:color .2s;">GitHub</a>
+      <a class="foot-link" href="https://github.com/korchasa/bg-trainer/issues" data-i18n="ftSupport" style="font-size:13.5px;font-weight:700;color:#9ca3af;transition:color .2s;">Поддержка</a>
+    </div>
   </div>
 </footer>
 
@@ -190,14 +410,26 @@
     ru: {
       metaTitle: "BG Trainer — тренажёр болгарского для начинающих (A0)",
       metaDesc: "Интерактивный тренажёр болгарского языка только для уровня A0 (с нуля). Геймифицированные грамматические упражнения, 8 уроков, интерфейс на русском или украинском. Веб-версия и приложение для iPhone.",
-      badge: "Только уровень A0 — с абсолютного нуля",
-      h1a: "Болгарский с нуля — ",
-      h1hl: "в игровой форме",
-      sub: "Грамматические тренировки только для уровня A0. Интерфейс на русском или украинском — для тех, кто говорит на восточнославянских языках.",
       ctaWeb: "Открыть веб-версию →",
       ctaIos: "Скачать для iPhone",
-      featTitle: "Что внутри",
-      featLead: "8 уроков, согласованных с учебником, и десятки коротких упражнений на ключевые темы грамматики уровня A0.",
+      badge: "Только уровень A0 — с абсолютного нуля",
+      h1: "Болгарский с нуля —<br>в игровой форме",
+      heroSub: "Грамматические тренировки только для уровня A0. Интерфейс на русском или украинском — для тех, кто говорит на восточнославянских языках.",
+      trust1: "Бесплатно в браузере",
+      trust2: "Без регистрации",
+      trust3: "Прогресс на устройстве",
+      phLangSub: "Грамматика · A0",
+      phLessonsLabel: "Уроки",
+      phL1: "Урок 1", phL1d: "Глагол «съм»",
+      phL2: "Урок 2", phL2d: "Род и артикль",
+      phL3: "Урок 3", phL3d: "Настоящее время",
+      phAnalytics: "Аналитика",
+      stat1: "уроков с учебником",
+      stat2: "упражнений",
+      stat3: "форматов игр",
+      stat4: "веб-версия",
+      featKicker: "Что внутри",
+      featTitle: "Всё для уровня A0 — и ничего лишнего",
       c1t: "8 уроков",
       c1d: "От глагола «съм» до порядка слов в вопросах. Каждый урок — свой набор упражнений.",
       c2t: "3700+ упражнений",
@@ -210,12 +442,28 @@
       c5d: "Три режима: 3, 5 или 8 вопросов на игру. Настройка сохраняется в браузере.",
       c6t: "Без сбора данных",
       c6d: "Весь прогресс хранится локально на устройстве. Ничего не уходит на серверы.",
-      showTitle: "Просто и наглядно",
-      showLead: "Уроки, тренировки и наглядный прогресс — в одном понятном интерфейсе.",
-      capLessons: "Уроки",
-      capLesson: "Игры урока",
-      capGame: "Упражнение",
-      capAnalytics: "Прогресс",
+      showKicker: "Просто и наглядно",
+      showTitle: "Уроки, тренировки и прогресс — в одном интерфейсе",
+      showLead: "Открыл, выбрал урок, сыграл раунд из трёх коротких игр. На всё — меньше десяти секунд на вопрос.",
+      phaL1: "Урок 1",
+      phaTitle: "Глагол «съм»",
+      phaPace: "Темп",
+      phaFast: "Быстро", phaQ3: "3 в.",
+      phaNormal: "Обычно", phaQ5: "5 в.",
+      phaLong: "Длинно", phaQ8: "8 в.",
+      phaRound: "🎲 Раунд · 3 игры × 5",
+      phaGames: "Игры урока",
+      tilePick: "Выбор", tileInput: "Ввод", tilePairs: "Пары",
+      tileSpeed: "Скорость", tileBuild: "Сборка", tileOdd: "Лишнее",
+      capA: "Игры урока", capAsub: "Раунд и отдельные форматы",
+      phbHeader: "Выбор формы",
+      phbPrompt: "Выбери форму глагола «съм»",
+      phbGloss: "(ты есть)",
+      capB: "Упражнение", capBsub: "Мгновенная обратная связь",
+      phcHeader: "Раунд завершён",
+      phcDone: "Готово!",
+      phcRetry: "Ещё раз", phcMenu: "Меню",
+      capC: "Результат", capCsub: "Очки, время и точность",
       finalTitle: "Начните прямо сейчас",
       finalLead: "Тренажёр рассчитан только на уровень A0. Веб-версия бесплатна и работает в любом браузере. Приложение для iPhone — разовая покупка, все уроки сразу.",
       price: "iOS — разовая покупка $1.99. Без подписок и встроенных покупок.",
@@ -226,14 +474,26 @@
     uk: {
       metaTitle: "BG Trainer — тренажер болгарської для початківців (A0)",
       metaDesc: "Інтерактивний тренажер болгарської мови лише для рівня A0 (з нуля). Гейміфіковані граматичні вправи, 8 уроків, інтерфейс російською або українською. Вебверсія та застосунок для iPhone.",
-      badge: "Тільки рівень A0 — з абсолютного нуля",
-      h1a: "Болгарська з нуля — ",
-      h1hl: "у формі гри",
-      sub: "Граматичні тренування лише для рівня A0. Інтерфейс російською або українською — для тих, хто розмовляє східнослов'янськими мовами.",
       ctaWeb: "Відкрити вебверсію →",
       ctaIos: "Завантажити для iPhone",
-      featTitle: "Що всередині",
-      featLead: "8 уроків, узгоджених із підручником, і десятки коротких вправ на ключові теми граматики рівня A0.",
+      badge: "Тільки рівень A0 — з абсолютного нуля",
+      h1: "Болгарська з нуля —<br>у формі гри",
+      heroSub: "Граматичні тренування лише для рівня A0. Інтерфейс російською або українською — для тих, хто розмовляє східнослов'янськими мовами.",
+      trust1: "Безкоштовно у браузері",
+      trust2: "Без реєстрації",
+      trust3: "Прогрес на пристрої",
+      phLangSub: "Граматика · A0",
+      phLessonsLabel: "Уроки",
+      phL1: "Урок 1", phL1d: "Дієслово «съм»",
+      phL2: "Урок 2", phL2d: "Рід і артикль",
+      phL3: "Урок 3", phL3d: "Теперішній час",
+      phAnalytics: "Аналітика",
+      stat1: "уроків з підручником",
+      stat2: "вправ",
+      stat3: "форматів ігор",
+      stat4: "вебверсія",
+      featKicker: "Що всередині",
+      featTitle: "Усе для рівня A0 — і нічого зайвого",
       c1t: "8 уроків",
       c1d: "Від дієслова «съм» до порядку слів у питаннях. Кожен урок — свій набір вправ.",
       c2t: "3700+ вправ",
@@ -246,12 +506,28 @@
       c5d: "Три режими: 3, 5 або 8 запитань на гру. Налаштування зберігається у браузері.",
       c6t: "Без збору даних",
       c6d: "Весь прогрес зберігається локально на пристрої. Нічого не йде на сервери.",
-      showTitle: "Просто й наочно",
-      showLead: "Уроки, тренування та наочний прогрес — в одному зрозумілому інтерфейсі.",
-      capLessons: "Уроки",
-      capLesson: "Ігри уроку",
-      capGame: "Вправа",
-      capAnalytics: "Прогрес",
+      showKicker: "Просто й наочно",
+      showTitle: "Уроки, тренування та прогрес — в одному інтерфейсі",
+      showLead: "Відкрив, обрав урок, зіграв раунд із трьох коротких ігор. На все — менше десяти секунд на запитання.",
+      phaL1: "Урок 1",
+      phaTitle: "Дієслово «съм»",
+      phaPace: "Темп",
+      phaFast: "Швидко", phaQ3: "3 п.",
+      phaNormal: "Звично", phaQ5: "5 п.",
+      phaLong: "Довго", phaQ8: "8 п.",
+      phaRound: "🎲 Раунд · 3 ігри × 5",
+      phaGames: "Ігри уроку",
+      tilePick: "Вибір", tileInput: "Введення", tilePairs: "Пари",
+      tileSpeed: "Швидкість", tileBuild: "Збірка", tileOdd: "Зайве",
+      capA: "Ігри уроку", capAsub: "Раунд та окремі формати",
+      phbHeader: "Вибір форми",
+      phbPrompt: "Обери форму дієслова «съм»",
+      phbGloss: "(ти є)",
+      capB: "Вправа", capBsub: "Миттєвий зворотний зв'язок",
+      phcHeader: "Раунд завершено",
+      phcDone: "Готово!",
+      phcRetry: "Ще раз", phcMenu: "Меню",
+      capC: "Результат", capCsub: "Бали, час і точність",
       finalTitle: "Почніть просто зараз",
       finalLead: "Тренажер розрахований лише на рівень A0. Вебверсія безкоштовна й працює в будь-якому браузері. Застосунок для iPhone — разова покупка, усі уроки одразу.",
       price: "iOS — разова покупка $1.99. Без підписок і вбудованих покупок.",
@@ -272,12 +548,15 @@
       var k = el.getAttribute("data-i18n");
       if (d[k] != null) el.textContent = d[k];
     });
-    document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
-      var k = el.getAttribute("data-i18n-alt");
-      if (d[k] != null) el.setAttribute("alt", d[k]);
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n-html");
+      if (d[k] != null) el.innerHTML = d[k];
     });
-    document.querySelectorAll(".lang-btn").forEach(function (b) {
+    document.querySelectorAll(".lang-pill").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-lang") === lang);
+    });
+    document.querySelectorAll(".phone-lang").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-phone-lang") === lang);
     });
     try { localStorage.setItem("bgt-lang", lang); } catch (e) {}
   }
@@ -287,7 +566,7 @@
   var initial = saved || ((navigator.language || "").toLowerCase().indexOf("uk") === 0 ? "uk" : "ru");
   setLang(initial);
 
-  document.querySelectorAll(".lang-btn").forEach(function (b) {
+  document.querySelectorAll(".lang-pill").forEach(function (b) {
     b.addEventListener("click", function () { setLang(b.getAttribute("data-lang")); });
   });
 </script>
