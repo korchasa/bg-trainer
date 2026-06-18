@@ -10,7 +10,7 @@
 <meta property="og:title" content="BG Trainer — тренажёр болгарского (только A0)" />
 <meta property="og:description" content="Геймифицированные упражнения по грамматике болгарского для начинающих с нуля. Интерфейс на русском или украинском." />
 <meta property="og:url" content="https://bgtrainer.korchasa.dev/" />
-<meta property="og:image" content="https://bgtrainer.korchasa.dev/assets/screenshot-lessons.png" />
+<meta property="og:image" content="https://bgtrainer.korchasa.dev/assets/app-lessons.png" />
 <style>
   :root {
     --accent: #E60023;
@@ -87,7 +87,16 @@
   .card p { margin: 0; color: var(--muted); font-size: 15px; }
 
   .showcase { background: var(--soft); }
-  .shot { display: block; max-width: 320px; width: 100%; margin: 36px auto 0; border-radius: 28px; box-shadow: 0 24px 60px rgba(0,0,0,.18); }
+  .gallery {
+    display: flex; gap: 18px; margin-top: 36px; padding: 4px 4px 14px;
+    overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  }
+  .gallery::-webkit-scrollbar { height: 6px; }
+  .gallery::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 999px; }
+  @media (min-width: 780px) { .gallery { justify-content: center; flex-wrap: wrap; overflow-x: visible; } }
+  .shot { flex: 0 0 auto; width: 200px; margin: 0; scroll-snap-align: center; text-align: center; }
+  .shot img { width: 100%; display: block; border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 18px 44px rgba(0,0,0,.16); }
+  .shot figcaption { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--muted); }
 
   /* Final CTA */
   .final { text-align: center; }
@@ -130,7 +139,7 @@
     <p class="lead" data-i18n="featLead">8 уроков, согласованных с учебником, и десятки коротких упражнений на ключевые темы грамматики уровня A0.</p>
     <div class="grid">
       <div class="card"><div class="ic">📚</div><h3 data-i18n="c1t">8 уроков</h3><p data-i18n="c1d">От глагола «съм» до порядка слов в вопросах. Каждый урок — свой набор упражнений.</p></div>
-      <div class="card"><div class="ic">🎮</div><h3 data-i18n="c2t">8 типов игр</h3><p data-i18n="c2d">Выбор варианта, ввод с клавиатуры, перетаскивание, вставка частицы «ли», игра на скорость.</p></div>
+      <div class="card"><div class="ic">🧩</div><h3 data-i18n="c2t">3700+ упражнений</h3><p data-i18n="c2d">Десятки форматов: выбор варианта, ввод с клавиатуры, перетаскивание, сопоставление, игра на скорость.</p></div>
       <div class="card"><div class="ic">🔁</div><h3 data-i18n="c3t">Умное повторение</h3><p data-i18n="c3d">Слабые и просроченные карточки всплывают первыми. Ошибки возвращаются позже в той же сессии.</p></div>
       <div class="card"><div class="ic">📊</div><h3 data-i18n="c4t">Аналитика</h3><p data-i18n="c4d">История результатов и статистика по урокам — видно, что уже освоено.</p></div>
       <div class="card"><div class="ic">⚡</div><h3 data-i18n="c5t">Темп под себя</h3><p data-i18n="c5d">Три режима: 3, 5 или 8 вопросов на игру. Настройка сохраняется в браузере.</p></div>
@@ -142,8 +151,13 @@
 <section class="showcase">
   <div class="wrap" style="text-align:center">
     <h2 data-i18n="showTitle">Просто и наглядно</h2>
-    <p class="lead" data-i18n="showLead">Мобильный интерфейс: открыл, выбрал урок, прошёл короткий раунд.</p>
-    <img class="shot" src="/assets/screenshot-lessons.png" data-i18n-alt="shotAlt" alt="Экран выбора уроков BG Trainer" />
+    <p class="lead" data-i18n="showLead">Уроки, тренировки и наглядный прогресс — в одном понятном интерфейсе.</p>
+    <div class="gallery">
+      <figure class="shot"><img src="/assets/app-lessons.png" data-i18n-alt="capLessons" alt="Уроки" /><figcaption data-i18n="capLessons">Уроки</figcaption></figure>
+      <figure class="shot"><img src="/assets/app-lesson.png" data-i18n-alt="capLesson" alt="Игры урока" /><figcaption data-i18n="capLesson">Игры урока</figcaption></figure>
+      <figure class="shot"><img src="/assets/app-game.png" data-i18n-alt="capGame" alt="Упражнение" /><figcaption data-i18n="capGame">Упражнение</figcaption></figure>
+      <figure class="shot"><img src="/assets/app-analytics.png" data-i18n-alt="capAnalytics" alt="Прогресс" /><figcaption data-i18n="capAnalytics">Прогресс</figcaption></figure>
+    </div>
   </div>
 </section>
 
@@ -186,8 +200,8 @@
       featLead: "8 уроков, согласованных с учебником, и десятки коротких упражнений на ключевые темы грамматики уровня A0.",
       c1t: "8 уроков",
       c1d: "От глагола «съм» до порядка слов в вопросах. Каждый урок — свой набор упражнений.",
-      c2t: "8 типов игр",
-      c2d: "Выбор варианта, ввод с клавиатуры, перетаскивание, вставка частицы «ли», игра на скорость.",
+      c2t: "3700+ упражнений",
+      c2d: "Десятки форматов: выбор варианта, ввод с клавиатуры, перетаскивание, сопоставление, игра на скорость.",
       c3t: "Умное повторение",
       c3d: "Слабые и просроченные карточки всплывают первыми. Ошибки возвращаются позже в той же сессии.",
       c4t: "Аналитика",
@@ -197,8 +211,11 @@
       c6t: "Без сбора данных",
       c6d: "Весь прогресс хранится локально на устройстве. Ничего не уходит на серверы.",
       showTitle: "Просто и наглядно",
-      showLead: "Мобильный интерфейс: открыл, выбрал урок, прошёл короткий раунд.",
-      shotAlt: "Экран выбора уроков BG Trainer",
+      showLead: "Уроки, тренировки и наглядный прогресс — в одном понятном интерфейсе.",
+      capLessons: "Уроки",
+      capLesson: "Игры урока",
+      capGame: "Упражнение",
+      capAnalytics: "Прогресс",
       finalTitle: "Начните прямо сейчас",
       finalLead: "Тренажёр рассчитан только на уровень A0. Веб-версия бесплатна и работает в любом браузере. Приложение для iPhone — разовая покупка, все уроки сразу.",
       price: "iOS — разовая покупка $1.99. Без подписок и встроенных покупок.",
@@ -219,8 +236,8 @@
       featLead: "8 уроків, узгоджених із підручником, і десятки коротких вправ на ключові теми граматики рівня A0.",
       c1t: "8 уроків",
       c1d: "Від дієслова «съм» до порядку слів у питаннях. Кожен урок — свій набір вправ.",
-      c2t: "8 типів ігор",
-      c2d: "Вибір варіанта, введення з клавіатури, перетягування, вставлення частки «ли», гра на швидкість.",
+      c2t: "3700+ вправ",
+      c2d: "Десятки форматів: вибір варіанта, введення з клавіатури, перетягування, зіставлення, гра на швидкість.",
       c3t: "Розумне повторення",
       c3d: "Слабкі та прострочені картки спливають першими. Помилки повертаються пізніше в тій самій сесії.",
       c4t: "Аналітика",
@@ -230,8 +247,11 @@
       c6t: "Без збору даних",
       c6d: "Весь прогрес зберігається локально на пристрої. Нічого не йде на сервери.",
       showTitle: "Просто й наочно",
-      showLead: "Мобільний інтерфейс: відкрив, обрав урок, пройшов короткий раунд.",
-      shotAlt: "Екран вибору уроків BG Trainer",
+      showLead: "Уроки, тренування та наочний прогрес — в одному зрозумілому інтерфейсі.",
+      capLessons: "Уроки",
+      capLesson: "Ігри уроку",
+      capGame: "Вправа",
+      capAnalytics: "Прогрес",
       finalTitle: "Почніть просто зараз",
       finalLead: "Тренажер розрахований лише на рівень A0. Вебверсія безкоштовна й працює в будь-якому браузері. Застосунок для iPhone — разова покупка, усі уроки одразу.",
       price: "iOS — разова покупка $1.99. Без підписок і вбудованих покупок.",
