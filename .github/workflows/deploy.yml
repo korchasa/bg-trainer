@@ -25,16 +25,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build web app (served at /app/)
+      - name: Build web app (served at the root of app.bgtrainer.korchasa.dev)
+        # The marketing landing + privacy/terms now live in the app-store-factory
+        # repo and deploy to Cloudflare Pages at bgtrainer.korchasa.dev. This repo
+        # only publishes the web app, on its own subdomain (public/CNAME).
         run: npm run build
         env:
-          VITE_BASE_PATH: /app/
-          VITE_OUT_DIR: dist/app
-
-      - name: Assemble site (landing + policies at root)
-        # site/ holds the marketing landing, privacy/terms, CNAME, favicon.
-        # Copy it over dist root; the web app already lives in dist/app.
-        run: cp -R site/. dist/
+          VITE_BASE_PATH: /
+          VITE_OUT_DIR: dist
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
