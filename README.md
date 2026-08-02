@@ -9,7 +9,7 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 - **8 textbook-aligned lessons** (L1–L8 fully playable) with curated per-lesson game sets
 - **Round mode** — 3 random games from the selected lesson, one aggregated result
 - **Session pace** — 3 presets (quick/standard/deep = 3/5/8 questions per game); persisted per-browser
-- **8 game engine types** — multiple choice, timed quiz, keyboard input, drag-and-drop, particle insertion, and more
+- **11 game engine types** — multiple choice, timed quiz, keyboard input, drag-and-drop, particle insertion, pair matching, odd-one-out, paradigm drill, and more
 - **SRS-like item scheduling + error re-queue** — weak and due items surface first; wrong answers return later in the same session
 - **Analytics dashboard** — score history + per-lesson aggregated stats
 - **Persistent progress** — game history saved to browser local storage (up to 200 sessions)
@@ -54,7 +54,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173/app/ in your browser.
+Open http://localhost:5173/ in your browser. The dev server serves at the root; `/app/` is the deployed base path, set through `VITE_BASE_PATH` at build time.
 
 ### Production build
 
@@ -83,9 +83,14 @@ You can also trigger a deployment manually from the **Actions** tab in GitHub.
 ```
 bg-trainer/
 ├── src/
-│   ├── App.tsx        # Main application — all game engines, data, and UI
+│   ├── App.tsx        # Screen routing and game lifecycle
 │   ├── main.tsx       # React entry point
-│   └── index.css      # Global styles
+│   ├── index.css      # Global styles
+│   ├── data/          # Lesson content, mode and category definitions
+│   ├── components/    # Game engines, screens, UI atoms
+│   ├── hooks/         # Game state and timer
+│   ├── i18n/          # RU/UK strings
+│   └── utils/         # Storage, scheduling, text helpers
 ├── site/              # Static marketing site, served at domain root
 │   ├── index.html     # Landing page
 │   ├── privacy.html   # Privacy policy
@@ -100,7 +105,7 @@ bg-trainer/
         └── deploy.yml
 ```
 
-All game data and logic lives in `src/App.tsx`. Categories, modes, vocabulary, and game engines are defined there.
+Lesson content and mode definitions live in `src/data/`; each engine is a component under `src/components/engines/`. `src/App.tsx` only routes between screens and drives the game lifecycle.
 
 ## License
 
