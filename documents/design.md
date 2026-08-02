@@ -170,7 +170,7 @@
 - **Known gotchas:**
   - Auto Backup excludes anything outside SharedPrefs/files dir by default — Capacitor `Preferences` plugin uses SharedPrefs file `CapacitorStorage`, must be explicitly included in `backup_rules.xml`.
   - WebView third-party cookie behavior changed in API 33+; not relevant for `https://localhost` but watch for fetch failures on emulator.
-  - `versionCode` is a monotonic int — bumping must be CI-driven, not from git tag (tags can be re-cut).
+  - `versionCode` is a monotonic int — the release build outside this repo assigns it, never a git tag (tags can be re-cut).
   - Google Play requires AAB (not APK) since 2021; `bundleRelease` is the canonical task.
 
 ## 4. Data
@@ -241,7 +241,7 @@
   - iOS App Store submission assets (AppIcon, LaunchScreen, Privacy Manifest) — FR-IOS-APPSTORE.
   - Native integrations (splash, haptics, status-bar) — FR-IOS-UX.
   - Storage migration `localStorage` → `@capacitor/preferences` — FR-IOS-STORAGE.
-  - Android shell + Play Store assets + CI/CD — FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD.
+  - Android shell + Play Store assets — FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD.
   - Freemium gating + paywall + RevenueCat integration — FR-FREEMIUM, FR-IAP, FR-PAYWALL.
   - Pro-only cloud sync (iCloud KVS / Auto Backup) — FR-SYNC-PAID.
   - Lessons L5–L8 implementation — separate track, not blocking mobile release.
