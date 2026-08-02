@@ -142,6 +142,18 @@
   - [x] `paradigm_fill` mode over 6 verbs (съм, имам, нямам, искам, казвам се, говоря). Evidence: `src/data/index.ts`
 - **Status:** [x]
 
+### 3.4.4 FR-BUILD
+- **Desc:** Sentence construction drills word order, not typography. The answer area is a template: punctuation (`. , ? ! …`) is rendered by the engine in fixed positions and never enters the tile pool; word positions show empty slots the learner fills left-to-right. A mark and the word before it render as one unwrappable group, so a line break cannot orphan a mark. Punctuation is derived from `BuildItem.words` at render time, never stored separately — the mastery key is `words.join("|")`, so rewriting the data would drop learner progress. Tapping a placed word returns it to the pool and shifts later words one slot left.
+- **Acceptance:**
+  - [x] `PUNCT` set + `joinTokens` / `buildTemplate` as the single source of truth. Evidence: `src/utils/punct.ts:9,14,36`
+  - [x] Pool is built from `target` (punctuation-free); template derived per item. Evidence: `src/components/engines/BuildEngine.tsx:36,51`
+  - [x] Word + following mark render as one non-wrapping group. Evidence: `src/components/engines/BuildEngine.tsx:40-48,101-119`
+  - [x] Marks at `text-gray-600` (7.56:1), inert; empty slots `aria-hidden`. Evidence: `src/components/engines/BuildEngine.tsx:106,115`
+  - [x] Correction line composed with `joinTokens` — no space before a mark. Evidence: `src/components/engines/BuildEngine.tsx:121`
+  - [x] Invariant asserted over all 427 `words[]` arrays in `src/data`: no punctuation reaches the pool, every template round-trips. Evidence: `node scripts/check-build-punct.mjs`
+  - [x] `src/data/*.ts` unchanged, so mastery keys survive. Evidence: `git diff --stat -- 'src/data/*.ts'` is empty
+- **Status:** [x]
+
 ### 3.13 FR-SCHED
 - **Desc:** Session item selection uses an SRS-like scheduler (`pickDueItems`) over the mastery store. Items are scored by `(overdue + weakBonus_if_level<7)` where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. The top-K (K = 2n) are shuffled and sliced to n to avoid monotone order. When mastery is empty or all scores are zero → fallback to `shuffle(items).slice(0, n)`. The scheduler is applied by `sliceData` when mastery is provided; Round sessions also use it.
 - **Acceptance:**
