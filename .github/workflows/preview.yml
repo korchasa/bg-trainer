@@ -49,7 +49,11 @@ jobs:
         with:
           script: |
             const branchDir = '${{ steps.branch.outputs.dir }}';
-            const url = `https://bgtrainer.korchasa.dev/preview/${branchDir}/`;
+            // Previews live on the app's own GitHub Pages domain. The apex
+            // bgtrainer.korchasa.dev is the marketing site on Cloudflare Pages,
+            // which answers 200 with its landing page for any path — so a wrong
+            // host here posts a link that looks live but shows the wrong site.
+            const url = `https://app.bgtrainer.korchasa.dev/preview/${branchDir}/`;
             const body = `### Preview deployed\n\n🔗 ${url}`;
 
             const prs = await github.rest.pulls.list({
