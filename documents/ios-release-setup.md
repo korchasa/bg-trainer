@@ -57,7 +57,7 @@ Before configuring any URL field in App Store Connect (Privacy Policy, Marketing
 curl -sI https://bgtrainer.korchasa.dev/privacy.html | head -1
 ```
 
-ASC validates URLs with a HEAD request on blur and silently keeps the dialog's Save button disabled on 404. After pushing a CNAME or new file to gh-pages, give the deploy 1–2 minutes (or `gh run watch <id>`), then loop curl until 200 before opening the dialog. Configuring the URL before the asset is live wastes a round-trip and creates an ambiguous diagnostic ("Save disabled because URL invalid" vs "Save disabled for another reason").
+ASC validates URLs with a HEAD request on blur and silently keeps the dialog's Save button disabled on 404. Merging to `main` no longer publishes: a CNAME or new file reaches gh-pages only via a `web-v*` tag push or a manual run of `deploy.yml`, so trigger one first. Then give the deploy 1–2 minutes (or `gh run watch <id>`) and loop curl until 200 before opening the dialog. Configuring the URL before the asset is live wastes a round-trip and creates an ambiguous diagnostic ("Save disabled because URL invalid" vs "Save disabled for another reason").
 
 ## Store listing & metadata (API vs web)
 

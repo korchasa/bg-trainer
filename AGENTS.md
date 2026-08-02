@@ -110,7 +110,7 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
 - **Deployment:**
-  - Push to `main` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`
+  - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. `v*` is the iOS namespace (`ios-release.yml`) and must not be used for web releases; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
   - Branch delete → cleanup via `cleanup-preview.yml`
 - **Repo split:** this repo publishes only the web app. The landing page and the privacy/terms pages moved to app-store-factory and are served by Cloudflare Pages at `bgtrainer.korchasa.dev`; policy URLs are `/privacy` and `/terms` (the `.html` forms 308-redirect). `public/` ships inside the app build and holds the CNAME.

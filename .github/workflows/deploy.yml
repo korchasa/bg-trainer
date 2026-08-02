@@ -2,8 +2,10 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      # Web releases have their own tag namespace. `v*` belongs to ios-release.yml
+      # and must not publish the web app.
+      - "web-v*"
   workflow_dispatch:
 
 permissions:
