@@ -367,13 +367,13 @@
 - **Status:** [ ]
 
 ### 3.29 FR-ANDROID-CICD
-- **Desc:** Automated Android build + Play Store delivery on release tags.
+- **Desc:** Android release delivery. The app is meant to ship on Google Play, but this repo carries no store-release pipeline and holds no signing material for one — the same arrangement as iOS (FR-IOS-CICD): the repo builds an unsigned artifact, signing and upload happen outside it.
 - **Acceptance:**
-  - [ ] GitHub Actions workflow `android-release.yml` triggered on tag `v*`.
-  - [ ] `./gradlew bundleRelease` produces signed `.aab`.
-  - [ ] Signing keystore stored as base64 GitHub secret + passwords in secrets.
-  - [ ] `versionCode` auto-bumped from CI run number; `versionName` from git tag.
-  - [ ] Upload via `gradle-play-publisher` (default track: Internal Testing).
+  - [ ] `./gradlew bundleRelease` runs from a checkout of this repo and produces an unsigned `.aab`.
+  - [ ] No keystore, keystore password or Play publishing credential is stored in this repo or in its CI secrets.
+  - [ ] No workflow here builds, signs or uploads an Android release; `web-v*` stays the only tag pattern any workflow reacts to.
+  - [ ] `versionCode` stays a monotonic int assigned by the release build outside this repo, never derived from a git tag here (tags can be re-cut); `versionName` likewise.
+  - [ ] Signing and upload to Google Play (default track: Internal Testing) are performed outside this repo.
 - **Status:** [ ]
 
 ### 3.30 FR-SYNC-PAID — REMOVED
