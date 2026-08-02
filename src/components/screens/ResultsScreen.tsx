@@ -17,7 +17,7 @@ export function ResultsScreen({ score, time, errors, onRestart, onMenu }: Props)
       <div className="text-7xl">{emoji}</div>
       <h1 className="text-3xl font-black text-gray-900 tracking-tight">{t("done")}</h1>
       <div className="text-6xl font-black" style={{ color: ACCENT }}>{score}</div>
-      <div className="flex gap-6 text-gray-500 text-sm font-semibold">
+      <div className="flex gap-6 text-gray-700 text-base font-semibold">
         <span>⏱ {seconds}с</span>
         <span>❌ {errors}</span>
         <span>🎯 {accuracy}%</span>

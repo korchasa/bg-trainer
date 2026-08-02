@@ -295,7 +295,7 @@
   - [x] Dark mode opt-out via `UIUserInterfaceStyle: Light` in Info.plist. Evidence: `ios/App/App/Info.plist:58-59`
   - [x] iPad dropped via `TARGETED_DEVICE_FAMILY = "1"` (iPhone-only). Evidence: `ios/App/App.xcodeproj/project.pbxproj:320,341`
   - [x] VoiceOver labels on answer tiles, progress, navigation buttons via localized `useI18n` keys (`a11yBack`, `a11yAnswerCorrect/Wrong`, `a11yProgress`). Evidence: `src/components/ui/BackButton.tsx:9`, `src/components/ui/AnswerBtn.tsx:24-31`, `src/components/ui/Progress.tsx:14-21`, `src/i18n/strings.ts:71-73,123-125,152,162` (manual rotor walkthrough on device pending — `manual — korchasa`)
-  - [x] Dynamic Type: rem-based scaling — replaced all `text-[Npx]` with `text-[Nrem]` (9px→0.5625rem, 10px→0.625rem, 11px→0.6875rem); body inherits root font-size from system. Evidence: `! grep -rn 'text-\\[[0-9]*px\\]' src/` returns nothing; `src/components/screens/AnalyticsScreen.tsx`, `LessonScreen.tsx`, `LessonsScreen.tsx`
+  - [x] Dynamic Type: see FR-A11Y-TEXT. rem units alone do not follow the iOS text-size setting — a WKWebView only reflects it through the `-apple-system-body` shorthand, which is now measured explicitly. Evidence: `src/utils/textScale.ts:22-24,38-47`
   - [ ] Crash reporting (Sentry or Firebase Crashlytics) for production builds — pending `VITE_SENTRY_DSN`.
 - **Status:** [ ]
 
@@ -370,12 +370,50 @@
 ### 3.30 FR-SYNC-PAID — REMOVED
 - **Status:** [x] Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the paid-app model. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
 
+### 3.31 FR-A11Y-TEXT
+- **Desc:** Legible type for low-vision users. Type ramp floored at 13px; instruction and error-rule text ≥15px; user-selectable text size with 4 steps, the default following iOS Dynamic Type; pinch-zoom available. Sentence-final periods stripped at render (`?`, `!`, `…` preserved).
+- **Scenario:** User with reduced vision raises the iOS system text size → app follows on next foreground. Or picks "Крупный"/"Очень крупный" in-app → whole UI scales, choice persists across launches.
+- **Acceptance:**
+  - [x] Type ramp rescaled: `xs` 13px (was 12), `sm` 15px (14), `base` 17px (16), top `7xl` 60px (72) — one screen now spans 4.6x, not 8x. Evidence: `tailwind.config.js:13-25`
+  - [x] No text below 13px anywhere. Evidence: `! grep -rn 'text-\[0\.[0-7][0-9]*rem\]\|text-\[1[0-2]px\]' src --include='*.tsx'` returns nothing
+  - [x] Root font-size = `calc(16px * var(--fs-scale))`; all Tailwind sizes rem-based, so one variable scales the UI. Evidence: `src/index.css:6-13`, `tailwind.config.js:13-25`
+  - [x] Text size setting with 4 steps (`system` default, `normal`, `large` 1.15x, `xlarge` 1.3x); persisted. Evidence: `src/utils/textScale.ts:15-31,57-67`, `src/components/ui/TextSizeControl.tsx`, `src/utils/storage.ts:16-22`
+  - [x] `system` reads iOS Dynamic Type by measuring a probe styled `font: -apple-system-body` against the 17px "Large" baseline, clamped to [1, 1.4] so fixed-height controls survive accessibility sizes. Evidence: `src/utils/textScale.ts:22-24,38-47`
+  - [x] Scale re-measured on app foreground while in `system` mode. Evidence: `src/App.tsx:60-69`
+  - [x] Scale applied before first paint (no flash at wrong size). Evidence: `src/main.tsx:13-15`
+  - [x] Task prompt 17px at 10.31:1 (was 12px at 4.83:1); error rule 15–17px at 10.31:1 (was 12–14px). Evidence: `src/components/ui/TaskPrompt.tsx:10`, `src/components/ui/Correction.tsx:13`, `src/components/ui/ErrorDialog.tsx:33`
+  - [x] Pinch-zoom re-enabled — WKWebView honours `user-scalable=no` (Safari ignores it), so the old value left no zoom path. Evidence: `index.html:7`
+  - [x] Answer buttons carry `px-4 py-3 min-h-[3.5rem]` + `break-words` in the shared component, not at call sites. Evidence: `src/components/ui/AnswerBtn.tsx:39`
+  - [x] Sentence-final period stripped at render only; `itemKey()` still derives mastery keys from raw `q`, so stored progress is untouched. Evidence: `src/utils/displayText.ts:11-17`, `src/utils/itemKey.ts:6`
+  - [x] Stripping happens at call sites with known semantics, never inside shared `Correction`/`ErrorDialog` — those receive composed strings where a trailing period may belong to an abbreviation (24 hints such as `ж.р.`, `няма да + гл.`). Evidence: `src/components/ui/Correction.tsx:5-7`, `src/components/ui/ErrorDialog.tsx:17-19`, `src/components/engines/PickOptEngine.tsx:55`
+  - [x] TypeEngine never strips its answer — there the string is the exact typing target compared by `normalize()`. Evidence: `src/components/engines/TypeEngine.tsx:84`, `src/components/engines/TypeEngine.tsx:50`
+- **Status:** [x]
+
+### 3.32 FR-A11Y-CONTRAST
+- **Desc:** Meaningful text meets WCAG AA (4.5:1 on white). `gray-400` (2.54:1) and `gray-300` (1.47:1) are no longer used for text.
+- **Acceptance:**
+  - [x] Hints, translations, counters and section headers moved to `gray-500` (4.83:1), `gray-600` (7.56:1) or `gray-700` (10.31:1). Evidence: `! grep -rn 'text-gray-300\|text-gray-400' src --include='*.tsx'` returns nothing
+  - [x] Dimmed answer options after answering use `gray-500` on `gray-50`, not `gray-300` on white. Evidence: `src/components/ui/AnswerBtn.tsx:23`, `src/components/engines/NegEngine.tsx:69`
+  - [x] Recharts axis ticks 13px at `#6b7280` (was 10px at `#9ca3af`). Evidence: `src/components/screens/AnalyticsScreen.tsx:152-153`
+- **Status:** [x]
+
+### 3.33 FR-RESPONSIVE-LAYOUT
+- **Desc:** Layout keys off window width and content length, never device class. App stays iPhone-only (FR-IOS-POLISH), but must survive 320pt windows and long Bulgarian words.
+- **Acceptance:**
+  - [x] Answer columns derived from the longest option: ≤5 chars → 3 columns, ≤11 → 2, else 1. Single shared component used by every choice engine. Evidence: `src/components/ui/AnswerGrid.tsx:10-24`, `src/components/engines/PickEngine.tsx:69`, `PickOptEngine.tsx:58`, `PickFromEngine.tsx:64`, `TimedEngine.tsx:92`, `OddOneOutEngine.tsx:51`
+  - [x] Game tiles converted from 3-column squares (87pt of label width) to full-width rows. Evidence: `src/components/screens/LessonScreen.tsx:65-94`
+  - [x] Pace selector is one line per segment; question count moved to its own row. Evidence: `src/components/screens/LessonScreen.tsx:35-54`
+  - [x] Lesson titles wrap instead of truncating. Evidence: `src/components/screens/LessonsScreen.tsx:83`
+  - [x] `xs: 380px` breakpoint drops a padding step on narrow windows. Evidence: `tailwind.config.js:29-31`
+  - [x] Verified at 320 / 390pt widths, at normal and 1.3x text scale, with no horizontal overflow (`manual — korchasa`, browser check 2026-08-02).
+- **Status:** [x]
+
 ## 4. Non-Functional
 - **Perf:** Initial bundle small enough for mobile networks (Vite tree-shake + code-split). Interaction latency < 50ms on mid-range mobile.
 - **Reliability:** `localStorage` failures (quota, disabled) must not crash the app — silent no-op. Evidence: `src/utils/history.ts:17, 23`.
 - **Sec:** No PII, no external API, no user auth. Static assets only.
 - **Scale:** Single user per browser. Max 200 session records.
-- **UX:** Mobile-first, accent `#E60023`, dark `#111111`, centered `md` container.
+- **UX:** Mobile-first, accent `#E60023`, dark `#111111`, centered `md` container. Text ≥13px, meaningful text ≥4.5:1 contrast, user-scalable to 1.3x in-app and 5x by pinch (FR-A11Y-TEXT, FR-A11Y-CONTRAST).
 
 ## 5. Interfaces
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.

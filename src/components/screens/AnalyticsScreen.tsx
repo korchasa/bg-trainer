@@ -47,7 +47,7 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
   if (!history.length) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
-        <p className="text-gray-400 text-lg font-semibold">{t("noData")}</p>
+        <p className="text-gray-600 text-lg font-semibold">{t("noData")}</p>
         <button
           onClick={onBack}
           className="px-8 py-4 bg-[#F2F2F2] text-gray-900 font-bold rounded-full transition-all active:bg-[#E0E0E0]"
@@ -117,28 +117,28 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
                     {l.num}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-black text-gray-900">{f("lessonNum", l.num)}</div>
-                    <div className="text-[0.6875rem] font-semibold text-gray-400 truncate">{l.title}</div>
+                    <div className="text-base font-black text-gray-900">{f("lessonNum", l.num)}</div>
+                    <div className="text-sm font-semibold text-gray-600 leading-snug">{l.title}</div>
                   </div>
                   <div className="flex gap-3 shrink-0">
                     <div className="flex flex-col items-center">
-                      <span className="text-sm font-black text-gray-900">{l.count}</span>
-                      <span className="text-[0.5625rem] font-bold text-gray-400 uppercase">{t("shortGames")}</span>
+                      <span className="text-base font-black text-gray-900">{l.count}</span>
+                      <span className="text-xs font-bold text-gray-500 uppercase">{t("shortGames")}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <span className="text-sm font-black text-gray-900">{l.avg}</span>
-                      <span className="text-[0.5625rem] font-bold text-gray-400 uppercase">{t("shortAvg")}</span>
+                      <span className="text-base font-black text-gray-900">{l.avg}</span>
+                      <span className="text-xs font-bold text-gray-500 uppercase">{t("shortAvg")}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <span className="text-sm font-black" style={{ color: ACCENT }}>{l.acc}%</span>
-                      <span className="text-[0.5625rem] font-bold text-gray-400 uppercase">{t("shortAcc")}</span>
+                      <span className="text-base font-black" style={{ color: ACCENT }}>{l.acc}%</span>
+                      <span className="text-xs font-bold text-gray-500 uppercase">{t("shortAcc")}</span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
             {unassigned > 0 && (
-              <div className="text-[0.625rem] font-bold text-gray-400 mt-3 text-center">
+              <div className="text-xs font-bold text-gray-500 mt-3 text-center">
                 {f("unassignedCount", unassigned)}
               </div>
             )}
@@ -147,12 +147,12 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
 
         <div className="border border-gray-100 rounded-[28px] p-6 bg-white shadow-sm">
           <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("last20")}</h3>
-          <ResponsiveContainer width="100%" height={130}>
+          <ResponsiveContainer width="100%" height={150}>
             <LineChart data={last20}>
-              <XAxis dataKey="n" tick={{ fill: "#9ca3af", fontSize: 10 }} />
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 10 }} />
+              <XAxis dataKey="n" tick={{ fill: "#6b7280", fontSize: 13 }} />
+              <YAxis tick={{ fill: "#6b7280", fontSize: 13 }} />
               <Tooltip
-                contentStyle={{ background: "#ffffff", border: "1px solid #f0f0f0", borderRadius: 12, fontSize: 12 }}
+                contentStyle={{ background: "#ffffff", border: "1px solid #f0f0f0", borderRadius: 12, fontSize: 15 }}
                 itemStyle={{ color: "#111111" }}
               />
               <Line type="monotone" dataKey="score" stroke="#111111" strokeWidth={2} dot={{ r: 3, fill: "#111111" }} name={t("scoreSeries")} />
@@ -184,19 +184,19 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
           <h3 className="text-xs font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("history")}</h3>
           <div className="flex flex-col gap-0">
             {history.slice(-15).reverse().map((h, i) => (
-              <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-                <span className="text-xs font-bold text-gray-400">
+              <div key={i} className="flex items-center justify-between gap-2 py-3 border-b border-gray-100 last:border-0">
+                <span className="text-xs font-bold text-gray-500 shrink-0">
                   {new Date(h.ts).toLocaleDateString(t("dateLocale"), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                 </span>
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-full bg-gray-100">
-                    <span className="text-xs">{modeIcon(h.mode)}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="p-1.5 rounded-full bg-gray-100 shrink-0">
+                    <span className="text-sm">{modeIcon(h.mode)}</span>
                   </div>
-                  <span className="text-xs font-bold text-gray-800 max-w-[100px] truncate">
+                  <span className="text-sm font-bold text-gray-800 truncate">
                     {modeName(h.mode)}
                   </span>
                 </div>
-                <span className="text-sm font-black" style={{ color: ACCENT }}>+{h.score}</span>
+                <span className="text-base font-black shrink-0" style={{ color: ACCENT }}>+{h.score}</span>
               </div>
             ))}
           </div>

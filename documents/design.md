@@ -85,11 +85,14 @@
 - **Deps:** `recharts`, `utils/history.ts`, `constants.CHART_COLORS`.
 
 ### 3.7 UI atoms
-- `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`, `ConfirmBar` — small presentational components with Tailwind classes. `ConfirmBar` = bottom-anchored inline confirm panel (two buttons) used for round-abort.
+- `AnswerBtn`, `AnswerGrid`, `Progress`, `Reaction`, `Correction`, `TaskPrompt`, `ErrorDialog`, `TextSizeControl`, `NavHeader`, `BackButton`, `ConfirmBar` — small presentational components with Tailwind classes. `ConfirmBar` = bottom-anchored inline confirm panel (two buttons) used for round-abort.
+- **AnswerBtn** owns padding, min height and wrapping (`px-4 py-3 min-h-[3.5rem] break-words`). Call sites pass only font size — the earlier split, where four of five engines passed height alone, is what made text touch the borders (FR-A11Y-TEXT).
+- **AnswerGrid** picks the column count from the longest option (≤5 chars → 3, ≤11 → 2, else 1). Every choice engine routes its options through it, so the rule lives in one place (FR-RESPONSIVE-LAYOUT).
+- **TextSizeControl** = collapsed "Aa" button expanding to 4 options; sits next to the language switch on `LessonsScreen`.
 
 ### 3.8 LessonsScreen / LessonScreen
-- **LessonsScreen:** root screen. Two sections: "Доступно" (available lessons, tappable) and "В разработке" (upcoming, disabled). Taps emit `onPickLesson(id)`. Renders per-lesson mastery progress bar + `K/M · X%`.
-- **LessonScreen:** lesson details. Primary button "Раунд" + grid of the lesson's modes. Taps emit `onPickGame(modeId)` / `onStartRound()`. Renders per-mode mastery mini bars.
+- **LessonsScreen:** root screen. Two sections: "Доступно" (available lessons, tappable) and "В разработке" (upcoming, disabled). Taps emit `onPickLesson(id)`. Renders per-lesson mastery progress bar + `K/M · X%`. Titles wrap (no truncation). Hosts the language and text-size controls.
+- **LessonScreen:** lesson details. Primary button "Раунд" + the lesson's modes as full-width rows (icon, title, progress bar, `K/M · X%`). Pace = 3 single-line segments with the question count on its own row below. Taps emit `onPickGame(modeId)` / `onStartRound()`.
 - **Deps:** `data/lessons.ts`, `data/index.ts` (`ALL_MODES`), `utils/mastery.ts`.
 
 ### 3.9 utils/mastery.ts
@@ -101,6 +104,20 @@
 ### 3.10 utils/itemKey.ts
 - **Purpose:** Stable natural key for any engine item + mode item-count resolution. `itemKey(item)` → `q` / `translation`. `itemCount(mode)` handles 3 data shapes.
 - **Deps:** `types.ts`.
+
+### 3.16 utils/textScale.ts
+- **Purpose:** One multiplier (`--fs-scale` on `:root`) drives the whole type ramp, since every Tailwind size is rem-based and the root is `calc(16px * var(--fs-scale))`.
+- **Interfaces:** `TextScale = "system" | "normal" | "large" | "xlarge"`; `measureSystemScale()`, `resolveScale()`, `applyTextScale()`, `loadTextScale()`, `saveTextScale()`.
+- **Dynamic Type:** `measureSystemScale()` appends a hidden probe styled `font: -apple-system-body`, reads its computed size and divides by the 17px "Large" baseline. That shorthand is the only channel through which a WKWebView exposes the iOS text-size setting; rem units alone do not follow it. Non-WebKit engines return 1, so the web build keeps its designed size.
+- **Cap:** clamped to [1, 1.4]. At accessibility sizes the shorthand reaches ~53px (3.1x), which would break fixed-height controls and force horizontal scrolling.
+- **Lifecycle:** applied in `main.tsx` before first paint; `App.tsx` re-measures on `visibilitychange` while in `system` mode. Persisted under `bg-trainer-textscale-v1` (registered in `storage.ts` `TRACKED_KEYS`).
+- **Deps:** `utils/storage.ts`.
+
+### 3.17 utils/displayText.ts
+- **Purpose:** `stripFinalPeriod()` — render-time punctuation trim. A sentence-final period carries no information in a drill and is pure noise on a 60px stimulus or a "Да." button; `?`, `!` and `…` stay, since several modes ask the learner to tell a question from a statement.
+- **Constraint:** render-time only. `itemKey()` derives mastery keys from the raw `q`, so editing the data would orphan every stored progress record. `NegEngine` also strips before permuting words, otherwise the dot lands mid-sentence.
+- **Call-site rule:** applied where the caller knows the string is a stimulus or a choice option — never inside `Correction`/`ErrorDialog`, which receive composed text. `PickOptEngine` joins answer and hint, and 24 hints end in an abbreviation period (`ж.р.`, `мн.ч.`, `няма да + гл.`) that a blanket strip would eat. `TypeEngine` is excluded entirely: there the answer is the exact target compared against the learner's input by `normalize()`.
+- **Note:** the `…` guard is a manual two-char check, not a regex lookbehind — Safari only supports lookbehind from 16.4 and the deployment target is iOS 15.
 
 ### 3.11 iOS shell (Capacitor 8)
 - **Purpose:** Wrap the React SPA in a native iOS app (WKWebView at `capacitor://localhost`). Same JS bundle as web, relative asset base `./`.
@@ -205,7 +222,9 @@
   - No test suite (not configured).
   - No linter (ESLint not installed).
   - i18n covers only `ru` and `uk`. Bulgarian content shared. `DATA_GENDER` answers/options remain Russian (`мужской`/`женский`/`средний`) for v1 — Ukrainian users see Russian gender labels there.
-  - No accessibility audit formalized.
+  - Accessibility covered for type size and contrast (FR-A11Y-TEXT, FR-A11Y-CONTRAST); no formal audit, no VoiceOver rotor walkthrough on device.
+  - Text scale capped at 1.4x. Beyond that the fixed-height controls (`min-h-[3.5rem]`, `h-14`, `w-12 h-12`) would need a reflow pass.
+  - Column count uses character length, not measured text width — a proxy that holds for Cyrillic at the current ramp but would drift if the font or ramp changed.
   - iOS deployment target 15.0+, portrait+landscape allowed (to be locked portrait for App Store — FR-IOS-APPSTORE).
   - Web is fully free — no paywall, no IAP, no tier enforcement. Strategic choice: mobile premium positioning vs free web reach.
   - No cross-platform iOS↔Android sync — would require backend, ruled "complication" by product.

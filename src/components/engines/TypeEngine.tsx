@@ -9,6 +9,7 @@ import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { stripFinalPeriod } from "../../utils/displayText";
 
 // FR-TYPE: keyboard-input engine.
 // Whitelist normalization ONLY: trim, lowercase, collapse internal whitespace.
@@ -52,16 +53,16 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const revealHint = () => { setShowHint(true); hintedRef.current = true; };
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
         <TaskPrompt text={prompt} />
-        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter">{Lq(item.q)}</h1>
-        {item.label && <div className="text-sm font-semibold text-gray-400 mb-1">{L(item.label)}</div>}
+        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{stripFinalPeriod(Lq(item.q))}</h1>
+        {item.label && <div className="text-sm font-semibold text-gray-600 mb-1">{L(item.label)}</div>}
         {showHint || sel !== null
-          ? <p className="text-base font-medium text-gray-400 mb-4">({L(item.hint)})</p>
+          ? <p className="text-base font-medium text-gray-600 mb-4 text-center">({L(item.hint)})</p>
           : (
-            <button onClick={revealHint} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors mb-4">
+            <button onClick={revealHint} className="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors mb-4 py-2 px-3">
               {t("hintBtn")}
             </button>
           )}

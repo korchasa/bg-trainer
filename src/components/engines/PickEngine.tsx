@@ -7,8 +7,10 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
+import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { stripFinalPeriod } from "../../utils/displayText";
 
 interface Props {
   data: () => DataItem[];
@@ -41,40 +43,40 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
   const revealHint = () => { setShowHint(true); hintedRef.current = true; };
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
       <div className="flex-1 flex flex-col items-center justify-center mb-8">
         <TaskPrompt text={prompt} />
-        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center">{Lq(item.q)}</h1>
+        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{stripFinalPeriod(Lq(item.q))}</h1>
         {showHint || sel !== null
-          ? <p className="text-lg font-semibold text-gray-400">({L(item.hint)})</p>
+          ? <p className="text-lg font-semibold text-gray-600 text-center">({L(item.hint)})</p>
           : (
-            <button onClick={revealHint} className="mt-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">
+            <button onClick={revealHint} className="mt-2 text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors py-2 px-3">
               {t("hintBtn")}
             </button>
           )}
         {sel !== null && (
           <div className="text-center mt-6">
-            <div className="text-3xl font-black text-gray-900">{shownAnswer}</div>
-            <div className="text-base text-gray-400 mt-1">{shownHint}</div>
+            <div className="text-3xl font-black text-gray-900 break-words">{stripFinalPeriod(shownAnswer)}</div>
+            <div className="text-base text-gray-600 mt-1">{shownHint}</div>
             {item.rule && sel !== item.answer && (
-              <div className="text-xs text-gray-500 mt-3 max-w-xs mx-auto">{L(item.rule)}</div>
+              <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">{L(item.rule)}</div>
             )}
           </div>
         )}
       </div>
       <Reaction text={reaction} />
-      <div className="w-full grid grid-cols-3 gap-3 mb-4">
+      <AnswerGrid options={options.map(o => o.answer)}>
         {options.map((o, j) =>
           <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={shownAnswer}
-            onClick={() => answer(o.answer, item.answer, { hinted: hintedRef.current })} className="h-16 text-lg" />
+            onClick={() => answer(o.answer, item.answer, { hinted: hintedRef.current })} className="text-lg" />
         )}
-      </div>
+      </AnswerGrid>
       {errorPending && (
         <ErrorDialog
           title={t("errorTitle")}
           correctLabel={t("correctAnswer")}
-          correct={item.answer}
+          correct={stripFinalPeriod(item.answer)}
           hint={L(item.hint)}
           rule={item.rule ? L(item.rule) : undefined}
           continueLabel={t("continue")}

@@ -11,7 +11,7 @@ export function Progress({ cur, total, score, accent = false }: {
   return (
     <>
       <div
-        className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3"
+        className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={total}

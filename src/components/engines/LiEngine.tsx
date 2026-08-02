@@ -54,8 +54,8 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
 
   const q = qs[cur];
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
-      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+      <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
         <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-10">
@@ -63,14 +63,14 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-6">
         <TaskPrompt text={prompt} />
-        <p className="text-sm font-semibold text-gray-400 mb-2">
+        <p className="text-base font-semibold text-gray-600 mb-2 text-center leading-snug">
           {L(q.translation).split(/(\*[^*]+\*)/g).map((part, i) =>
             part.startsWith("*") && part.endsWith("*")
-              ? <span key={i} className="underline decoration-2 underline-offset-2 text-gray-700">{part.slice(1, -1)}</span>
+              ? <span key={i} className="underline decoration-2 underline-offset-2 text-gray-900">{part.slice(1, -1)}</span>
               : <span key={i}>{part}</span>
           )}
         </p>
-        <p className="text-sm font-medium text-gray-500 mb-6">
+        <p className="text-base font-medium text-gray-700 mb-6 text-center">
           {t("tapPositionFor")} <span className="font-bold text-gray-900">ли</span>
         </p>
         <div className="flex flex-wrap items-center gap-2 justify-center w-full">
@@ -83,12 +83,12 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
                   ${sel === i && i === q.liPosition ? "bg-emerald-500 text-white border-emerald-500" : ""}
                   ${sel === i && i !== q.liPosition ? `bg-[${ACCENT}] text-white border-[${ACCENT}]` : ""}
                   ${sel !== null && sel !== i && i === q.liPosition ? "bg-emerald-500 text-white border-emerald-500 animate-pulse" : ""}
-                  ${sel !== null && sel !== i && i !== q.liPosition ? "border-gray-200 text-gray-300" : ""}`}>
+                  ${sel !== null && sel !== i && i !== q.liPosition ? "border-gray-300 text-gray-500" : ""}`}>
                 ли
               </button>
             </div>
           )}
-          <span className="text-gray-400 font-bold text-xl ml-1">?</span>
+          <span className="text-gray-600 font-bold text-xl ml-1">?</span>
         </div>
         <div className="mt-4">
           <Correction show={sel !== null} text={q.result} />

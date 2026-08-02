@@ -80,30 +80,30 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
-      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+      <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
         <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-6">
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <TaskPrompt text={prompt} />
-      <h1 className="text-4xl font-black text-gray-900 mb-1 tracking-tight">{item.verb}</h1>
-      <p className="text-sm font-medium text-gray-400 mb-4">({L(item.hint)})</p>
+      <h1 className="text-4xl font-black text-gray-900 mb-1 tracking-tight break-words max-w-full text-center">{item.verb}</h1>
+      <p className="text-base font-medium text-gray-600 mb-4 text-center">({L(item.hint)})</p>
       <div className="w-full flex flex-col gap-2 mb-5">
         {item.pronouns.map((p, i) => {
           const val = slots[i];
           const ok = checked?.[i];
           const cls = checked
             ? (ok ? "bg-emerald-500 text-white border-emerald-500" : "bg-[#E60023] text-white border-[#E60023]")
-            : (val ? "bg-[#111111] text-white border-[#111111] cursor-pointer" : "bg-gray-50 border-gray-200 text-gray-400");
+            : (val ? "bg-[#111111] text-white border-[#111111] cursor-pointer" : "bg-gray-50 border-gray-300 text-gray-500");
           return (
             <div key={p} className="flex items-center gap-3">
-              <span className="w-24 text-right text-sm font-semibold text-gray-500 shrink-0">{p}</span>
+              <span className="w-20 xs:w-24 text-right text-sm font-semibold text-gray-600 shrink-0">{p}</span>
               <button onClick={() => val && unsetSlot(i)}
-                className={`flex-1 px-4 py-3 border-2 rounded-[14px] font-bold text-base text-left transition-all ${cls}`}>
+                className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls}`}>
                 {val ?? "___"}
-                {checked && !ok && <span className="ml-2 text-white/80 text-xs font-semibold">→ {item.forms[i]}</span>}
+                {checked && !ok && <span className="ml-2 text-white/90 text-sm font-semibold">→ {item.forms[i]}</span>}
               </button>
             </div>
           );
@@ -111,10 +111,10 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
       </div>
       <Reaction text={reaction} />
       {checked && item.rule && checked.some(c => !c) && (
-        <div className="text-xs text-gray-500 mt-1 mb-2 max-w-xs mx-auto text-center">{L(item.rule)}</div>
+        <div className="text-sm text-gray-700 mt-1 mb-2 max-w-xs mx-auto text-center leading-snug">{L(item.rule)}</div>
       )}
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
-        {pool.length === 0 && !checked && <span className="text-gray-400 text-sm font-medium">{t("tapWordsBelow")}</span>}
+        {pool.length === 0 && !checked && <span className="text-gray-500 text-sm font-medium">{t("tapWordsBelow")}</span>}
         {pool.map((f, i) =>
           <button key={f + i} onClick={() => fillNext(f, i)}
             className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all">

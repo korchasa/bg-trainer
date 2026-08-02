@@ -73,8 +73,8 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
-      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+      <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
         <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-8">
@@ -82,16 +82,16 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
         <TaskPrompt text={prompt} />
-        <p className="text-sm font-semibold text-gray-400 mb-4">{L(qs[cur].translation)}</p>
+        <p className="text-base font-semibold text-gray-600 mb-4 text-center leading-snug">{L(qs[cur].translation)}</p>
         <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">
-          {placed.length === 0 && <span className="text-gray-400 text-sm font-medium">{t("tapWordsBelow")}</span>}
+          {placed.length === 0 && <span className="text-gray-500 text-sm font-medium">{t("tapWordsBelow")}</span>}
           {placed.map((word, i) =>
             <button key={word + i} onClick={() => removeWord(word, i)}
               className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${done ? (i < target.length && word === target[i] ? "bg-emerald-500 text-white" : "bg-[#E60023] text-white") : "bg-[#111111] text-white hover:bg-gray-800"}`}>
               {word}
             </button>
           )}
-          {placed.length > 0 && endsWithQuestion && <span className="text-gray-400 font-bold text-xl">?</span>}
+          {placed.length > 0 && endsWithQuestion && <span className="text-gray-600 font-bold text-xl">?</span>}
         </div>
         <Correction show={done && placed.join(" ") !== target.join(" ")} text={qs[cur].words.join(" ")} />
       </div>

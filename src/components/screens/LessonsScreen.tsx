@@ -4,6 +4,8 @@ import { ALL_MODES } from "../../data";
 import { lessonStats } from "../../utils/mastery";
 import { useI18n } from "../../i18n/context";
 import { LOCALES, Locale } from "../../i18n/types";
+import { TextSizeControl } from "../ui/TextSizeControl";
+import type { TextScale } from "../../utils/textScale";
 import type { HistoryEntry, MasteryStore, Mode } from "../../types";
 
 const MODE_BY_ID: Record<string, Mode> = Object.fromEntries(ALL_MODES.map(m => [m.id, m]));
@@ -12,19 +14,21 @@ const modeOf = (id: string) => MODE_BY_ID[id];
 interface Props {
   history: HistoryEntry[];
   mastery: MasteryStore;
+  textScale: TextScale;
+  onChangeTextScale: (s: TextScale) => void;
   onPickLesson: (lessonId: string) => void;
   onAnalytics: () => void;
 }
 
 const LOCALE_LABELS: Record<Locale, string> = { ru: "РУ", uk: "UK" };
 
-export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: Props) {
+export function LessonsScreen({ history, mastery, textScale, onChangeTextScale, onPickLesson, onAnalytics }: Props) {
   const { t, f, L, locale, setLocale } = useI18n();
   const available = LESSONS.filter(l => l.available);
   const upcoming = LESSONS.filter(l => !l.available);
   return (
-    <div className="flex flex-col px-4 pt-2 pb-6">
-      <div className="flex justify-end pt-2">
+    <div className="flex flex-col px-3 xs:px-4 pt-2 pb-6">
+      <div className="flex justify-end items-start gap-2 pt-2">
         <div role="group" aria-label={t("langSwitchAria")} className="inline-flex bg-[#F2F2F2] rounded-full p-0.5">
           {LOCALES.map(l => {
             const active = l === locale;
@@ -32,7 +36,7 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
               <button
                 key={l}
                 onClick={() => setLocale(l)}
-                className={`px-3 py-1 rounded-full text-[0.6875rem] font-bold transition-all ${active ? "text-white" : "text-gray-500"}`}
+                className={`px-3 py-1 min-h-[2rem] rounded-full text-sm font-bold transition-all ${active ? "text-white" : "text-gray-600"}`}
                 style={active ? { backgroundColor: ACCENT } : undefined}
               >
                 {LOCALE_LABELS[l]}
@@ -40,6 +44,7 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
             );
           })}
         </div>
+        <TextSizeControl value={textScale} onChange={onChangeTextScale} />
       </div>
 
       <div className="flex flex-col items-center justify-center mt-2 mb-6">
@@ -51,7 +56,7 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
         <h1 className="text-3xl font-black text-center text-gray-900 tracking-tight leading-tight">
           Български
         </h1>
-        <p className="text-sm font-semibold text-gray-400 mt-1">{t("appSubtitle")}</p>
+        <p className="text-base font-semibold text-gray-600 mt-1">{t("appSubtitle")}</p>
       </div>
 
       <div className="mb-4">
@@ -71,17 +76,18 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
                 </div>
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex items-center gap-2">
-                    <div className="text-sm font-black text-gray-900">{f("lessonNum", l.num)}</div>
-                    {s.mastered && <span className="text-xs font-bold" style={{ color: ACCENT }}>✓</span>}
+                    <div className="text-base font-black text-gray-900">{f("lessonNum", l.num)}</div>
+                    {s.mastered && <span className="text-base font-bold" style={{ color: ACCENT }}>✓</span>}
                   </div>
-                  <div className="text-xs font-semibold text-gray-500 leading-tight truncate">{L(l.title)}</div>
+                  {/* FR-A11Y-TEXT: no truncate — the title wraps instead of being cut off. */}
+                  <div className="text-sm font-semibold text-gray-600 leading-snug">{L(l.title)}</div>
                   <div className="mt-2 h-1.5 w-full bg-white rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: ACCENT }} />
                   </div>
                 </div>
                 <div className="flex flex-col items-end shrink-0">
-                  <span className="text-xs font-black text-gray-900">{pct}%</span>
-                  <span className="text-[0.625rem] font-bold text-gray-400">{s.atSeven}/{s.total}</span>
+                  <span className="text-sm font-black text-gray-900">{pct}%</span>
+                  <span className="text-xs font-bold text-gray-500">{s.atSeven}/{s.total}</span>
                 </div>
               </button>
             );
@@ -90,21 +96,21 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
       </div>
 
       <div className="mb-6">
-        <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{t("lessonsUpcoming")}</h3>
+        <h3 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">{t("lessonsUpcoming")}</h3>
         <div className="flex flex-col gap-2">
           {upcoming.map(l => (
             <div
               key={l.id}
-              className="w-full bg-[#FAFAFA] rounded-3xl p-4 flex items-center gap-3 opacity-60"
+              className="w-full bg-[#FAFAFA] rounded-3xl p-4 flex items-center gap-3"
             >
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-lg font-black text-gray-300 shrink-0">
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-lg font-black text-gray-500 shrink-0">
                 {l.num}
               </div>
-              <div className="flex-1 text-left">
-                <div className="text-sm font-bold text-gray-500">{f("lessonNum", l.num)}</div>
-                <div className="text-xs font-semibold text-gray-400 leading-tight">{L(l.title)}</div>
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-base font-bold text-gray-600">{f("lessonNum", l.num)}</div>
+                <div className="text-sm font-semibold text-gray-500 leading-snug">{L(l.title)}</div>
               </div>
-              <span className="text-xs font-bold text-gray-400 shrink-0">{t("comingSoon")}</span>
+              <span className="text-xs font-bold text-gray-500 shrink-0">{t("comingSoon")}</span>
             </div>
           ))}
         </div>
@@ -121,7 +127,7 @@ export function LessonsScreen({ history, mastery, onPickLesson, onAnalytics }: P
           <line x1="6" y1="20" x2="6" y2="14" />
         </svg>
         <span>{t("analytics")}</span>
-        {history.length > 0 && <span className="text-white/70 text-sm font-semibold">({history.length})</span>}
+        {history.length > 0 && <span className="text-white/90 text-base font-semibold">({history.length})</span>}
       </button>
     </div>
   );

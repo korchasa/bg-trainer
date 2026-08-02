@@ -102,8 +102,8 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
-      <div className="flex justify-between w-full text-xs font-bold text-gray-400 mb-3">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+      <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
         <span>{matched}/{pairs.length}</span><span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-6">
@@ -114,7 +114,7 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
         <div className="flex flex-col gap-2">
           {leftOrder.map(i =>
             <button key={`L${i}`} onClick={() => handleLeft(i)}
-              className={`px-3 py-3 border-2 rounded-[14px] font-bold text-base text-center transition-all ${cellCls(leftState[i], selLeft === i)}`}>
+              className={`px-3 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-center leading-tight break-words transition-all ${cellCls(leftState[i], selLeft === i)}`}>
               {pairs[i].left}
             </button>
           )}
@@ -122,7 +122,7 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
         <div className="flex flex-col gap-2">
           {rightOrder.map(i =>
             <button key={`R${i}`} onClick={() => handleRight(i)}
-              className={`px-3 py-3 border-2 rounded-[14px] font-bold text-base text-center transition-all ${cellCls(rightState[i], false)}`}>
+              className={`px-3 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-center leading-tight break-words transition-all ${cellCls(rightState[i], false)}`}>
               {pairs[i].right}
             </button>
           )}

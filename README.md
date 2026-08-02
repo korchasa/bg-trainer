@@ -13,7 +13,8 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 - **SRS-like item scheduling + error re-queue** — weak and due items surface first; wrong answers return later in the same session
 - **Analytics dashboard** — score history + per-lesson aggregated stats
 - **Persistent progress** — game history saved to browser local storage (up to 200 sessions)
-- **Mobile-first** responsive design
+- **Adjustable text size** — follows the iOS Dynamic Type setting by default, plus three manual steps; persisted per-device
+- **Mobile-first** responsive design; no text below 13px, meaningful text at WCAG AA contrast
 
 ## Game Modes
 

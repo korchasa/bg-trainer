@@ -4,6 +4,7 @@ import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
 import { loadMastery, saveMastery, clearMastery, applyAnswer } from "./utils/mastery";
 import { loadPace, savePace } from "./utils/pace";
+import { applyTextScale, loadTextScale, saveTextScale, DEFAULT_TEXT_SCALE, type TextScale } from "./utils/textScale";
 import { hapticRoundFinished } from "./utils/nativeUx";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
@@ -38,6 +39,7 @@ export default function App() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [mastery, setMastery] = useState<MasteryStore>({});
   const [pace, setPace] = useState<SessionPace>(DEFAULT_PACE);
+  const [textScale, setTextScale] = useState<TextScale>(DEFAULT_TEXT_SCALE);
   const [loading, setLoading] = useState(true);
   const [showRef, setShowRef] = useState(false);
   const [showAbortBar, setShowAbortBar] = useState(false);
@@ -50,12 +52,30 @@ export default function App() {
     setHistory(loadHistory());
     setMastery(loadMastery());
     setPace(loadPace());
+    setTextScale(loadTextScale());
     setLoading(false);
   }, []);
+
+  // FR-A11Y-TEXT: in "system" mode the scale mirrors iOS Dynamic Type, which the
+  // user can change while the app sits in the background — re-measure on return.
+  useEffect(() => {
+    if (textScale !== "system") return;
+    const remeasure = () => {
+      if (!document.hidden) applyTextScale("system");
+    };
+    document.addEventListener("visibilitychange", remeasure);
+    return () => document.removeEventListener("visibilitychange", remeasure);
+  }, [textScale]);
 
   const changePace = useCallback((p: SessionPace) => {
     setPace(p);
     savePace(p);
+  }, []);
+
+  const changeTextScale = useCallback((s: TextScale) => {
+    setTextScale(s);
+    saveTextScale(s);
+    applyTextScale(s);
   }, []);
 
   const onItemAnswer = useCallback((itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => {
@@ -194,7 +214,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="h-full bg-white flex items-center justify-center">
-        <div className="text-gray-400 font-semibold">{t("loading")}</div>
+        <div className="text-gray-600 font-semibold">{t("loading")}</div>
       </div>
     );
   }
@@ -231,6 +251,8 @@ export default function App() {
           <LessonsScreen
             history={history}
             mastery={mastery}
+            textScale={textScale}
+            onChangeTextScale={changeTextScale}
             onPickLesson={openLesson}
             onAnalytics={() => setScreen("analytics")}
           />
@@ -251,7 +273,7 @@ export default function App() {
               right={isVerb && !round ? (
                 <button
                   onClick={() => setShowRef(s => !s)}
-                  className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors"
+                  className="text-xl font-bold text-gray-600 hover:text-gray-900 transition-colors p-1"
                 >
                   📖
                 </button>
@@ -265,7 +287,7 @@ export default function App() {
                   <div className="grid grid-cols-3">
                     {verbData.map((form, i) => (
                       <div key={form.q} className={`px-3 py-2 text-center text-sm ${i % 3 !== 2 ? "border-r border-gray-100" : ""} ${i < verbData.length - 3 ? "border-b border-gray-100" : ""}`}>
-                        <span className="text-gray-400 font-semibold">{form.q} </span>
+                        <span className="text-gray-600 font-semibold">{form.q} </span>
                         <span className="text-gray-900 font-black">{form.answer}</span>
                       </div>
                     ))}
@@ -308,7 +330,7 @@ export default function App() {
         {screen === "analytics" && (
           <div className="flex-1 flex flex-col overflow-hidden">
             <NavHeader title={t("analytics")} onBack={() => setScreen("lessons")} />
-            <Suspense fallback={<div className="flex-1 flex items-center justify-center text-gray-400 font-semibold">{t("loading")}</div>}>
+            <Suspense fallback={<div className="flex-1 flex items-center justify-center text-gray-600 font-semibold">{t("loading")}</div>}>
               <AnalyticsScreen
                 history={history}
                 onBack={() => setScreen("lessons")}

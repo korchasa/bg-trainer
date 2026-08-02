@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* FR-A11Y-TEXT: every Tailwind size is rem-based, so this one multiplier scales
+   the whole interface. Set from src/utils/textScale.ts. */
+:root {
+  --fs-scale: 1;
+}
+
+html {
+  font-size: calc(16px * var(--fs-scale));
+}
+
 html, body, #root {
   overflow: hidden;
   height: 100%;

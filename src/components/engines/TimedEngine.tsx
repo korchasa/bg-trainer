@@ -8,9 +8,11 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
+import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { itemKey } from "../../utils/itemKey";
+import { stripFinalPeriod } from "../../utils/displayText";
 
 interface TimedItem extends DataItem {
   options: DataItem[];
@@ -68,36 +70,36 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
 
   const item = qs[cur];
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
         {gated
-          ? <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">{t("noTimerNewItem")}</div>
-          : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>
+          ? <div className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6 text-center">{t("noTimerNewItem")}</div>
+          : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-600" : "text-gray-600"}`}>
               ⏱ {timeLeft}с
             </div>}
         <TaskPrompt text={prompt} />
-        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight">{Lq(item.q)} ___</h1>
+        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">{stripFinalPeriod(Lq(item.q))} ___</h1>
         {showHint || sel !== null
-          ? <p className="text-base font-medium text-gray-400">({L(item.hint)})</p>
+          ? <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
           : (
-            <button onClick={revealHint} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">
+            <button onClick={revealHint} className="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors py-2 px-3">
               {t("hintBtn")}
             </button>
           )}
       </div>
       <Reaction text={reaction} />
-      <div className="w-full grid grid-cols-2 gap-3 mb-4">
+      <AnswerGrid options={item.options.map(o => o.answer)}>
         {item.options.map((o, j) =>
           <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={corr || item.answer}
-            onClick={() => go(o)} className="h-16 text-xl" />
+            onClick={() => go(o)} className="text-xl" />
         )}
-      </div>
+      </AnswerGrid>
       {errorPending && (
         <ErrorDialog
           title={t("errorTitle")}
           correctLabel={t("correctAnswer")}
-          correct={item.answer}
+          correct={stripFinalPeriod(item.answer)}
           hint={L(item.hint)}
           rule={item.rule ? L(item.rule) : undefined}
           continueLabel={t("continue")}

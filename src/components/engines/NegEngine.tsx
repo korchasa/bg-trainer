@@ -8,6 +8,7 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { stripFinalPeriod } from "../../utils/displayText";
 
 function makeNegDecoys(corr: string): string[] {
   const words = corr.split(" ");
@@ -37,18 +38,20 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } = useGame(qs, onComplete, reactions, 15, 1200, onItemAnswer);
 
   useEffect(() => {
-    const decoys = makeNegDecoys(qs[cur].answer).map(a => ({ ...qs[cur], answer: a }));
+    // Decoys are word-order permutations. Building them from the period-stripped
+    // answer keeps the dot from landing mid-sentence ("студент. Аз не съм").
+    const decoys = makeNegDecoys(stripFinalPeriod(qs[cur].answer)).map(a => ({ ...qs[cur], answer: a }));
     setOptions(shuffle([qs[cur], ...decoys]));
   }, [cur]);
 
   const item = qs[cur];
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
         <TaskPrompt text={prompt} />
-        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">{Lq(item.q)}</h1>
-        <p className="text-base font-medium text-gray-500">({L(item.hint)})</p>
+        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight break-words max-w-full">{stripFinalPeriod(Lq(item.q))}</h1>
+        <p className="text-base font-medium text-gray-600">({L(item.hint)})</p>
       </div>
       <Reaction text={reaction} />
       <div className="w-full flex flex-col gap-3 mb-4">
@@ -63,8 +66,8 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
               btnCls = `text-white border-[${ACCENT}] cursor-default`;
               circleStyle = "border-white bg-white/30";
             } else {
-              btnCls = "bg-white text-gray-300 border-[#E9E9E9] cursor-default";
-              circleStyle = "border-gray-100";
+              btnCls = "bg-gray-50 text-gray-500 border-[#E9E9E9] cursor-default";
+              circleStyle = "border-gray-200";
             }
           }
           return (
@@ -74,7 +77,7 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
               style={sel !== null && o.answer === sel && o.answer !== item.answer ? { backgroundColor: ACCENT } : undefined}
               className={`w-full p-5 text-left text-base font-semibold flex items-center gap-3 rounded-[20px] transition-all ${btnCls}`}
             >
-              <span className="flex-1">{o.answer}</span>
+              <span className="flex-1 break-words leading-snug">{stripFinalPeriod(o.answer)}</span>
               <div className={`w-5 h-5 rounded-full border-2 shrink-0 transition-all ${circleStyle}`} />
             </button>
           );
@@ -84,7 +87,7 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
         <ErrorDialog
           title={t("errorTitle")}
           correctLabel={t("correctAnswer")}
-          correct={item.answer}
+          correct={stripFinalPeriod(item.answer)}
           hint={L(item.hint)}
           rule={item.rule ? L(item.rule) : undefined}
           continueLabel={t("continue")}

@@ -18,6 +18,7 @@ const TRACKED_KEYS = [
   "bg-trainer-mastery-v1",
   "bg-trainer-pace-v1",
   "bg-trainer-lang-v1",
+  "bg-trainer-textscale-v1",
 ] as const;
 
 const nativeCache = new Map<string, string | null>();

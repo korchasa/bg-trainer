@@ -7,6 +7,7 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
+import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
 
@@ -37,22 +38,22 @@ export function OddOneOutEngine({ data, onComplete, onItemAnswer, prompt }: Prop
   const correct = item.odd;
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center overflow-y-auto no-scrollbar">
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
         <TaskPrompt text={prompt} />
-        <p className="text-base font-medium text-gray-500 mb-2">({L(item.hint)})</p>
+        <p className="text-base font-medium text-gray-600 mb-2">({L(item.hint)})</p>
         {sel !== null && item.rule && sel !== correct && (
-          <div className="text-xs text-gray-500 mt-3 max-w-xs mx-auto">{L(item.rule)}</div>
+          <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">{L(item.rule)}</div>
         )}
       </div>
       <Reaction text={reaction} />
-      <div className="w-full grid grid-cols-2 gap-3 mb-4">
+      <AnswerGrid options={tiles}>
         {tiles.map((w, j) =>
           <AnswerBtn key={w + j} val={w} sel={sel} correctVal={correct}
-            onClick={() => answer(w, correct, { hinted: hintedRef.current })} className="h-16 text-xl" />
+            onClick={() => answer(w, correct, { hinted: hintedRef.current })} className="text-xl" />
         )}
-      </div>
+      </AnswerGrid>
       {errorPending && (
         <ErrorDialog
           title={t("errorTitle")}
