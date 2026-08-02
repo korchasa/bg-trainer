@@ -24,6 +24,7 @@
   - [x] Lessons list rendered with two sections (available / upcoming). Evidence: `src/components/screens/LessonsScreen.tsx:16-62`, `src/data/lessons.ts`
   - [x] Only `available=true` lessons are tappable. Evidence: `src/App.tsx:89-94`, `src/components/screens/LessonsScreen.tsx:35-52`
   - [x] Lesson screen lists its modes + primary "Раунд" button. Evidence: `src/components/screens/LessonScreen.tsx`
+- **Status:** [x]
 
 ### 3.2 FR-GAME-SESSION
 - **Desc:** Session = N questions from the selected mode's data, where N = `SESSION_SIZE_BY_PACE[pace]` (see FR-PACE). `qsTotal` is fixed at session start. On a wrong answer the question is **not** advanced — user must retry the same item until correct (see FR-RETRY). A slot is consumed only when the user answers correctly, so the session always ends after `qsTotal` correctly-answered slots. Progress UI uses `answered / qsTotal`. `errors` counts unique wrong indices (only the first wrong attempt per question counts; retries do not).
@@ -35,6 +36,7 @@
   - [x] Progress component reads `answered/qsTotal`. Evidence: `src/components/engines/PickEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/NegEngine.tsx`
   - [x] Unique-index error counting via `errSet: Set<number>`; only the first wrong attempt is counted. Evidence: `src/hooks/useGame.ts`
   - [x] On completion → `onComplete(score, time, errors)` fires once. Evidence: `src/hooks/useGame.ts`
+- **Status:** [x]
 
 ### 3.2.1 FR-RETRY
 - **Desc:** On a wrong answer, the engine surfaces an error explanation modal (correct answer, hint, optional rule) with a "Continue" button. Question repeats on the same `cur` slot until the user answers correctly. Only the first attempt per question is scored / recorded as an error / forwarded to mastery (`onItemAnswer`); subsequent attempts are silent — no score change, no mastery event, no error increment, no extra reaction.
@@ -44,6 +46,7 @@
   - [x] Retry attempts skip score, mastery, and error increments. Evidence: `src/hooks/useGame.ts`
   - [x] `ErrorDialog` renders correct answer + hint + rule + Continue button per engine using `useGame`. Evidence: `src/components/ui/ErrorDialog.tsx`, engines under `src/components/engines/` (Pick, PickOpt, PickFrom, Timed, Neg, Type, OddOneOut)
   - [x] i18n strings `errorTitle`, `correctAnswer` defined for `ru` and `uk`. Evidence: `src/i18n/strings.ts`
+- **Status:** [x]
 
 ### 3.10 FR-LESSONS
 - **Desc:** 8 lessons aligned with textbook `documents/lessons/lesson-1..8.md`. Each lesson has `id`, `num`, `title`, `modeIds[]`, `available`. All 8 lessons are fully playable (`available=true`) and unlocked for everyone on every surface.
@@ -68,6 +71,7 @@
   - [x] Each new L8 mode backed by ≥5 data items (≥10 for vocab pickFrom/type, ≥12 for grammar drills; paradigm = 5 verb paradigms × 6 form slots; match-taste = 5 bijective pairs). Evidence: `src/data/lesson8.ts` (DATA_L8_FOOD, DATA_L8_FOOD_TYPE, DATA_L8_FRUITS, DATA_L8_FRUITS_TYPE, DATA_L8_VEGETABLES, DATA_L8_VEGETABLES_TYPE, DATA_L8_MEAT_DAIRY, DATA_L8_SPICES, DATA_L8_DRINKS, DATA_L8_TABLEWARE, DATA_L8_DISHES, DATA_L8_RESTAURANT, DATA_L8_TASTE, DATA_L8_COOKING, DATA_L8_METHOD, DATA_L8_GLAD_ZHAD, DATA_L8_YADE_MI_SE, DATA_L8_PIE_MI_SE, DATA_L8_PART, DATA_L8_PART_TYPE, DATA_L8_PERF_AUX, DATA_L8_PERF_WO, DATA_L8_PERF_LI, DATA_L8_PERF_SHORT, DATA_L8_PERF_PARADIGM, DATA_L8_BUILD, DATA_L8_MATCH_COGNATE, DATA_L8_MATCH_PAIRS, DATA_L8_MATCH_TASTE, DATA_L8_ODD)
   - [x] Data split into per-lesson modules with composition root. Evidence: `src/data/index.ts`, `src/data/lesson1.ts`, `src/data/lesson2.ts`, `src/data/lesson3.ts`, `src/data/lesson4.ts`, `src/data/lesson5.ts`, `src/data/lesson6.ts`, `src/data/lesson7.ts`, `src/data/lesson8.ts`
   - [x] `Lesson` shape = `{ id, num, title, modeIds, available }`; no tier/access field (all lessons unlocked). Evidence: `src/types.ts:14-20`, `src/data/lessons.ts`
+- **Status:** [x]
 
 ### 3.11 FR-ROUND
 - **Desc:** Round = `ROUND_GAMES` (=3) random games from a lesson, each of `SESSION_SIZE_BY_PACE[pace]` questions, played consecutively without returning to menu. Round size is fixed at start (snapshot `size` into `RoundState`), so changing pace mid-round has no effect. On completion, one aggregated `HistoryEntry` written with `mode="round:<lessonId>"`, `round=true`, `qsTotal = ROUND_GAMES × size`. Single results screen shows summed score/time/errors.
@@ -77,6 +81,7 @@
   - [x] `RoundState.size` snapshots pace at start; per-game qsTotal uses `round.size`. Evidence: `src/App.tsx` (`startRound`, `handleComplete`)
   - [x] On completion writes single history entry with `round=true`, `qsTotal`, `lessonId`. Evidence: `src/App.tsx` (`handleComplete`)
   - [x] Abort via inline `ConfirmBar` (not `window.confirm`). Evidence: `src/components/ui/ConfirmBar.tsx`, `src/App.tsx`
+- **Status:** [x]
 
 ### 3.16 FR-PACE
 - **Desc:** User selects session pace on `LessonScreen`: `quick`=3, `standard`=5 (default), `deep`=8 questions per game. Pace applies uniformly to single games and rounds (round total = `ROUND_GAMES × size`). Persisted in `localStorage` under `bg-trainer-pace-v1`. Scientific anchors: Cowan WM (4±1), Cepeda distributed practice, Duolingo 5-min microlearning norm, Bjork desirable difficulty (~80% success).
@@ -87,6 +92,7 @@
   - [x] Pace persisted under `bg-trainer-pace-v1`, default `standard`. Evidence: `src/utils/pace.ts`, `src/constants.ts`
   - [x] 3-button pace selector on `LessonScreen` shows question count. Evidence: `src/components/screens/LessonScreen.tsx`
   - [x] Round button label reflects pace (`3 × N = 3N вопросов`). Evidence: `src/components/screens/LessonScreen.tsx`
+- **Status:** [x]
 
 ### 3.3 FR-SCORING
 - **Desc:** Correct on first attempt = +10 pts. Timed mode adds speed bonus on first-attempt correct. Wrong answer increments error count once, 0 pts; retries on the same question are not scored (see FR-RETRY).
@@ -95,6 +101,7 @@
   - [x] Speed bonus applied in `TimedEngine` via `extraPts`, only on first-attempt correct. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useGame.ts`
   - [x] Duplicate / post-correct selections rejected via `lockedRef`. Evidence: `src/hooks/useGame.ts`
   - [x] Retry-success after first-wrong adds 0 pts. Evidence: `src/hooks/useGame.ts`
+- **Status:** [x]
 
 ### 3.4 FR-ENGINES
 - **Desc:** 11 engine types implement distinct interaction patterns. Multiple-choice engines hide L1 hints by default and expose a "Подсказка" reveal button; reveal sets `hinted=true` which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
@@ -110,6 +117,7 @@
   - [x] `match` — tap-pair 2-column matching, relational encoding. Evidence: `src/components/engines/MatchEngine.tsx`
   - [x] `odd` — tap the intruder word, category-boundary drill. Evidence: `src/components/engines/OddOneOutEngine.tsx`
   - [x] `paradigm` — 6-slot paradigm completion via tile bank. Evidence: `src/components/engines/ParadigmEngine.tsx`
+- **Status:** [x]
 
 ### 3.4.1 FR-MATCH
 - **Desc:** Relational encoding: user taps a left-column tile then a right-column tile to pair them. Correct pairs lock green; wrong attempts flash red on the two tapped cells and reset. Session ends when all pairs matched. Data: `MatchItem[]` = `{ left, right, hint }`. Score = +10 per first-try correct pair.
@@ -117,12 +125,14 @@
   - [x] Separate left/right state so flash-fail only lights the two tapped cells. Evidence: `src/components/engines/MatchEngine.tsx`
   - [x] Item answer event fired per attempt via `itemKey(pairs[selLeft])`. Evidence: `src/components/engines/MatchEngine.tsx`
   - [x] At least one mode: `match_country_lang`, `match_country_nat`, `match_profession`. Evidence: `src/data/index.ts`
+- **Status:** [x]
 
 ### 3.4.2 FR-ODD
 - **Desc:** Category-boundary drill. User sees 4 tiles and taps the one that does not belong. Correct → green, wrong → red + highlights correct. Session = `SESSION_SIZE_BY_PACE[pace]` items. Data: `OddItem[]` = `{ words, odd, hint, rule? }`.
 - **Acceptance:**
   - [x] Engine reuses `useGame` via `DataItem[]` cast for scoring/retry parity. Evidence: `src/components/engines/OddOneOutEngine.tsx`
   - [x] At least one mode: `odd_mixed`. Evidence: `src/data/index.ts`
+- **Status:** [x]
 
 ### 3.4.3 FR-PARADIGM
 - **Desc:** Schema formation via whole-paradigm completion. User sees a verb + 6 pronoun rows + a shuffled form bank, taps a form to fill the next empty slot (taps a filled slot to return the form). When all 6 filled, engine marks each row green/red, reveals correct form under wrong rows, and advances. Score = +5 per correct slot. Data: `ParadigmItem[]` = `{ verb, pronouns, forms, hint, rule? }`.
@@ -130,6 +140,7 @@
   - [x] 6 pronoun slots, tile bank below, tap-fill + tap-unfill. Evidence: `src/components/engines/ParadigmEngine.tsx`
   - [x] Per-slot check + correct-form reveal on wrong rows. Evidence: `src/components/engines/ParadigmEngine.tsx`
   - [x] `paradigm_fill` mode over 6 verbs (съм, имам, нямам, искам, казвам се, говоря). Evidence: `src/data/index.ts`
+- **Status:** [x]
 
 ### 3.13 FR-SCHED
 - **Desc:** Session item selection uses an SRS-like scheduler (`pickDueItems`) over the mastery store. Items are scored by `(overdue + weakBonus_if_level<7)` where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. The top-K (K = 2n) are shuffled and sliced to n to avoid monotone order. When mastery is empty or all scores are zero → fallback to `shuffle(items).slice(0, n)`. The scheduler is applied by `sliceData` when mastery is provided; Round sessions also use it.
@@ -138,6 +149,7 @@
   - [x] Shuffle fallback when all scores are zero. Evidence: `src/utils/mastery.ts:93`
   - [x] `sliceData(mode, size, mastery, now?)` uses scheduler when `mastery` is defined. Evidence: `src/utils/sliceData.ts:10-33`
   - [x] `App.tsx` passes current `mastery` to `sliceData` for both single-mode and round sessions. Evidence: `src/App.tsx:193-196`
+- **Status:** [x]
 
 ### 3.14 FR-TYPE
 - **Desc:** `TypeEngine` accepts keyboard input. Normalization is **whitelist-only**: `trim`, `toLowerCase`, collapse internal whitespace. No character substitutions — `ѝ` vs `и`, stress marks, punctuation kept intact to preserve orthographic distinctions. Submit blocked when normalized input is empty.
@@ -146,6 +158,7 @@
   - [x] Empty-after-normalize submit blocked. Evidence: `src/components/engines/TypeEngine.tsx:41-45`
   - [x] Registered in engine dispatch. Evidence: `src/components/engines/index.ts:10,22`
   - [x] At least one mode uses `type`: `sym_type`. Evidence: `src/data/index.ts:298`
+- **Status:** [x]
 
 ### 3.15 FR-FEEDBACK-RULE
 - **Desc:** Elaborative feedback: `DataItem.rule?` may carry a short rule explanation. On wrong answer, engines show the rule under the correct form in `Correction` (or inline for `PickEngine`). Required: rule strings defined for `DATA_SYM`, `DATA_IMAM`, `DATA_ISKAM`, `DATA_ARTICLE` (minimum).
@@ -153,12 +166,14 @@
   - [x] `DataItem.rule?: string` field exists. Evidence: `src/types.ts:26`
   - [x] `Correction` renders `rule` when provided. Evidence: `src/components/ui/Correction.tsx:1-10`
   - [x] Rules defined for core paradigms/articles. Evidence: `src/data/index.ts:3-10,12-19,21-28,30-54`
+- **Status:** [x]
 
 ### 3.5 FR-REACTION
 - **Desc:** After each answer, show a Russian-language reaction (OK or FAIL) and, on wrong, reveal the correct answer.
 - **Acceptance:**
   - [x] Reaction picked from `OK` / `FAIL` arrays. Evidence: `src/constants.ts:1-2`, `src/utils/shuffle.ts`
   - [x] Auto-advance after `delay` ms (default 1000). Evidence: `src/hooks/useGame.ts:45`
+- **Status:** [x]
 
 ### 3.6 FR-HISTORY
 - **Desc:** Game history persists in `localStorage` (key `bg-trainer-v3`), capped at 200 entries. Newest entries retained; oldest dropped. Optional fields `lessonId`, `round`, `qsTotal` extend schema without breaking legacy entries.
@@ -167,21 +182,24 @@
   - [x] Load returns `[]` on parse failure. Evidence: `src/utils/history.ts:8`
   - [x] Storage key = `bg-trainer-v3`. Evidence: `src/constants.ts:7`
   - [x] `HistoryEntry` extended with optional `lessonId`, `round`, `qsTotal`. Evidence: `src/types.ts:1-10`
+- **Status:** [x]
 
 ### 3.7 FR-ANALYTICS
 - **Desc:** Analytics screen shows history dashboard with charts (score history, accuracy stats, mode distribution).
 - **Acceptance:**
   - [x] Renders charts via Recharts. Evidence: `src/components/screens/AnalyticsScreen.tsx`
-  - [ ] Clear-history action available.
-  - [ ] Mode distribution chart color-cycles through `CHART_COLORS`.
+  - [x] Clear-history action available. Evidence: `src/utils/history.ts:18`, `src/App.tsx:315`
+  - [ ] Mode distribution chart color-cycles through `CHART_COLORS`. Not wired: `CHART_COLORS` is declared in `src/constants.ts:12` and referenced nowhere.
   - [x] Mode distribution excludes `round:*` entries; rounds aggregated in dedicated "Раунды" section. Evidence: `src/components/screens/AnalyticsScreen.tsx:34-41,92-120`
   - [x] Accuracy uses per-entry `qsTotal` (fallback = 8). Evidence: `src/components/screens/AnalyticsScreen.tsx:33,54`
+- **Status:** [ ]
 
 ### 3.8 FR-RESULTS
 - **Desc:** End-of-game screen shows score, time, error count; offers "Play again" and "Back to menu".
 - **Acceptance:**
   - [x] Screen component exists. Evidence: `src/components/screens/ResultsScreen.tsx`
   - [x] Appends `HistoryEntry` on completion. Evidence: `src/App.tsx`, `src/utils/history.ts`
+- **Status:** [x]
 
 ### 3.12 FR-MASTERY
 - **Desc:** Per-item mastery level (0–10) persisted in `localStorage` (key `bg-trainer-mastery-v1`). Independent from history. Update rule: correct `+1`, fast-correct (timed, within timer bonus) `+2`, wrong `−3`. Hinted answers soften the update: `ok+hinted = +0`, `fail+hinted = −1`. Lazy decay: correct answers on items untouched ≥7 days first drop 1 level, then apply reward. Speed-gate: `TimedEngine` disables the timer and speed bonus when the current item's level `< 5` to prevent System-1 guessing on undermastered items. Session item selection uses FR-SCHED (`pickDueItems`). Lesson-level aggregation: `ratio = sum(level) / (10 × totalItems)`. Lesson "полностью изучено" = ≥90% items at level ≥7 AND ≥60% at level 10.
@@ -198,6 +216,7 @@
   - [x] `LessonScreen` shows per-mode mastery bars. Evidence: `src/components/screens/LessonScreen.tsx`
   - [x] `AnalyticsScreen` offers "Сбросить освоение" separate from history reset. Evidence: `src/components/screens/AnalyticsScreen.tsx`, `src/App.tsx:288`
   - [x] Existing `bg-trainer-v3` history preserved. Evidence: `src/constants.ts:7`, `src/utils/history.ts`
+- **Status:** [x]
 
 ### 3.17 FR-LANG
 - **Desc:** UI and L1 content available in 2 locales: `ru` (Russian) and `uk` (Ukrainian). User selects locale via segmented switcher on `LessonsScreen` header. Choice persists in `localStorage` under `bg-trainer-lang-v1`. First-run detection: `navigator.language.toLowerCase().startsWith("uk")` → `uk`, else `ru`. Bulgarian content (`q`, `answer`, `decoys`, `result`, `words`) is shared and never localized — Ukrainian/Russian only varies on `hint`, `rule`, `label`, `translation`, `Mode.label`/`desc`, `Category.name`, `Lesson.title`, `OK`/`FAIL` arrays, and UI strings. Resolved at render-time via `useI18n()` (`t`, `f`, `L`). Type-safe: `Localized<T> = Record<Locale, T>`; missing keys = compile error. Mid-session locale switch only re-resolves visible text — game state (`cur`, `corr`, `score`, `answered`) survives.
@@ -214,6 +233,7 @@
   - [x] `AnalyticsScreen` resolves mode label via `ALL_MODES.find(...).label` + `L()`, not raw modeId. Evidence: `src/components/screens/AnalyticsScreen.tsx:33-46`
   - [x] Glossary maintained. Evidence: `documents/i18n-glossary.md`
   - [x] `npm run build` passes. Evidence: build output zero TS errors.
+- **Status:** [x]
 
 ### 3.18 FR-IOS-SHELL
 - **Desc:** Native iOS shell via Capacitor 8 wrapping the same React SPA. Target iOS 15.0+. Bundle ID `dev.korchasa.bgtrainer`. Shared codebase with web; iOS build uses relative asset base (`./`). WKWebView hosts the app at `capacitor://localhost`.
@@ -228,6 +248,7 @@
   - [x] Container sized via `height: 100%` chain (no `100vh`). Evidence: `src/index.css:5-8`, `src/App.tsx:194,218,226`
   - [x] Inline splash in HTML shown until React mounts. Evidence: `index.html:11-22`, `src/main.tsx:15-17`
   - [x] Analytics screen code-split via `React.lazy` (main bundle 360 KB / gzip 94 KB). Evidence: `src/App.tsx:1,14,309-315`
+- **Status:** [x]
 
 ### 3.19 FR-IOS-APPSTORE
 - **Desc:** Assets and metadata required for App Store submission. Blockers for `xcodebuild archive` + review.
@@ -239,10 +260,11 @@
   - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
   - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy.html` (custom domain, served from site root). Evidence: `site/privacy.html`, `site/CNAME`, `.github/workflows/deploy.yml` (site/ copied to dist root); HTTP 200 verified post-deploy.
   - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
-  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Pending (manual, no IAP/receipts → simpler): Privacy Policy URL save, App Privacy questionnaire = "Data Not Collected", Pricing form = paid tier $1.99 USD.
-  - [ ] Code signing configured (automatic signing with team) — pending Xcode setup.
-  - [ ] Screenshots for iPhone 6.7" (1290×2796); optional 6.5" and 5.5" for older devices — pending (require simulator capture or device).
-  - [ ] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` or `xcrun altool` — pending CI secrets population (see `documents/ios-release-setup.md`).
+  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Privacy Policy URL, App Privacy questionnaire ("Data Not Collected", published) and the $1.99 price are all set; version 1.0 is `READY_FOR_SALE` and available in 175 territories.
+  - [x] Code signing configured — this repo archives unsigned (`CODE_SIGNING_ALLOWED=NO`); the app-store-factory `signing` lane issues the certificate and App Store profile and signs the export. Evidence: factory `apps.yml` (`bg-trainer.sign`), `fastlane/Fastfile` (`signing`/`package` lanes).
+  - [x] Screenshots for iPhone 6.7" (1290×2796) uploaded for all three locales (ru/uk plus the uk artwork in the en-US slot — the app has no English UI). Captured from the web build via headless Chrome at viewport 430×932, `deviceScaleFactor: 3`. Evidence: factory `screenshots/bg-trainer/`, ASC app `6766068069`.
+  - [x] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` — driven by the factory `beta` lane, not by this repo's CI. Evidence: builds 2–4 on ASC app `6766068069`.
+- **Status:** [x]
 
 ### 3.20 FR-IOS-UX
 - **Desc:** Native-feel tweaks on top of the web UX.
@@ -253,6 +275,7 @@
   - [x] No runtime web-font fetch — UI uses system fonts (`-apple-system`, `system-ui`), guaranteed available offline on iOS/Android/web. Self-hosting Inter would only inflate the bundle without removing any external dependency, so it is not done. Evidence: `src/index.css:11`
   - [x] Back-swipe gesture: Capacitor 8 sets `allowsBackForwardNavigationGestures=false` by default for WKWebView, which is the correct behavior for this single-page app. No override needed; will revisit if device testing surfaces an edge case.
   - [x] `prefers-reduced-motion` honored — `useGame` shortcuts the celebratory advance delay to 0ms when the OS-level Reduce Motion accessibility setting is on. Evidence: `src/utils/motion.ts`, `src/hooks/useGame.ts:7,118`
+- **Status:** [x]
 
 ### 3.21 FR-IOS-STORAGE
 - **Desc:** Migrate persistent state off `localStorage` to survive iOS "Offload Unused Apps" and WebKit cache eviction. Keys unchanged; adapter provides fallback for web build.
@@ -264,6 +287,7 @@
   - [x] App boot awaits `initStorage()` before mounting React; HTML splash covers hydration so the first render sees real persisted state without flicker. Evidence: `src/main.tsx:11-17`
   - [ ] History/mastery survive app backgrounding + device storage pressure (verification pending — requires on-device test).
   - [ ] Documents folder or `NSUserDefaults` included in iTunes/iCloud backup (non-`WebKit/` location) — Capacitor Preferences uses `NSUserDefaults` which is backed up by default; on-device verification pending.
+- **Status:** [ ]
 
 ### 3.22 FR-IOS-POLISH
 - **Desc:** Optional native-integration niceties.
@@ -273,6 +297,7 @@
   - [x] VoiceOver labels on answer tiles, progress, navigation buttons via localized `useI18n` keys (`a11yBack`, `a11yAnswerCorrect/Wrong`, `a11yProgress`). Evidence: `src/components/ui/BackButton.tsx:9`, `src/components/ui/AnswerBtn.tsx:24-31`, `src/components/ui/Progress.tsx:14-21`, `src/i18n/strings.ts:71-73,123-125,152,162` (manual rotor walkthrough on device pending — `manual — korchasa`)
   - [x] Dynamic Type: rem-based scaling — replaced all `text-[Npx]` with `text-[Nrem]` (9px→0.5625rem, 10px→0.625rem, 11px→0.6875rem); body inherits root font-size from system. Evidence: `! grep -rn 'text-\\[[0-9]*px\\]' src/` returns nothing; `src/components/screens/AnalyticsScreen.tsx`, `LessonScreen.tsx`, `LessonsScreen.tsx`
   - [ ] Crash reporting (Sentry or Firebase Crashlytics) for production builds — pending `VITE_SENTRY_DSN`.
+- **Status:** [ ]
 
 ### 3.23 FR-IOS-CICD
 - **Desc:** Automated build + TestFlight delivery on release tags.
@@ -283,7 +308,8 @@
   - [x] Auto-bump `CURRENT_PROJECT_VERSION` from `${GITHUB_RUN_NUMBER}` via `xcrun agvtool new-version`. Evidence: `.github/workflows/ios-release.yml` (Bump versions step)
   - [x] `MARKETING_VERSION` sourced from git tag (`${GITHUB_REF_NAME#v}`) via `xcrun agvtool new-marketing-version`. Evidence: `.github/workflows/ios-release.yml` (Bump versions step)
   - [x] Keychain bootstrap (cert import + provisioning profile install) on clean macOS runner with cleanup. Evidence: `.github/workflows/ios-release.yml` (Bootstrap signing keychain + Cleanup keychain steps)
-  - [ ] First tagged build reaches ASC TestFlight "Ready to Test" — pending secrets population + manual run. Setup: `documents/ios-release-setup.md`.
+  - [ ] First tagged build reaches ASC TestFlight "Ready to Test" — never exercised: no `v*` tag exists and TestFlight delivery moved to the app-store-factory `beta` lane, so this workflow is now a second, unused path. Decide whether to run it once or retire it. Setup: `documents/ios-release-setup.md`.
+- **Status:** [ ]
 
 ### 3.9 FR-NAV
 - **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.
@@ -293,6 +319,7 @@
   - [x] Back during round shows `ConfirmBar` instead of browser confirm. Evidence: `src/App.tsx:114-129,190-198`
   - [x] `NavHeader` + `BackButton` provide navigation. Evidence: `src/components/ui/NavHeader.tsx`, `src/components/ui/BackButton.tsx`
   - [x] `Screen` type = `"lessons" | "lesson" | "game" | "results" | "analytics"` (no `paywall`). Evidence: `src/types.ts:95`
+- **Status:** [x]
 
 ### 3.24 FR-PAID
 - **Desc:** iOS app is a paid one-time download at App Store price tier $1.99 USD (≈ €2.49 EUR). No IAP, no subscription, no in-app unlock, no Pro entitlement, no lesson tier. Every buyer gets all 8 lessons. Web build stays free on GitHub Pages. Single codebase; no platform-conditional content gating. Supersedes the removed FR-FREEMIUM / FR-IAP / FR-PAYWALL.
@@ -300,7 +327,8 @@
 - **Acceptance:**
   - [x] No tier/entitlement field on `Lesson`; all `available` lessons open directly. Evidence: `src/types.ts:14-20`, `src/components/screens/LessonsScreen.tsx`
   - [x] No IAP code: `src/services/iap.ts` and `src/components/screens/PaywallScreen.tsx` absent; no RevenueCat dependency. Evidence: `! ls src/services/iap.ts src/components/screens/PaywallScreen.tsx`; `! grep -rn "revenuecat\|proUnlocked\|purchasePackage" src/`
-  - [ ] ASC Pricing form set to paid tier $1.99 USD (manual — outside repo).
+  - [x] ASC Pricing form set to paid tier $1.99 USD (manual — outside repo). Evidence: price schedule on ASC app `6766068069`.
+- **Status:** [x]
 
 ### 3.27 FR-ANDROID-SHELL
 - **Desc:** Native Android shell via Capacitor 8 wrapping the React SPA. minSdk 24, targetSdk 34, package `dev.korchasa.bgtrainer`. Single Activity (`MainActivity`) hosting the WebView at `https://localhost`. Shared codebase with web/iOS; same `VITE_BASE_PATH=./` build.
@@ -313,6 +341,7 @@
   - [ ] Status-bar style controlled (light content on dark background).
   - [ ] Hardware back-button maps to in-app navigation (or default WebView back).
   - [ ] App icon set in `android/app/src/main/res/mipmap-*/` (adaptive foreground + background).
+- **Status:** [ ]
 
 ### 3.28 FR-ANDROID-PLAYSTORE
 - **Desc:** Assets and metadata required for Google Play Console submission.
@@ -326,6 +355,7 @@
   - [ ] Data Safety form completed (no data collection; local storage only).
   - [ ] Content rating questionnaire (target: Everyone).
   - [ ] Internal Testing → Closed Testing → Production rollout.
+- **Status:** [ ]
 
 ### 3.29 FR-ANDROID-CICD
 - **Desc:** Automated Android build + Play Store delivery on release tags.
@@ -335,9 +365,10 @@
   - [ ] Signing keystore stored as base64 GitHub secret + passwords in secrets.
   - [ ] `versionCode` auto-bumped from CI run number; `versionName` from git tag.
   - [ ] Upload via `gradle-play-publisher` (default track: Internal Testing).
+- **Status:** [ ]
 
 ### 3.30 FR-SYNC-PAID — REMOVED
-- **Status:** Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the paid-app model. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
+- **Status:** [x] Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the paid-app model. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
 
 ## 4. Non-Functional
 - **Perf:** Initial bundle small enough for mobile networks (Vite tree-shake + code-split). Interaction latency < 50ms on mid-range mobile.
