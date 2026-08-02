@@ -18,10 +18,11 @@
 
 ## Project Information
 - Project Name: bg-trainer
-- Live demo: https://bgtrainer.korchasa.dev/
+- Live app: https://app.bgtrainer.korchasa.dev/ (this repo)
+- Marketing site + policies: https://bgtrainer.korchasa.dev/ (app-store-factory repo, Cloudflare Pages)
 
 ## Project Vision
-Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (13 categories, 34 modes, 11 engine types) with persistent progress and analytics.
+Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (20 categories, 232 modes, 11 engine types) with persistent progress and analytics.
 
 ## Project tooling Stack
 - **Runtime/UI:** React 18, TypeScript 5
@@ -30,7 +31,7 @@ Interactive Bulgarian language trainer for A0-level learners. UI in Russian or U
 - **Charts:** Recharts 2
 - **Persistence:** Browser `localStorage` (key `bg-trainer-v3`, max 200 sessions)
 - **Package manager:** npm
-- **Hosting:** GitHub Pages, custom domain `bgtrainer.korchasa.dev`. Two surfaces: marketing site at root (`/`, static `site/`), web app at `/app/` (Vite base path `/app/`)
+- **Hosting:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). The app owns the root (Vite base `/`). The marketing site is a different repo on Cloudflare Pages
 - **CI/CD:** GitHub Actions (`deploy.yml`, `preview.yml`, `cleanup-preview.yml`)
 
 ## Architecture
@@ -73,17 +74,16 @@ src/
     ├── history.ts           # localStorage read/write
     └── shuffle.ts           # Fisher-Yates shuffle
 
-site/                        # Static marketing surface (no build), deployed to domain root
-├── index.html               # Landing page (RU)
-├── privacy.html             # Privacy policy (EN+RU)
-├── terms.html               # Terms of use
-├── CNAME                    # Custom domain → lands at dist root
-├── favicon.svg              # Site favicon
-└── assets/                  # Landing images (e.g. screenshot)
+public/                      # Copied verbatim into the build
+├── CNAME                    # app.bgtrainer.korchasa.dev
+└── favicon.svg
 ```
 
+The landing page, privacy policy and terms are NOT in this repo — they live in
+app-store-factory and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`.
+
 ### Key Types (`src/types.ts`)
-- `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li"`
+- `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type" | "match" | "odd" | "paradigm"`
 - `DataItem` — `{ q, answer, hint, label?, decoys? }` standard exercise
 - `BuildItem` — `{ words, translation }` sentence ordering
 - `LiItem` — `{ words, liPosition, result, translation }` particle insertion
@@ -93,17 +93,11 @@ site/                        # Static marketing surface (no build), deployed to 
 - `Screen` — `"menu" | "game" | "results" | "analytics"`
 
 ### Game Data
-All content and mode/category definitions in `src/data/index.ts`. 8 categories, 15 modes:
-- **Verb "съм":** `sym_pick`, `sym_fill`
-- **Имам / Искам:** `imam_pick`, `iskam_pick`
-- **Articles:** `art_pick`
-- **Gender:** `gen_pick`
-- **Plurals:** `pl_pick`
-- **Possessives:** `poss_pick`
-- **Negation:** `neg_tf`
-- **Question word order:** `q_build`, `q_li`
+Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts`, and the lesson→mode mapping in `src/data/lessons.ts`. Currently 20 categories and 232 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
 
-Each mode has a `data()` returning the exercise array. A session = 15 questions drawn from that mode.
+Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
+
+**Exercise punctuation:** meaningless sentence-final periods are absent from the data and nothing trims them at render. Periods that carry meaning stay — abbreviations (`ул.`, `1 stot.`, `м.р., ед.`), `?`, `!`, `…`, prose translations, and the `"."` word tiles the learner drags into place. Decide per exercise when writing one; never sweep with a regex.
 
 ### Scoring
 - Correct answer: **+10 pts**
@@ -116,10 +110,11 @@ Each mode has a `data()` returning the exercise array. A session = 15 questions 
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
 - **Deployment:**
-  - Push to `main` → `deploy.yml`: builds app (`VITE_BASE_PATH=/app/`, `VITE_OUT_DIR=dist/app`) → app at `dist/app/`; copies `site/.` to `dist/` root (landing, privacy.html, terms.html, CNAME, favicon) → GitHub Pages. Result: `/` = landing, `/app/` = web app
-  - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (app-only, built at that base)
+  - Push to `main` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`
+  - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
   - Branch delete → cleanup via `cleanup-preview.yml`
-- **Site/app split:** `site/` is the static marketing surface (hand-written HTML, no build). The Vite app is the `/app/` surface. CNAME and privacy/terms live in `site/` (not `public/`) so they land at dist root, not under `/app/`. `public/` assets ship inside the app build (`/app/...`)
+- **Repo split:** this repo publishes only the web app. The landing page and the privacy/terms pages moved to app-store-factory and are served by Cloudflare Pages at `bgtrainer.korchasa.dev`; policy URLs are `/privacy` and `/terms` (the `.html` forms 308-redirect). `public/` ships inside the app build and holds the CNAME.
+- **Stale `app/` in `gh-pages`:** `keep_files: true` never deletes, so anything published under an older layout lingers until removed by hand.
 - **Adding a new mode:**
   1. Add `DataItem[]` / `BuildItem[]` / `LiItem[]` to `src/data/index.ts`
   2. Add `Mode` entry to the relevant `Category` (or create new `Category`)
@@ -313,7 +308,7 @@ When the root cause is outside your control (missing API keys/URLs, missing gene
 Project uses npm scripts (`package.json`). No standardized `check/test/prod` scripts configured — no test runner or linter installed. Mapping:
 
 - `npm install` — install dependencies
-- `npm run dev` — Vite dev server at http://localhost:5173/app/ (maps to `dev`)
+- `npm run dev` — Vite dev server at http://localhost:5173/ (maps to `dev`)
 - `npm run build` — `tsc` type-check + Vite bundle → `dist/` (closest to `check`; no linter or tests)
 - `npm run preview` — serve the production build locally (maps to `prod`)
 - `test` — **not configured**. No test suite exists.
