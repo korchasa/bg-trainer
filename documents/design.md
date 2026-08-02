@@ -137,7 +137,7 @@
   - `limitsNavigationsToAppBoundDomains: true` requires matching `WKAppBoundDomains` array in Info.plist — without it iOS applies strict defaults that may block/slow resources. Do NOT enable without the Info.plist entry.
   - Capacitor's default cold-start frame is black; mask with inline HTML splash in `index.html` shown until React mounts.
   - WKWebView `localStorage` path (simulator): `~/Library/Developer/CoreSimulator/Devices/<DEVICE>/data/Containers/Data/Application/<APP>/Library/WebKit/WebsiteData/LocalStorage/capacitor_localhost_0.localstorage`. Locate via `xcrun simctl get_app_container booted <bundle-id> data`.
-  - `VITE_BASE_PATH=./` is mandatory for iOS build (relative paths for `capacitor://localhost`). Web build uses base `/app/` (app served at `bgtrainer.korchasa.dev/app/`; root is the static marketing site).
+  - `VITE_BASE_PATH=./` is mandatory for iOS build (relative paths for `capacitor://localhost`). Web build uses base `/` — the app owns the root of `app.bgtrainer.korchasa.dev`; the marketing site is a separate repo on Cloudflare Pages.
 
 ### 3.12 PaywallScreen
 - **Purpose:** Mobile-only purchase gate. Reached via `screen="paywall"` set by App when free user taps a `tier="pro"` lesson, or via "Pro" affordance in analytics.

@@ -2,7 +2,7 @@
 
 Interactive Bulgarian language trainer for A0-level learners. The UI is in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers who are learning Bulgarian.
 
-**Live demo:** https://bgtrainer.korchasa.dev/
+**Live app:** https://app.bgtrainer.korchasa.dev/ — **about the project:** https://bgtrainer.korchasa.dev/
 
 ## Features
 
@@ -54,7 +54,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173/ in your browser. The dev server serves at the root; `/app/` is the deployed base path, set through `VITE_BASE_PATH` at build time.
+Open http://localhost:5173/ in your browser. The base path defaults to `/` and is overridable through `VITE_BASE_PATH` — the preview workflow uses it to build at `/preview/{branch}/`.
 
 ### Production build
 
@@ -67,14 +67,16 @@ Output is written to `dist/`.
 
 ## Deployment
 
-Pushes to `main` automatically deploy to GitHub Pages via the workflow in `.github/workflows/deploy.yml`. The site is split across two surfaces on one domain:
+Pushes to `main` automatically deploy to GitHub Pages via the workflow in `.github/workflows/deploy.yml`. This repository publishes only the web app, at the root of its own subdomain:
 
-- `bgtrainer.korchasa.dev/` — marketing landing + policies (static files from `site/`)
-- `bgtrainer.korchasa.dev/app/` — the React web app (Vite build with `base=/app/`)
+- `app.bgtrainer.korchasa.dev/` — the React web app (this repo, GitHub Pages, CNAME in `public/`)
+- `bgtrainer.korchasa.dev/` — marketing landing and policies, which live in the app-store-factory repo and deploy to Cloudflare Pages
 
 ```
-main push → build app (base=/app/, outDir=dist/app) → copy site/ to dist root → deploy to GitHub Pages
+main push → build app (base=/, outDir=dist) → publish dist/ to gh-pages (keep_files: true, so preview/ survives)
 ```
+
+Feature branches deploy to `app.bgtrainer.korchasa.dev/preview/{branch}/` and are removed when the branch is deleted.
 
 You can also trigger a deployment manually from the **Actions** tab in GitHub.
 
@@ -91,13 +93,9 @@ bg-trainer/
 │   ├── hooks/         # Game state and timer
 │   ├── i18n/          # RU/UK strings
 │   └── utils/         # Storage, scheduling, text helpers
-├── site/              # Static marketing site, served at domain root
-│   ├── index.html     # Landing page
-│   ├── privacy.html   # Privacy policy
-│   ├── terms.html     # Terms of use
-│   ├── CNAME          # Custom domain (lands at dist root)
-│   └── favicon.svg
-├── index.html         # Web app entry (served at /app/)
+├── public/            # Copied verbatim into the build (CNAME, icons)
+├── ios/               # Capacitor iOS shell
+├── index.html         # Web app entry
 ├── vite.config.ts
 ├── tailwind.config.js
 └── .github/
