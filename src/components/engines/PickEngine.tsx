@@ -10,7 +10,6 @@ import { AnswerBtn } from "../ui/AnswerBtn";
 import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
-import { stripFinalPeriod } from "../../utils/displayText";
 
 interface Props {
   data: () => DataItem[];
@@ -47,7 +46,7 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
       <div className="flex-1 flex flex-col items-center justify-center mb-8">
         <TaskPrompt text={prompt} />
-        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{stripFinalPeriod(Lq(item.q))}</h1>
+        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{Lq(item.q)}</h1>
         {showHint || sel !== null
           ? <p className="text-lg font-semibold text-gray-600 text-center">({L(item.hint)})</p>
           : (
@@ -57,7 +56,7 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
           )}
         {sel !== null && (
           <div className="text-center mt-6">
-            <div className="text-3xl font-black text-gray-900 break-words">{stripFinalPeriod(shownAnswer)}</div>
+            <div className="text-3xl font-black text-gray-900 break-words">{shownAnswer}</div>
             <div className="text-base text-gray-600 mt-1">{shownHint}</div>
             {item.rule && sel !== item.answer && (
               <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">{L(item.rule)}</div>
@@ -76,7 +75,7 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
         <ErrorDialog
           title={t("errorTitle")}
           correctLabel={t("correctAnswer")}
-          correct={stripFinalPeriod(item.answer)}
+          correct={item.answer}
           hint={L(item.hint)}
           rule={item.rule ? L(item.rule) : undefined}
           continueLabel={t("continue")}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react"
 import { ALL_MODES } from "./data";
 import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
-import { loadMastery, saveMastery, clearMastery, applyAnswer } from "./utils/mastery";
+import { loadMastery, saveMastery, clearMastery, applyAnswer, migrateDottedKeys } from "./utils/mastery";
 import { loadPace, savePace } from "./utils/pace";
 import { applyTextScale, loadTextScale, saveTextScale, DEFAULT_TEXT_SCALE, type TextScale } from "./utils/textScale";
 import { hapticRoundFinished } from "./utils/nativeUx";
@@ -50,7 +50,11 @@ export default function App() {
 
   useEffect(() => {
     setHistory(loadHistory());
-    setMastery(loadMastery());
+    // Exercise texts lost their sentence-final periods, and mastery keys are those
+    // texts verbatim — re-point stored records before anything reads them.
+    const migrated = migrateDottedKeys(loadMastery(), ALL_MODES);
+    if (migrated.changed) saveMastery(migrated.store);
+    setMastery(migrated.store);
     setPace(loadPace());
     setTextScale(loadTextScale());
     setLoading(false);

@@ -371,7 +371,7 @@
 - **Status:** [x] Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the paid-app model. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
 
 ### 3.31 FR-A11Y-TEXT
-- **Desc:** Legible type for low-vision users. Type ramp floored at 13px; instruction and error-rule text ≥15px; user-selectable text size with 4 steps, the default following iOS Dynamic Type; pinch-zoom available. Sentence-final periods stripped at render (`?`, `!`, `…` preserved).
+- **Desc:** Legible type for low-vision users. Type ramp floored at 13px; instruction and error-rule text ≥15px; user-selectable text size with 4 steps, the default following iOS Dynamic Type; pinch-zoom available. Meaningless sentence-final periods absent from the exercise data (`?`, `!`, `…`, abbreviations and punctuation word-tiles preserved).
 - **Scenario:** User with reduced vision raises the iOS system text size → app follows on next foreground. Or picks "Крупный"/"Очень крупный" in-app → whole UI scales, choice persists across launches.
 - **Acceptance:**
   - [x] Type ramp rescaled: `xs` 13px (was 12), `sm` 15px (14), `base` 17px (16), top `7xl` 60px (72) — one screen now spans 4.6x, not 8x. Evidence: `tailwind.config.js:13-25`
@@ -384,9 +384,10 @@
   - [x] Task prompt 17px at 10.31:1 (was 12px at 4.83:1); error rule 15–17px at 10.31:1 (was 12–14px). Evidence: `src/components/ui/TaskPrompt.tsx:10`, `src/components/ui/Correction.tsx:13`, `src/components/ui/ErrorDialog.tsx:33`
   - [x] Pinch-zoom re-enabled — WKWebView honours `user-scalable=no` (Safari ignores it), so the old value left no zoom path. Evidence: `index.html:7`
   - [x] Answer buttons carry `px-4 py-3 min-h-[3.5rem]` + `break-words` in the shared component, not at call sites. Evidence: `src/components/ui/AnswerBtn.tsx:39`
-  - [x] Sentence-final period stripped at render only; `itemKey()` still derives mastery keys from raw `q`, so stored progress is untouched. Evidence: `src/utils/displayText.ts:11-17`, `src/utils/itemKey.ts:6`
-  - [x] Stripping happens at call sites with known semantics, never inside shared `Correction`/`ErrorDialog` — those receive composed strings where a trailing period may belong to an abbreviation (24 hints such as `ж.р.`, `няма да + гл.`). Evidence: `src/components/ui/Correction.tsx:5-7`, `src/components/ui/ErrorDialog.tsx:17-19`, `src/components/engines/PickOptEngine.tsx:55`
-  - [x] TypeEngine never strips its answer — there the string is the exact typing target compared by `normalize()`. Evidence: `src/components/engines/TypeEngine.tsx:84`, `src/components/engines/TypeEngine.tsx:50`
+  - [x] Meaningless periods removed from the data itself, decided per exercise; 1107 removed across 8 lesson files. No render-time trimming remains. Evidence: `! grep -rn 'stripFinalPeriod' src` returns nothing
+  - [x] Abbreviations, `?`, `!`, `…` and punctuation word-tiles survive; 22 dotted strings remain, all legitimate (`ул.`, `1 stot.`, `ям → м.р., ед.`, `На 29.08.1979 г.`), plus 14 `"."` drag tiles. Evidence: `src/data/lesson6.ts:108-119`, `src/data/lesson7.ts:589`, `src/data/lesson1.ts` (DATA_PROFILE_BUILD)
+  - [x] Answers stay character-identical to their fixed option sets across all 45 `pickOpt` modes; no answer duplicates its own decoys. Evidence: verified over all 232 modes / 3783 items — 0 mismatches
+  - [x] Mastery records stranded by the text change are re-pointed at load; legitimately dotted keys are not. Evidence: `src/utils/mastery.ts:65-97`, `src/App.tsx:53-57`
 - **Status:** [x]
 
 ### 3.32 FR-A11Y-CONTRAST

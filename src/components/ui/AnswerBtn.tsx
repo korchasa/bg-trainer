@@ -1,6 +1,5 @@
 import { ACCENT } from "../../constants";
 import { useI18n } from "../../i18n/context";
-import { stripFinalPeriod } from "../../utils/displayText";
 
 export function AnswerBtn({ val, sel, correctVal, onClick, className = "", children }: {
   val: string;
@@ -24,10 +23,9 @@ export function AnswerBtn({ val, sel, correctVal, onClick, className = "", child
     }
   }
   const isAnswered = sel !== null;
-  const label = stripFinalPeriod(val);
   const ariaLabel = isAnswered
-    ? `${label} — ${val === correctVal ? t("a11yAnswerCorrect") : val === sel ? t("a11yAnswerWrong") : ""}`.trim().replace(/—\s*$/, "")
-    : label;
+    ? `${val} — ${val === correctVal ? t("a11yAnswerCorrect") : val === sel ? t("a11yAnswerWrong") : ""}`.trim().replace(/—\s*$/, "")
+    : val;
   return (
     <button
       onClick={isAnswered ? undefined : onClick}
@@ -38,7 +36,7 @@ export function AnswerBtn({ val, sel, correctVal, onClick, className = "", child
       // words ran into both borders.
       className={`px-4 py-3 min-h-[3.5rem] flex items-center justify-center text-center rounded-[20px] font-semibold leading-tight break-words transition-all ${cls} ${className}`}
     >
-      {children ?? label}
+      {children ?? val}
     </button>
   );
 }

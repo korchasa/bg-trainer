@@ -12,7 +12,6 @@ import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { itemKey } from "../../utils/itemKey";
-import { stripFinalPeriod } from "../../utils/displayText";
 
 interface TimedItem extends DataItem {
   options: DataItem[];
@@ -79,7 +78,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
               ⏱ {timeLeft}с
             </div>}
         <TaskPrompt text={prompt} />
-        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">{stripFinalPeriod(Lq(item.q))} ___</h1>
+        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">{Lq(item.q)} ___</h1>
         {showHint || sel !== null
           ? <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
           : (
@@ -99,7 +98,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
         <ErrorDialog
           title={t("errorTitle")}
           correctLabel={t("correctAnswer")}
-          correct={stripFinalPeriod(item.answer)}
+          correct={item.answer}
           hint={L(item.hint)}
           rule={item.rule ? L(item.rule) : undefined}
           continueLabel={t("continue")}

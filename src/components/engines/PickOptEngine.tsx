@@ -11,7 +11,6 @@ import { AnswerBtn } from "../ui/AnswerBtn";
 import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
-import { stripFinalPeriod } from "../../utils/displayText";
 
 interface Props {
   data: () => PickOptData;
@@ -43,7 +42,7 @@ export function PickOptEngine({ data, onComplete, onItemAnswer, prompt }: Props)
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
         <TaskPrompt text={prompt} />
-        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{stripFinalPeriod(Lq(item.q))}</h1>
+        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{Lq(item.q)}</h1>
         {item.label && <div className="text-sm font-semibold text-gray-600 mb-1">{L(item.label)}</div>}
         {showHint || sel !== null
           ? <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
@@ -52,7 +51,7 @@ export function PickOptEngine({ data, onComplete, onItemAnswer, prompt }: Props)
               {t("hintBtn")}
             </button>
           )}
-        <Correction show={sel !== null && sel !== item.answer} text={`${stripFinalPeriod(item.answer)} → ${L(item.hint)}`} rule={item.rule ? L(item.rule) : undefined} />
+        <Correction show={sel !== null && sel !== item.answer} text={`${item.answer} → ${L(item.hint)}`} rule={item.rule ? L(item.rule) : undefined} />
       </div>
       <Reaction text={reaction} />
       <AnswerGrid options={options}>
@@ -65,7 +64,7 @@ export function PickOptEngine({ data, onComplete, onItemAnswer, prompt }: Props)
         <ErrorDialog
           title={t("errorTitle")}
           correctLabel={t("correctAnswer")}
-          correct={stripFinalPeriod(item.answer)}
+          correct={item.answer}
           hint={L(item.hint)}
           rule={item.rule ? L(item.rule) : undefined}
           continueLabel={t("continue")}

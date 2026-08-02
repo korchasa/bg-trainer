@@ -1,4 +1,4 @@
-import type { MasteryStore, Lesson, Mode } from "../types";
+import type { MasteryStore, ModeMastery, PickOptData, Lesson, Mode } from "../types";
 import { itemCount, itemKey } from "./itemKey";
 import { shuffle } from "./shuffle";
 import { getRaw, removeRaw, setRaw } from "./storage";
@@ -24,6 +24,76 @@ export function saveMastery(store: MasteryStore): void {
 
 export function clearMastery(): void {
   removeRaw(MASTERY_KEY);
+}
+
+/** Live `itemKey()` values for a mode, or an empty set if its data cannot be read. */
+function modeItemKeys(mode: Mode): Set<string> {
+  const keys = new Set<string>();
+  let d: unknown;
+  try {
+    d = mode.data();
+  } catch {
+    return keys;
+  }
+  const list: unknown[] = Array.isArray(d)
+    ? d
+    : d && typeof d === "object" && Array.isArray((d as PickOptData).items)
+      ? (d as PickOptData).items
+      : [];
+  for (const it of list) {
+    try {
+      keys.add(itemKey(it));
+    } catch {
+      // Shape without a natural key — nothing that could have been stored.
+    }
+  }
+  return keys;
+}
+
+/**
+ * Re-points mastery records whose key lost a period when the exercise text was
+ * cleaned up. `itemKey()` returns the exercise string verbatim, so those records
+ * would otherwise be stranded — and stranded records are worse than lost ones:
+ * `lessonStats()` counts entries in the store against a total from `itemCount()`,
+ * so stale keys inflate the ratio past 100% and falsely mark a lesson mastered.
+ *
+ * A record is only moved when its key matches no live item AND exactly one live
+ * key is identical to it once every period is stripped from both. Keys that
+ * legitimately end in a period (`1 stot.`) still match a live item, so they are
+ * never touched, and an ambiguous match is left alone rather than guessed.
+ */
+export function migrateDottedKeys(store: MasteryStore, modes: Mode[]): { store: MasteryStore; changed: boolean } {
+  const undot = (s: string) => s.replace(/\./g, "");
+  const byId = new Map(modes.map(m => [m.id, m]));
+  const next: MasteryStore = {};
+  let changed = false;
+
+  for (const modeId in store) {
+    const entries = store[modeId];
+    const mode = byId.get(modeId);
+    const live = mode ? modeItemKeys(mode) : new Set<string>();
+    if (live.size === 0) {
+      next[modeId] = entries;
+      continue;
+    }
+
+    // undotted form → live key, dropping forms that more than one live key shares
+    const byUndotted = new Map<string, string | null>();
+    for (const k of live) {
+      const u = undot(k);
+      byUndotted.set(u, byUndotted.has(u) ? null : k);
+    }
+
+    const migrated: ModeMastery = {};
+    for (const key in entries) {
+      const target = live.has(key) ? key : byUndotted.get(undot(key)) ?? key;
+      if (target !== key) changed = true;
+      const prev = migrated[target];
+      migrated[target] = prev && prev.lastTs > entries[key].lastTs ? prev : entries[key];
+    }
+    next[modeId] = migrated;
+  }
+  return { store: next, changed };
 }
 
 export function applyAnswer(

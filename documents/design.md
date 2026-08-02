@@ -99,6 +99,8 @@
 - **Purpose:** Persist per-item mastery levels and provide the SRS-like scheduler. Pure functions: `loadMastery`, `saveMastery`, `clearMastery`, `applyAnswer(store, modeId, itemId, ok, fast, now, hinted=false)`, `lessonStats`, `modeStats`, `pickDueItems(store, modeId, items, n, now)`.
 - **Interfaces:** `MasteryStore = Record<modeId, Record<itemId, ItemMastery>>`; `ItemMastery = { level, lastTs, attempts }`.
 - **Scheduler:** `pickDueItems` scores each item by `(overdue + weakBonus if level<7)`, where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. Top-K (K = 2n) is shuffled and sliced to n. When all scores are zero, fallback to `shuffle(items).slice(0, n)`.
+- **Key migration:** `migrateDottedKeys(store, modes)` re-points records stranded by the punctuation pass (§3.17), run once at load in `App.tsx`. A record moves only when its key matches no live item AND exactly one live key equals it with every period stripped from both; ambiguity is left alone, and legitimately dotted keys (`1 stot.`) match a live item so they never move. Colliding records keep the newer `lastTs`. Idempotent, and cost scales with the stored keys, not with the 232 modes.
+- **Why migrate rather than accept orphans:** `lessonStats` counts entries in the store against a total from `itemCount()`, so stale keys do not merely lose progress — they inflate `atSeven / total` past 1 and falsely mark a lesson mastered.
 - **Deps:** `types.ts`, `utils/itemKey`, `utils/shuffle`, `localStorage`.
 
 ### 3.10 utils/itemKey.ts
@@ -113,11 +115,12 @@
 - **Lifecycle:** applied in `main.tsx` before first paint; `App.tsx` re-measures on `visibilitychange` while in `system` mode. Persisted under `bg-trainer-textscale-v1` (registered in `storage.ts` `TRACKED_KEYS`).
 - **Deps:** `utils/storage.ts`.
 
-### 3.17 utils/displayText.ts
-- **Purpose:** `stripFinalPeriod()` — render-time punctuation trim. A sentence-final period carries no information in a drill and is pure noise on a 60px stimulus or a "Да." button; `?`, `!` and `…` stay, since several modes ask the learner to tell a question from a statement.
-- **Constraint:** render-time only. `itemKey()` derives mastery keys from the raw `q`, so editing the data would orphan every stored progress record. `NegEngine` also strips before permuting words, otherwise the dot lands mid-sentence.
-- **Call-site rule:** applied where the caller knows the string is a stimulus or a choice option — never inside `Correction`/`ErrorDialog`, which receive composed text. `PickOptEngine` joins answer and hint, and 24 hints end in an abbreviation period (`ж.р.`, `мн.ч.`, `няма да + гл.`) that a blanket strip would eat. `TypeEngine` is excluded entirely: there the answer is the exact target compared against the learner's input by `normalize()`.
-- **Note:** the `…` guard is a manual two-char check, not a regex lookbehind — Safari only supports lookbehind from 16.4 and the deployment target is iOS 15.
+### 3.17 Exercise punctuation (data, not render)
+- **Rule:** meaningless sentence-final periods are absent from the data itself; nothing trims punctuation at render. A period in a drill string is noise on a 60px stimulus, but only the exercise reveals whether it is noise, so the decision is made per item when the item is written.
+- **Kept:** abbreviations (`ул.`, `бул.`, `ет.`, `ап.`, `1 stot.`, `м.р., ед.`, `На 29.08.1979 г.`), `?`, `!`, `…`, prose `translation`/`rule` text, and the `"."` word tiles in `DATA_L7_BUILD` / `DATA_PROFILE_BUILD` that the learner drags into place. 22 such strings remain.
+- **Why not a render-time helper:** a blanket strip cannot see any of the above. An earlier `stripFinalPeriod()` did exactly that and ate the period of 24 grammar hints (`ж.р.`, `мн.ч.`, `няма да + гл.`); it was removed once the data was cleaned.
+- **`NegEngine` dependency:** its decoys are word-order permutations of `answer`, so those answers must stay unpunctuated or the dot lands mid-sentence (`студент. Аз не съм`).
+- **Migration:** `migrateDottedKeys()` (§3.5) re-points mastery records whose key still carries a removed period.
 
 ### 3.11 iOS shell (Capacitor 8)
 - **Purpose:** Wrap the React SPA in a native iOS app (WKWebView at `capacitor://localhost`). Same JS bundle as web, relative asset base `./`.
