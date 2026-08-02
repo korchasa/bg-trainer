@@ -32,7 +32,7 @@ Interactive Bulgarian language trainer for A0-level learners. UI in Russian or U
 - **Persistence:** Browser `localStorage` (key `bg-trainer-v3`, max 200 sessions)
 - **Package manager:** npm
 - **Hosting:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). The app owns the root (Vite base `/`). The marketing site is a different repo on Cloudflare Pages
-- **CI/CD:** GitHub Actions (`deploy.yml`, `preview.yml`, `cleanup-preview.yml`)
+- **CI/CD:** GitHub Actions (`check.yml`, `deploy.yml`, `preview.yml`, `cleanup-preview.yml`)
 
 ## Architecture
 
@@ -109,6 +109,7 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Styling:** Tailwind utility classes throughout; no CSS modules; no external UI component library — all UI is custom.
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
+- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `npm run build`, which is `tsc && vite build`. The project has no tests, so the type check plus a clean production bundle is the whole gate. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
 - **Deployment:**
   - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. Only `web-v*` publishes; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)

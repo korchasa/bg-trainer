@@ -65,6 +65,10 @@ npm run preview   # preview the production build locally
 
 Output is written to `dist/`.
 
+## Checks
+
+Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `npm run build`, which type-checks with `tsc` and produces the production bundle. The project has no test suite yet, so that is the whole gate. Feature branches build the same way in the preview workflow.
+
 ## Deployment
 
 Publishing is release-driven — merging to `main` publishes nothing. The workflow in `.github/workflows/deploy.yml` publishes only the web app, at the root of its own subdomain:
