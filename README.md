@@ -70,7 +70,7 @@ Output is written to `dist/`.
 Publishing is release-driven — merging to `main` publishes nothing. The workflow in `.github/workflows/deploy.yml` publishes only the web app, at the root of its own subdomain:
 
 - `app.bgtrainer.korchasa.dev/` — the React web app (this repo, GitHub Pages, CNAME in `public/`)
-- `bgtrainer.korchasa.dev/` — marketing landing and policies, which live in the app-store-factory repo and deploy to Cloudflare Pages
+- `bgtrainer.korchasa.dev/` — marketing landing and policies, maintained outside this repository and deployed to Cloudflare Pages
 
 ```
 web-v* tag (or manual run) → build app (base=/, outDir=dist) → publish dist/ to gh-pages (keep_files: true, so preview/ survives)
@@ -78,7 +78,7 @@ web-v* tag (or manual run) → build app (base=/, outDir=dist) → publish dist/
 
 To release, push a `web-v*` tag (for example `web-v1.2.0`). You can also run the **Deploy to GitHub Pages** workflow manually from the **Actions** tab against any branch or tag — the escape hatch when there is nothing to tag.
 
-> A `v*` tag does **not** publish the web app. That namespace belongs to `.github/workflows/ios-release.yml` (iOS build + TestFlight upload). Web releases use `web-v*` only.
+> Web releases use `web-v*` only — no other tag pattern publishes anything. This repository has no store-release pipeline: `npm run dist` produces an **unsigned** iOS archive, and signing, packaging and upload to the App Store happen outside this repository.
 
 Feature branches deploy to `app.bgtrainer.korchasa.dev/preview/{branch}/` and are removed when the branch is deleted.
 

@@ -4,10 +4,9 @@
 # Pipeline: build web assets -> sync Capacitor iOS -> xcodebuild archive
 # (Release, code signing disabled). Output: ios/App/build/App.xcarchive
 #
-# Signing and App Store .ipa export are NOT done here — that is
-# app-store-factory's job (it runs `xcodebuild -exportArchive` with the
-# distribution signing settings). This script needs no signing identity or
-# team id.
+# Signing and App Store .ipa export are NOT done here — they happen outside
+# this repository, where `xcodebuild -exportArchive` runs with the distribution
+# signing settings. This script needs no signing identity or team id.
 #
 # Everything under ios/App/build is gitignored, so nothing lands in the repo.
 set -euo pipefail
@@ -39,4 +38,4 @@ xcodebuild \
 	clean archive
 
 echo "==> Done (unsigned): ${ARCHIVE}"
-echo "    Signing + .ipa export are handled by app-store-factory."
+echo "    Signing + .ipa export happen outside this repository."

@@ -19,7 +19,7 @@
 ## Project Information
 - Project Name: bg-trainer
 - Live app: https://app.bgtrainer.korchasa.dev/ (this repo)
-- Marketing site + policies: https://bgtrainer.korchasa.dev/ (app-store-factory repo, Cloudflare Pages)
+- Marketing site + policies: https://bgtrainer.korchasa.dev/ (maintained outside this repository, Cloudflare Pages)
 
 ## Project Vision
 Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (20 categories, 232 modes, 11 engine types) with persistent progress and analytics.
@@ -79,8 +79,8 @@ public/                      # Copied verbatim into the build
 └── favicon.svg
 ```
 
-The landing page, privacy policy and terms are NOT in this repo — they live in
-app-store-factory and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`.
+The landing page, privacy policy and terms are NOT in this repo — they are
+maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`.
 
 ### Key Types (`src/types.ts`)
 - `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type" | "match" | "odd" | "paradigm"`
@@ -110,10 +110,11 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
 - **Deployment:**
-  - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. `v*` is the iOS namespace (`ios-release.yml`) and must not be used for web releases; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
+  - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. Only `web-v*` publishes; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
   - Branch delete → cleanup via `cleanup-preview.yml`
-- **Repo split:** this repo publishes only the web app. The landing page and the privacy/terms pages moved to app-store-factory and are served by Cloudflare Pages at `bgtrainer.korchasa.dev`; policy URLs are `/privacy` and `/terms` (the `.html` forms 308-redirect). `public/` ships inside the app build and holds the CNAME.
+  - **No store-release pipeline in this repo.** CI publishes the web app and nothing else. `npm run dist` produces an unsigned iOS archive; signing, packaging and upload to App Store Connect happen outside this repository and are not automated here
+- **Repo split:** this repo publishes only the web app. The landing page and the privacy/terms pages are maintained outside it and served by Cloudflare Pages at `bgtrainer.korchasa.dev`; policy URLs are `/privacy` and `/terms` (the `.html` forms 308-redirect). `public/` ships inside the app build and holds the CNAME.
 - **Stale `app/` in `gh-pages`:** `keep_files: true` never deletes, so anything published under an older layout lingers until removed by hand.
 - **Adding a new mode:**
   1. Add `DataItem[]` / `BuildItem[]` / `LiItem[]` to `src/data/index.ts`
