@@ -128,7 +128,7 @@
 - **Lifecycle:** `AppDelegate` + `SceneDelegate` (UIScene adopted — avoids ~20s iOS 17+ stall). `UIApplicationSceneManifest` in `Info.plist` points `UISceneStoryboardFile=Main`, `UISceneDelegateClassName=App.SceneDelegate`.
 - **Viewport:** `contentInset: 'never'` + CSS `env(safe-area-inset-*)` padding on `body`; layout uses `height: 100%` chain (no `100vh`).
 - **Startup:** Inline HTML splash in `index.html` shown until React mounts (`main.tsx` hides via `requestAnimationFrame`). `AnalyticsScreen` lazy-loaded via `React.lazy` → main chunk 360 KB / gzip 94 KB.
-- **Scripts:** `npm run build:ios` (`VITE_BASE_PATH=./` for relative paths) → `ios:sync` → `ios:open`. `npm run dist` (`scripts/build-ios-archive.sh`): `build:ios` → `cap sync ios` → `xcodebuild archive` (Release, signing disabled) → `ios/App/build/App.xcarchive` (gitignored). Signing + `.ipa` export handled by app-store-factory.
+- **Scripts:** `npm run build:ios` (`VITE_BASE_PATH=./` for relative paths) → `ios:sync` → `ios:open`. `npm run dist` (`scripts/build-ios-archive.sh`): `build:ios` → `cap sync ios` → `xcodebuild archive` (Release, signing disabled) → `ios/App/build/App.xcarchive` (gitignored). Signing + `.ipa` export + ASC upload happen outside this repository; the repo produces the unsigned archive only.
 - **Deps:** Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/ios`), Swift Package Manager (no CocoaPods runtime deps). `Package.resolved` is gitignored — `cap sync`/Xcode regenerate it from the pinned `@capacitor` versions, so committing it only adds churn.
 - **Known gotchas:**
   - iOS 17+ stalls ~20s at launch on Capacitor apps without UIScene adoption (symptom: `UIScene lifecycle will soon be required` in console, black screen ~20s). Fix requires `SceneDelegate.swift` + `UIApplicationSceneManifest` in Info.plist + 4 entries in `project.pbxproj` (PBXBuildFile, PBXFileReference, PBXGroup, PBXSourcesBuildPhase).
@@ -232,6 +232,7 @@
   - Web is fully free — no paywall, no IAP, no tier enforcement. Strategic choice: mobile premium positioning vs free web reach.
   - No cross-platform iOS↔Android sync — would require backend, ruled "complication" by product.
   - One-time IAP only, no subscriptions, no consumables.
+  - No store-release CI in this repo (FR-IOS-CICD). Its workflows publish the web app only; signing, `.ipa` packaging and ASC upload run outside the repository, so no signing or App Store Connect credential is stored here.
 - **Deferred:**
   - Test harness (Vitest/Playwright) — to add when regressions appear.
   - ESLint + Prettier — for consistent code quality.
@@ -240,7 +241,6 @@
   - iOS App Store submission assets (AppIcon, LaunchScreen, Privacy Manifest) — FR-IOS-APPSTORE.
   - Native integrations (splash, haptics, status-bar) — FR-IOS-UX.
   - Storage migration `localStorage` → `@capacitor/preferences` — FR-IOS-STORAGE.
-  - iOS CI/CD to TestFlight — FR-IOS-CICD.
   - Android shell + Play Store assets + CI/CD — FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD.
   - Freemium gating + paywall + RevenueCat integration — FR-FREEMIUM, FR-IAP, FR-PAYWALL.
   - Pro-only cloud sync (iCloud KVS / Auto Backup) — FR-SYNC-PAID.

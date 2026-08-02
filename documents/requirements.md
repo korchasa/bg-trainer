@@ -258,12 +258,12 @@
   - [x] `PrivacyInfo.xcprivacy` declares `NSPrivacyTracking=false`, empty tracking domains and collected data types, and one `NSPrivacyAccessedAPIType` for `NSPrivacyAccessedAPICategoryUserDefaults` with reason `CA92.1` (own defaults). Wired into Xcode project as a build resource. No IAP/RevenueCat SDK; only Capacitor plugin manifests merge in at archive time. Evidence: `ios/App/App/PrivacyInfo.xcprivacy`, `ios/App/App.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference + PBXGroup + PBXResourcesBuildPhase entries with IDs `B6010101000000000000PRIV`/`B6010102000000000000PRIV`)
   - [x] `ITSAppUsesNonExemptEncryption: false` in Info.plist. Evidence: `ios/App/App/Info.plist:60-61`
   - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
-  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy` (`/privacy.html` 308-redirects there). Served by the app-store-factory repo on Cloudflare Pages, not from this one. Evidence: HTTP 200 verified 2026-08-02; `/terms` likewise.
+  - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy` (`/privacy.html` 308-redirects there). Hosted outside this repo, on Cloudflare Pages. Evidence: HTTP 200 verified 2026-08-02; `/terms` likewise.
   - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
   - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Privacy Policy URL, App Privacy questionnaire ("Data Not Collected", published) and the $1.99 price are all set; version 1.0 is `READY_FOR_SALE` and available in 175 territories.
-  - [x] Code signing configured — this repo archives unsigned (`CODE_SIGNING_ALLOWED=NO`); the app-store-factory `signing` lane issues the certificate and App Store profile and signs the export. Evidence: factory `apps.yml` (`bg-trainer.sign`), `fastlane/Fastfile` (`signing`/`package` lanes).
-  - [x] Screenshots for iPhone 6.7" (1290×2796) uploaded for all three locales (ru/uk plus the uk artwork in the en-US slot — the app has no English UI). Captured from the web build via headless Chrome at viewport 430×932, `deviceScaleFactor: 3`. Evidence: factory `screenshots/bg-trainer/`, ASC app `6766068069`.
-  - [x] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` — driven by the factory `beta` lane, not by this repo's CI. Evidence: builds 2–4 on ASC app `6766068069`.
+  - [x] Code signing configured — this repo archives unsigned (`CODE_SIGNING_ALLOWED=NO`); the certificate, App Store profile and signed export are produced outside it. Evidence: repo side `scripts/build-ios-archive.sh:35-37`; signed builds 2–4 on ASC app `6766068069` (manual — outside repo).
+  - [x] Screenshots for iPhone 6.7" (1290×2796) uploaded for all three locales (ru/uk plus the uk artwork in the en-US slot — the app has no English UI). Captured from the web build via headless Chrome at viewport 430×932, `deviceScaleFactor: 3`. Evidence: ASC app `6766068069`; artwork stored outside this repo.
+  - [x] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` — run outside this repo, not by its CI. Evidence: builds 2–4 on ASC app `6766068069`.
 - **Status:** [x]
 
 ### 3.20 FR-IOS-UX
@@ -300,16 +300,13 @@
 - **Status:** [ ]
 
 ### 3.23 FR-IOS-CICD
-- **Desc:** Automated build + TestFlight delivery on release tags.
+- **Desc:** No store-release pipeline in this repo. CI publishes the web app only; signing, `.ipa` packaging and App Store Connect upload happen outside the repository, so no signing or ASC credential is stored here.
 - **Acceptance:**
-  - [x] GitHub Actions workflow `ios-release.yml` triggered on tag `v*` (also `workflow_dispatch`). Evidence: `.github/workflows/ios-release.yml:3-7`
-  - [x] Pipeline runs `npm run build:ios && npx cap sync ios && xcodebuild archive -exportArchive` producing `.ipa` artifact. Evidence: `.github/workflows/ios-release.yml` (Build/Capacitor sync/Archive/Export IPA steps)
-  - [x] App Store Connect API key consumed from GitHub secrets (`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`); upload via `xcrun altool`. Evidence: `.github/workflows/ios-release.yml` (Upload to TestFlight via altool step)
-  - [x] Auto-bump `CURRENT_PROJECT_VERSION` from `${GITHUB_RUN_NUMBER}` via `xcrun agvtool new-version`. Evidence: `.github/workflows/ios-release.yml` (Bump versions step)
-  - [x] `MARKETING_VERSION` sourced from git tag (`${GITHUB_REF_NAME#v}`) via `xcrun agvtool new-marketing-version`. Evidence: `.github/workflows/ios-release.yml` (Bump versions step)
-  - [x] Keychain bootstrap (cert import + provisioning profile install) on clean macOS runner with cleanup. Evidence: `.github/workflows/ios-release.yml` (Bootstrap signing keychain + Cleanup keychain steps)
-  - [ ] First tagged build reaches ASC TestFlight "Ready to Test" — never exercised: no `v*` tag exists and TestFlight delivery moved to the app-store-factory `beta` lane, so this workflow is now a second, unused path. Decide whether to run it once or retire it. Setup: `documents/ios-release-setup.md`.
-- **Status:** [ ]
+  - [x] No workflow builds, signs, packages or uploads an iOS binary. Evidence: `.github/workflows/` holds only `deploy.yml`, `preview.yml`, `cleanup-preview.yml`
+  - [x] No workflow reads an Apple signing or ASC secret; the only secret in use is the auto-provided `GITHUB_TOKEN`. Evidence: `.github/workflows/deploy.yml:42`, `.github/workflows/preview.yml:42`
+  - [x] `web-v*` is the only tag pattern any workflow reacts to. Evidence: `.github/workflows/deploy.yml:3-9`
+  - [x] The repo-side iOS build stops at an unsigned archive. Evidence: `scripts/build-ios-archive.sh:35-37` (`CODE_SIGNING_ALLOWED=NO`), `package.json:13`
+- **Status:** [x]
 
 ### 3.9 FR-NAV
 - **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.
@@ -420,8 +417,8 @@
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.
 - **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS: `@capacitor/preferences` (FR-IOS-STORAGE), local-only (no cloud sync).
 - **Deploy:**
-  - **Web:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). App at the root (Vite base `/`); branch previews at `/preview/{branch}/`; `keep_files: true` keeps them across deploys. Published on a `web-v*` tag push or manual `workflow_dispatch` (any branch or tag); merging to `main` publishes nothing. `v*` is the iOS tag namespace, not the web one. Marketing site and policies live in the app-store-factory repo on Cloudflare Pages at `bgtrainer.korchasa.dev`. Free; all lessons included.
-  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store. Paid app ($1.99), all lessons included (FR-PAID).
+  - **Web:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). App at the root (Vite base `/`); branch previews at `/preview/{branch}/`; `keep_files: true` keeps them across deploys. Published on a `web-v*` tag push or manual `workflow_dispatch` (any branch or tag); merging to `main` publishes nothing, and no other tag pattern publishes either. Marketing site and policies are maintained outside this repo, on Cloudflare Pages at `bgtrainer.korchasa.dev`. Free; all lessons included.
+  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. This repo builds only an unsigned archive (`npm run dist`); signing, `.ipa` export and upload to TestFlight / App Store happen outside it and are not automated here. Paid app ($1.99), all lessons included (FR-PAID).
 
 ## 6. Acceptance
 - **Criteria:**
