@@ -420,13 +420,13 @@
 - **UI:** Custom React components. No external UI library. Tailwind utility classes.
 - **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS: `@capacitor/preferences` (FR-IOS-STORAGE), local-only (no cloud sync).
 - **Deploy:**
-  - **Web:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). App at the root (Vite base `/`); branch previews at `/preview/{branch}/`; `keep_files: true` keeps them across deploys. Marketing site and policies live in the app-store-factory repo on Cloudflare Pages at `bgtrainer.korchasa.dev`. Free; all lessons included.
+  - **Web:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). App at the root (Vite base `/`); branch previews at `/preview/{branch}/`; `keep_files: true` keeps them across deploys. Published on a `web-v*` tag push or manual `workflow_dispatch` (any branch or tag); merging to `main` publishes nothing. `v*` is the iOS tag namespace, not the web one. Marketing site and policies live in the app-store-factory repo on Cloudflare Pages at `bgtrainer.korchasa.dev`. Free; all lessons included.
   - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. Build via `npm run ios:sync` + `xcodebuild`. Distribution via TestFlight / App Store. Paid app ($1.99), all lessons included (FR-PAID).
 
 ## 6. Acceptance
 - **Criteria:**
   - [x] `npm run build` completes without TS errors. Evidence: `package.json:7`
-  - [x] App deploys to GH Pages on push to `main`. Evidence: `.github/workflows/deploy.yml`
+  - [x] App deploys to GH Pages on a `web-v*` tag push or manual `workflow_dispatch`, not on push to `main`. Evidence: `.github/workflows/deploy.yml:3-9`
   - [x] Preview deploys on PR branches. Evidence: `.github/workflows/preview.yml`
   - [x] Preview cleaned up on branch delete. Evidence: `.github/workflows/cleanup-preview.yml`
   - [ ] No test suite — gap to close if correctness regressions appear.
