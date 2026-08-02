@@ -97,7 +97,7 @@ Mode and category definitions live in `src/data/index.ts`; the exercises themsel
 
 Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
 
-**Exercise punctuation:** meaningless sentence-final periods are absent from the data and nothing trims them at render. Periods that carry meaning stay — abbreviations (`ул.`, `1 stot.`, `м.р., ед.`), `?`, `!`, `…`, prose translations, and the `"."` word tiles the learner drags into place. Decide per exercise when writing one; never sweep with a regex.
+**Exercise punctuation:** meaningless sentence-final periods are absent from the data and nothing trims them at render. Periods that carry meaning stay — abbreviations (`ул.`, `1 stot.`, `м.р., ед.`), `?`, `!`, `…`, and prose translations. Decide per exercise when writing one; never sweep with a regex. In `BuildItem.words`, a punctuation token (`. , ? ! …`) is template furniture: `BuildEngine` renders it in a fixed position and keeps it out of the tile pool (FR-BUILD), so write the mark where it belongs and never treat it as a tile the learner drags. `node scripts/check-build-punct.mjs` asserts this over all data.
 
 ### Scoring
 - Correct answer: **+10 pts**
