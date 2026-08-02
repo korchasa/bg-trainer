@@ -1,5 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  // Touch browsers keep :hover on the last tapped element until the next tap.
+  // Answer buttons are re-rendered in place for the next question, so the
+  // stale hover border read as "the previous answer is still selected".
+  // This wraps every `hover:` utility in `@media (hover: hover)`.
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
