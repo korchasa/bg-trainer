@@ -46,7 +46,9 @@ export async function checkHints(): Promise<void> {
     publishers++;
 
     // The channel contract, in the order a question moves through it.
-    if (!/hintCh\.publish\(\{/.test(src)) {
+    // Publishing content, not just the unmount `publish(null)`. Frame items may
+    // legitimately have no hint, so the argument is not always an object literal.
+    if (!/hintCh\.publish\((?!null\))/.test(src)) {
       failures.push(`${path} — uses the channel but never publishes a hint`);
     }
     if (!/useEffect\(\(\) => \(\) => hintCh\.publish\(null\), \[\]\)/.test(src)) {

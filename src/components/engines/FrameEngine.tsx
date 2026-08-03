@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FrameData, FrameItem, DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
@@ -8,6 +8,7 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { useHintChannel } from "../../hooks/useHintChannel";
 
 interface Props {
   data: () => FrameData;
@@ -71,6 +72,15 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
     useGame(qs as unknown as DataItem[], onComplete, reactions, 10, 1400, onItemAnswer);
 
+  // FR-HINT-MODAL: a hint belongs in the header, never beside the sentence being
+  // built. Most frame items carry none — publishing null then keeps the lamp off.
+  const hintCh = useHintChannel();
+  useEffect(() => {
+    const q = qs[cur];
+    hintCh.publish(q?.hint ? { hint: L(q.hint), rule: q.rule ? L(q.rule) : undefined } : null);
+  }, [cur]);
+  useEffect(() => () => hintCh.publish(null), []);
+
   const item = qs[cur];
 
   // Reset during render, not in an effect: an effect commits one frame first, and
@@ -98,7 +108,7 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
    */
   const submit = (raw: string) => {
     const v = norm(raw);
-    answer(accepted.has(v) ? canonical : v, canonical);
+    answer(accepted.has(v) ? canonical : v, canonical, { hinted: hintCh.wasUsed() });
   };
 
   const lineOk = checked && sel === canonical;
@@ -157,7 +167,6 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
       <Progress cur={answered} total={qsTotal} score={score} />
       <TaskPrompt text={prompt} example={example} />
       <p className="text-lg font-bold text-gray-900 mb-1 text-center leading-snug">{L(item.translation)}</p>
-      {item.hint && <p className="text-sm font-medium text-gray-600 mb-3 text-center">({L(item.hint)})</p>}
 
       {step === 1 && (
         // Step 1: one labelled row per word. The label names the job the word
