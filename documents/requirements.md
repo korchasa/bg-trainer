@@ -150,7 +150,7 @@
   - [x] Word + following mark render as one non-wrapping group. Evidence: `src/components/engines/BuildEngine.tsx:40-48,101-119`
   - [x] Marks at `text-gray-600` (7.56:1), inert; empty slots `aria-hidden`. Evidence: `src/components/engines/BuildEngine.tsx:106,115`
   - [x] Correction line composed with `joinTokens` — no space before a mark. Evidence: `src/components/engines/BuildEngine.tsx:121`
-  - [x] Invariant asserted over all 427 `words[]` arrays in `src/data`: no punctuation reaches the pool, every template round-trips. Evidence: `node scripts/check-build-punct.mjs`
+  - [x] Invariant asserted over all 427 `words[]` arrays in `src/data`: no punctuation reaches the pool, every template round-trips. Evidence: `deno task test` (`scripts/punct.ts`)
   - [x] `src/data/*.ts` unchanged, so mastery keys survive. Evidence: `git diff --stat -- 'src/data/*.ts'` is empty
 - **Status:** [x]
 
@@ -244,12 +244,12 @@
   - [x] Language switcher rendered on `LessonsScreen`. Evidence: `src/components/screens/LessonsScreen.tsx:28-43`
   - [x] `AnalyticsScreen` resolves mode label via `ALL_MODES.find(...).label` + `L()`, not raw modeId. Evidence: `src/components/screens/AnalyticsScreen.tsx:33-46`
   - [x] Glossary maintained. Evidence: `documents/i18n-glossary.md`
-  - [x] `npm run build` passes. Evidence: build output zero TS errors.
+  - [x] `deno task build` passes. Evidence: build output zero TS errors.
 - **Status:** [x]
 
 ### 3.18 FR-IOS-SHELL
 - **Desc:** Native iOS shell via Capacitor 8 wrapping the same React SPA. Target iOS 15.0+. Bundle ID `dev.korchasa.bgtrainer`. Shared codebase with web; iOS build uses relative asset base (`./`). WKWebView hosts the app at `capacitor://localhost`.
-- **Scenario:** `npm run ios:sync` rebuilds web assets with relative base and copies them into `ios/App/App/public/`. Xcode opens the project, runs it on simulator or device.
+- **Scenario:** `deno task ios:sync` rebuilds web assets with relative base and copies them into `ios/App/App/public/`. Xcode opens the project, runs it on simulator or device.
 - **Acceptance:**
   - [x] Capacitor core/cli/ios v8 installed. Evidence: `package.json:17-19`
   - [x] `capacitor.config.ts` with `appId`, `appName`, `webDir=dist`. Evidence: `capacitor.config.ts`
@@ -273,7 +273,7 @@
   - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy` (`/privacy.html` 308-redirects there). Hosted outside this repo, on Cloudflare Pages. Evidence: HTTP 200 verified 2026-08-02; `/terms` likewise.
   - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
   - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Privacy Policy URL, App Privacy questionnaire ("Data Not Collected", published) and the $1.99 price are all set; version 1.0 is `READY_FOR_SALE` and available in 175 territories.
-  - [x] Code signing configured — this repo archives unsigned (`CODE_SIGNING_ALLOWED=NO`); the certificate, App Store profile and signed export are produced outside it. Evidence: repo side `scripts/build-ios-archive.sh:35-37`; signed builds 2–4 on ASC app `6766068069` (manual — outside repo).
+  - [x] Code signing configured — this repo archives unsigned (`CODE_SIGNING_ALLOWED=NO`); the certificate, App Store profile and signed export are produced outside it. Evidence: repo side `scripts/dist.ts` (`CODE_SIGNING_ALLOWED=NO`); signed builds 2–4 on ASC app `6766068069` (manual — outside repo).
   - [x] Screenshots for iPhone 6.7" (1290×2796) uploaded for all three locales (ru/uk plus the uk artwork in the en-US slot — the app has no English UI). Captured from the web build via headless Chrome at viewport 430×932, `deviceScaleFactor: 3`. Evidence: ASC app `6766068069`; artwork stored outside this repo.
   - [x] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` — run outside this repo, not by its CI. Evidence: builds 2–4 on ASC app `6766068069`.
 - **Status:** [x]
@@ -317,7 +317,7 @@
   - [x] No workflow builds, signs, packages or uploads an iOS binary. Evidence: `.github/workflows/` holds only `deploy.yml`, `preview.yml`, `cleanup-preview.yml`
   - [x] No workflow reads an Apple signing or ASC secret; the only secret in use is the auto-provided `GITHUB_TOKEN`. Evidence: `.github/workflows/deploy.yml:42`, `.github/workflows/preview.yml:42`
   - [x] `web-v*` is the only tag pattern any workflow reacts to. Evidence: `.github/workflows/deploy.yml:3-9`
-  - [x] The repo-side iOS build stops at an unsigned archive. Evidence: `scripts/build-ios-archive.sh:35-37` (`CODE_SIGNING_ALLOWED=NO`), `package.json:13`
+  - [x] The repo-side iOS build stops at an unsigned archive. Evidence: `scripts/dist.ts` (`CODE_SIGNING_ALLOWED=NO`), `deno.json` task `dist`
 - **Status:** [x]
 
 ### 3.9 FR-NAV
@@ -430,11 +430,11 @@
 - **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS: `@capacitor/preferences` (FR-IOS-STORAGE), local-only (no cloud sync).
 - **Deploy:**
   - **Web:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). App at the root (Vite base `/`); branch previews at `/preview/{branch}/`; `keep_files: true` keeps them across deploys. Published on a `web-v*` tag push or manual `workflow_dispatch` (any branch or tag); merging to `main` publishes nothing, and no other tag pattern publishes either. Marketing site and policies are maintained outside this repo, on Cloudflare Pages at `bgtrainer.korchasa.dev`. Free; all lessons included.
-  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. This repo builds only an unsigned archive (`npm run dist`); signing, `.ipa` export and upload to TestFlight / App Store happen outside it and are not automated here. Paid app ($1.99), all lessons included (FR-PAID).
+  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. This repo builds only an unsigned archive (`deno task dist`); signing, `.ipa` export and upload to TestFlight / App Store happen outside it and are not automated here. Paid app ($1.99), all lessons included (FR-PAID).
 
 ## 6. Acceptance
 - **Criteria:**
-  - [x] `npm run build` completes without TS errors. Evidence: `package.json:7`
+  - [x] `deno task build` completes without TS errors. Evidence: `package.json:7`
   - [x] App deploys to GH Pages on a `web-v*` tag push or manual `workflow_dispatch`, not on push to `main`. Evidence: `.github/workflows/deploy.yml:3-9`
   - [x] Preview deploys on PR branches. Evidence: `.github/workflows/preview.yml`
   - [x] Preview cleaned up on branch delete. Evidence: `.github/workflows/cleanup-preview.yml`

@@ -32,10 +32,16 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Deno is the repository's command runner: every verb is `deno task <verb>`.
+      # The builders it drives (tsc, vite, cap) stay Node binaries from npm.
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Install dependencies
         run: npm ci
 
-      # `build` is `tsc && vite build`: the type check is the gate, the bundle
-      # proves the app still compiles end to end.
-      - name: Type-check and build
-        run: npm run build
+      # The same gate a developer runs locally: task-script tooling, `tsc` +
+      # Vite bundle, comment scan, and the lesson-data invariants.
+      - name: deno task check
+        run: deno task check

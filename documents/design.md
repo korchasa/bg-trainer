@@ -128,7 +128,7 @@
 - **Lifecycle:** `AppDelegate` + `SceneDelegate` (UIScene adopted — avoids ~20s iOS 17+ stall). `UIApplicationSceneManifest` in `Info.plist` points `UISceneStoryboardFile=Main`, `UISceneDelegateClassName=App.SceneDelegate`.
 - **Viewport:** `contentInset: 'never'` + CSS `env(safe-area-inset-*)` padding on `body`; layout uses `height: 100%` chain (no `100vh`).
 - **Startup:** Inline HTML splash in `index.html` shown until React mounts (`main.tsx` hides via `requestAnimationFrame`). `AnalyticsScreen` lazy-loaded via `React.lazy` → main chunk 360 KB / gzip 94 KB.
-- **Scripts:** `npm run build:ios` (`VITE_BASE_PATH=./` for relative paths) → `ios:sync` → `ios:open`. `npm run dist` (`scripts/build-ios-archive.sh`): `build:ios` → `cap sync ios` → `xcodebuild archive` (Release, signing disabled) → `ios/App/build/App.xcarchive` (gitignored). Signing + `.ipa` export + ASC upload happen outside this repository; the repo produces the unsigned archive only.
+- **Scripts:** `deno task build:ios` (`VITE_BASE_PATH=./` for relative paths) → `ios:sync` → `ios:open`. `deno task dist` (`scripts/dist.ts`): `build:ios` → `cap sync ios` → `xcodebuild archive` (Release, signing disabled) → `ios/App/build/App.xcarchive` (gitignored). Signing + `.ipa` export + ASC upload happen outside this repository; the repo produces the unsigned archive only.
 - **Deps:** Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/ios`), Swift Package Manager (no CocoaPods runtime deps). `Package.resolved` is gitignored — `cap sync`/Xcode regenerate it from the pinned `@capacitor` versions, so committing it only adds churn.
 - **Known gotchas:**
   - iOS 17+ stalls ~20s at launch on Capacitor apps without UIScene adoption (symptom: `UIScene lifecycle will soon be required` in console, black screen ~20s). Fix requires `SceneDelegate.swift` + `UIApplicationSceneManifest` in Info.plist + 4 entries in `project.pbxproj` (PBXBuildFile, PBXFileReference, PBXGroup, PBXSourcesBuildPhase).
@@ -165,7 +165,7 @@
 - **Lifecycle:** Single `MainActivity` extending `BridgeActivity`. Edge-to-edge layout via `WindowCompat.setDecorFitsSystemWindows(false)` + CSS `env(safe-area-inset-*)`.
 - **Hardware back:** Default `BridgeActivity` back-button handler invokes WebView `goBack()`; falls through to default activity finish when stack empty. App routes back-button events to `App.tsx` `onBack` listener via Capacitor `App.addListener('backButton', …)`.
 - **Backup:** `android:allowBackup="true"` + `fullBackupContent="@xml/backup_rules"` referencing SharedPrefs `Capacitor.Preferences`.
-- **Scripts:** `npm run build:android` (`VITE_BASE_PATH=./` + `VITE_PLATFORM=android`) → `android:sync` → `android:open`.
+- **Scripts:** `deno task build:android` (`VITE_BASE_PATH=./` + `VITE_PLATFORM=android`) → `android:sync` → `android:open`.
 - **Deps:** `@capacitor/android` v8, AGP 8.x, Gradle 8.x, JDK 17.
 - **Known gotchas:**
   - Auto Backup excludes anything outside SharedPrefs/files dir by default — Capacitor `Preferences` plugin uses SharedPrefs file `CapacitorStorage`, must be explicitly included in `backup_rules.xml`.

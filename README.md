@@ -44,14 +44,15 @@ Entry screen lists 8 lessons. Tapping an available lesson opens a pace selector 
 
 ### Prerequisites
 
-- Node.js 20+
-- npm
+- Node.js 20+ and npm — they install the build toolchain (`tsc`, `vite`, `cap`)
+- [Deno 2](https://deno.com) — the command runner: every command here is a Deno
+  task (`brew install deno`)
 
 ### Development
 
 ```bash
-npm install
-npm run dev
+npm ci
+deno task dev
 ```
 
 Open http://localhost:5173/ in your browser. The base path defaults to `/` and is overridable through `VITE_BASE_PATH` — the preview workflow uses it to build at `/preview/{branch}/`.
@@ -59,15 +60,20 @@ Open http://localhost:5173/ in your browser. The base path defaults to `/` and i
 ### Production build
 
 ```bash
-npm run build     # compiles TypeScript and bundles with Vite
-npm run preview   # preview the production build locally
+deno task build   # compiles TypeScript and bundles with Vite
+deno task prod    # build, then serve that build locally
 ```
 
 Output is written to `dist/`.
 
 ## Checks
 
-Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `npm run build`, which type-checks with `tsc` and produces the production bundle. The project has no test suite yet, so that is the whole gate. Feature branches build the same way in the preview workflow.
+```bash
+deno task check   # everything below
+deno task test    # the data invariants alone
+```
+
+Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `deno task check`. The gate type-checks with `tsc`, produces the production bundle, scans the sources for leftover work markers, and asserts the lesson-data invariants (punctuation is rendered by the template and never offered as a tile). There is no unit-test suite yet. Feature branches build the same way in the preview workflow.
 
 ## Deployment
 
@@ -82,7 +88,7 @@ web-v* tag (or manual run) → build app (base=/, outDir=dist) → publish dist/
 
 To release, push a `web-v*` tag (for example `web-v1.2.0`). You can also run the **Deploy to GitHub Pages** workflow manually from the **Actions** tab against any branch or tag — the escape hatch when there is nothing to tag.
 
-> Web releases use `web-v*` only — no other tag pattern publishes anything. This repository has no store-release pipeline: `npm run dist` produces an **unsigned** iOS archive, and signing, packaging and upload to the App Store happen outside this repository.
+> Web releases use `web-v*` only — no other tag pattern publishes anything. This repository has no store-release pipeline: `deno task dist` produces an **unsigned** iOS archive, and signing, packaging and upload to the App Store happen outside this repository.
 
 Feature branches deploy to `app.bgtrainer.korchasa.dev/preview/{branch}/` and are removed when the branch is deleted.
 

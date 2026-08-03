@@ -24,6 +24,12 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Deno is the repository's command runner; npm only installs the builders.
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Install dependencies
         run: npm ci
 
@@ -31,7 +37,7 @@ jobs:
         # The marketing landing + privacy/terms are hosted outside this
         # repository, on Cloudflare Pages at bgtrainer.korchasa.dev. This repo
         # only publishes the web app, on its own subdomain (public/CNAME).
-        run: npm run build
+        run: deno task build
         env:
           VITE_BASE_PATH: /
           VITE_OUT_DIR: dist

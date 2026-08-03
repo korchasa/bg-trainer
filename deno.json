@@ -1,0 +1,24 @@
+{
+  "name": "bg-trainer",
+  "version": "1.0.0",
+  "exports": {},
+  "tasks": {
+    "check": "deno run -A scripts/check.ts",
+    "test": "deno run -A scripts/test.ts",
+    "dev": "deno run -A scripts/dev.ts",
+    "prod": "deno run -A scripts/prod.ts",
+    "dist": "deno run -A scripts/dist.ts",
+    "build": "deno run -A scripts/build.ts web",
+    "build:ios": "deno run -A scripts/build.ts ios",
+    "fmt": "deno run -A scripts/fmt.ts",
+    "ios:sync": "deno run -A scripts/ios.ts sync",
+    "ios:open": "deno run -A scripts/ios.ts open"
+  },
+  "fmt": {
+    "include": ["scripts/", "deno.json"],
+    "lineWidth": 100
+  },
+  "lint": {
+    "include": ["scripts/"]
+  }
+}

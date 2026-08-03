@@ -3,15 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "build:ios": "VITE_BASE_PATH=./ VITE_PLATFORM=ios tsc && VITE_BASE_PATH=./ VITE_PLATFORM=ios vite build",
-    "ios:sync": "npm run build:ios && cap sync ios",
-    "ios:open": "cap open ios",
-    "dist": "bash scripts/build-ios-archive.sh"
-  },
+  "//": "No scripts here on purpose: every command is a Deno task (see deno.json). npm only installs the Vite/Capacitor toolchain the tasks drive.",
   "dependencies": {
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/preferences": "^8.0.1",

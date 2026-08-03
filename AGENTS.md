@@ -30,7 +30,8 @@ Interactive Bulgarian language trainer for A0-level learners. UI in Russian or U
 - **Styling:** Tailwind CSS 3, PostCSS, Autoprefixer
 - **Charts:** Recharts 2
 - **Persistence:** Browser `localStorage` (key `bg-trainer-v3`, max 200 sessions)
-- **Package manager:** npm
+- **Package manager:** npm (dependencies only)
+- **Command runner:** Deno 2 — every verb is `deno task <verb>`, declared in `deno.json` and implemented in dependency-free TypeScript under `scripts/`
 - **Hosting:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). The app owns the root (Vite base `/`). The marketing site is a different repo on Cloudflare Pages
 - **CI/CD:** GitHub Actions (`check.yml`, `deploy.yml`, `preview.yml`, `cleanup-preview.yml`)
 
@@ -97,7 +98,7 @@ Mode and category definitions live in `src/data/index.ts`; the exercises themsel
 
 Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
 
-**Exercise punctuation:** meaningless sentence-final periods are absent from the data and nothing trims them at render. Periods that carry meaning stay — abbreviations (`ул.`, `1 stot.`, `м.р., ед.`), `?`, `!`, `…`, and prose translations. Decide per exercise when writing one; never sweep with a regex. In `BuildItem.words`, a punctuation token (`. , ? ! …`) is template furniture: `BuildEngine` renders it in a fixed position and keeps it out of the tile pool (FR-BUILD), so write the mark where it belongs and never treat it as a tile the learner drags. `node scripts/check-build-punct.mjs` asserts this over all data.
+**Exercise punctuation:** meaningless sentence-final periods are absent from the data and nothing trims them at render. Periods that carry meaning stay — abbreviations (`ул.`, `1 stot.`, `м.р., ед.`), `?`, `!`, `…`, and prose translations. Decide per exercise when writing one; never sweep with a regex. In `BuildItem.words`, a punctuation token (`. , ? ! …`) is template furniture: `BuildEngine` renders it in a fixed position and keeps it out of the tile pool (FR-BUILD), so write the mark where it belongs and never treat it as a tile the learner drags. `deno task test` asserts this over all data (`scripts/punct.ts`).
 
 ### Scoring
 - Correct answer: **+10 pts**
@@ -105,16 +106,16 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - Wrong: error count++, no points
 
 ## Key Decisions
-- **No test suite** — project has no tests, no test runner configured. TDD flow below is aspirational until a framework is added.
+- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation), which is where this app's bugs actually live.
 - **Styling:** Tailwind utility classes throughout; no CSS modules; no external UI component library — all UI is custom.
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
-- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `npm run build`, which is `tsc && vite build`. The project has no tests, so the type check plus a clean production bundle is the whole gate. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
+- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `deno task check` — the task-script tooling, `tsc` plus the Vite bundle, a comment scan, and the FR-BUILD data invariants over every `words[]` array. There is still no unit-test suite. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
 - **Deployment:**
   - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. Only `web-v*` publishes; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
   - Branch delete → cleanup via `cleanup-preview.yml`
-  - **No store-release pipeline in this repo.** CI publishes the web app and nothing else. `npm run dist` produces an unsigned iOS archive; signing, packaging and upload to App Store Connect happen outside this repository and are not automated here
+  - **No store-release pipeline in this repo.** CI publishes the web app and nothing else. `deno task dist` produces an unsigned iOS archive; signing, packaging and upload to App Store Connect happen outside this repository and are not automated here
 - **Repo split:** this repo publishes only the web app. The landing page and the privacy/terms pages are maintained outside it and served by Cloudflare Pages at `bgtrainer.korchasa.dev`; policy URLs are `/privacy` and `/terms` (the `.html` forms 308-redirect). `public/` ships inside the app build and holds the CNAME.
 - **Stale `app/` in `gh-pages`:** `keep_files: true` never deletes, so anything published under an older layout lingers until removed by hand.
 - **Adding a new mode:**
@@ -307,16 +308,23 @@ When the root cause is outside your control (missing API keys/URLs, missing gene
 - `prod` — run the app in production mode.
 
 ### Detected Commands
-Project uses npm scripts (`package.json`). No standardized `check/test/prod` scripts configured — no test runner or linter installed. Mapping:
+Every command is a Deno task (`deno.json`). `package.json` carries no `scripts`
+block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
-- `npm install` — install dependencies
-- `npm run dev` — Vite dev server at http://localhost:5173/ (maps to `dev`)
-- `npm run build` — `tsc` type-check + Vite bundle → `dist/` (closest to `check`; no linter or tests)
-- `npm run preview` — serve the production build locally (maps to `prod`)
-- `test` — **not configured**. No test suite exists.
+- `npm ci` — install the Node dependencies the tasks call (`tsc`, `vite`, `cap`)
+- `deno task check` — the gate: task-script tooling (`deno fmt --check`, `deno lint`, `deno check`) + `tsc` + Vite bundle + comment scan + data invariants
+- `deno task test` — the automated assertions: build-mode punctuation invariants over every `words[]` array in `src/data` (FR-BUILD). No unit-test suite exists yet
+- `deno task dev` — Vite dev server at http://localhost:5173/
+- `deno task prod` — build, then serve that build locally
+- `deno task build` / `deno task build:ios` — `tsc` + Vite bundle, web or iOS flavour (the iOS one forces a relative base path)
+- `deno task dist` — unsigned iOS archive at `ios/App/build/App.xcarchive`; signing and upload happen outside this repository
+- `deno task ios:sync` / `deno task ios:open` — Capacitor sync and Xcode
+- `deno task fmt` — format the task scripts (the React sources have no formatter configured)
 
 ### Command Scripts
-No helper scripts in `scripts/`. All commands are inline npm scripts in `package.json`.
+- `deno.json` — the task table; it is the only place a verb is declared. Every task is `deno run -A scripts/<verb>.ts`.
+- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts` — the FR-BUILD data invariants.
+- The scripts import nothing from JSR or npm; `check` type-checks and lints them before it does anything else.
 
 ### Browser Automation Access
 - `foxcode-run-project-profile` (skill) launches a Firefox profile bridged via `mcp__plugin_foxcode_foxcode__evalInBrowser` (ws://localhost:8795).

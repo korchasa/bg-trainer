@@ -25,8 +25,8 @@ If the file does not exist or is empty → STOP and ask the user.
 7. **Wire into `src/data/index.ts`.** Add imports, add `export * from "./lesson{N}"`, append a category (or append to existing `l{N}_extra`) with each `Mode`. Imperative `label`/`desc`.
 8. **Enable in `src/data/lessons.ts`.** Set `available: true` and fill `modeIds` in the order modes should appear.
 9. **Update `documents/requirements.md`** FR-LESSONS acceptance: add `[x]` line with evidence (file paths).
-10. **Run `npm run build`** (maps to `check`) — fixes type errors, confirms no drift.
-11. **Verify in browser** via `npm run dev` — spot-check 2–3 modes per lesson.
+10. **Run `deno task build`** (maps to `check`) — fixes type errors, confirms no drift.
+11. **Verify in browser** via `deno task dev` — spot-check 2–3 modes per lesson.
 
 ## Type reference (from `src/types.ts`)
 
@@ -198,7 +198,7 @@ Full rationale + required fields → [references/engines.md](references/engines.
 - [ ] `Mode.desc` is imperative ("Выбери…", "Собери…"), not topical.
 - [ ] Mode registered in `src/data/index.ts` AND its id listed in `LESSONS[i].modeIds` in `src/data/lessons.ts`.
 - [ ] `LESSONS[i].available = true` if this is the lesson being enabled.
-- [ ] `npm run build` passes (strict TS + Vite bundle).
+- [ ] `deno task build` passes (strict TS + Vite bundle).
 - [ ] SRS `FR-LESSONS` acceptance row updated with evidence.
 
 ## Final response format
