@@ -22,7 +22,7 @@
 - Marketing site + policies: https://bgtrainer.korchasa.dev/ (maintained outside this repository, Cloudflare Pages)
 
 ## Project Vision
-Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (20 categories, 232 modes, 11 engine types) with persistent progress and analytics.
+Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (21 categories, 240 modes, 12 engine types) with persistent progress and analytics.
 
 ## Project tooling Stack
 - **Runtime/UI:** React 18, TypeScript 5
@@ -65,6 +65,7 @@ src/
 │   │   ├── NegEngine.tsx        # Construct negation from tiles
 │   │   ├── BuildEngine.tsx      # Drag-to-order sentence
 │   │   ├── LiEngine.tsx         # Insert particle "ли"
+│   │   ├── FrameEngine.tsx      # Produce a sentence from a translation; scaffolding fades by lesson
 │   │   └── index.ts
 │   ├── screens/
 │   │   ├── ResultsScreen.tsx    # End-of-game results + stats
@@ -83,7 +84,7 @@ The landing page, privacy policy and terms are NOT in this repo — they are
 maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`.
 
 ### Key Types (`src/types.ts`)
-- `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type" | "match" | "odd" | "paradigm"`
+- `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type" | "match" | "odd" | "paradigm" | "frame"`
 - `DataItem` — `{ q, answer, hint, label?, decoys? }` standard exercise
 - `BuildItem` — `{ words, translation }` sentence ordering
 - `LiItem` — `{ words, liPosition, result, translation }` particle insertion
@@ -93,7 +94,7 @@ maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`
 - `Screen` — `"menu" | "game" | "results" | "analytics"`
 
 ### Game Data
-Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts`, and the lesson→mode mapping in `src/data/lessons.ts`. Currently 20 categories and 232 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
+Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts` plus `src/data/frames.ts` (sentence-production drills), and the lesson→mode mapping in `src/data/lessons.ts`. Currently 21 categories and 240 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
 
 Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
 

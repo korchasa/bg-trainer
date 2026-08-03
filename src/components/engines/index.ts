@@ -10,6 +10,7 @@ import { TypeEngine } from "./TypeEngine";
 import { MatchEngine } from "./MatchEngine";
 import { OddOneOutEngine } from "./OddOneOutEngine";
 import { ParadigmEngine } from "./ParadigmEngine";
+import { FrameEngine } from "./FrameEngine";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ENGINES: Record<EngineType, React.ComponentType<any>> = {
@@ -24,4 +25,5 @@ export const ENGINES: Record<EngineType, React.ComponentType<any>> = {
   match: MatchEngine,
   odd: OddOneOutEngine,
   paradigm: ParadigmEngine,
+  frame: FrameEngine,
 };

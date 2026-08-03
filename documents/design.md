@@ -62,7 +62,7 @@
 - **Purpose:** Countdown for `TimedEngine`, exposes remaining time and bonus calculation hook.
 - **Deps:** None.
 
-### 3.4 Engines (11)
+### 3.4 Engines (12)
 - **Purpose:** Render one question and produce answer events for `useGame.answer()` (or directly, for engines with custom session shapes).
 - **Interfaces:** Props `{ data, onComplete, onItemAnswer?, levelLookup?, prompt? }` (shape varies slightly per engine). Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`, `MatchItem`, `OddItem`, `ParadigmItem`, `PickOptData`).
 - **Hint toggle:** Multiple-choice engines (`pick`, `pickOpt`, `pickFrom`, `timed`, `type`) hide the L1 hint by default behind a "Подсказка" button; revealing sets a local `hintedRef` that is forwarded to `useGame.answer({ hinted: true })` and then to `onItemAnswer(..., hinted=true)`.
@@ -73,8 +73,9 @@
   - `MatchEngine` — single board with all pairs; session ends when matched count == pairs.length. Score = +10 per first-try correct pair; errors counted as unique wrong-left ids.
   - `ParadigmEngine` — one item = one 6-slot paradigm; +5 per correct slot; advances on full fill.
   - `OddOneOutEngine` — uses `useGame` with a `DataItem[]` cast over `OddItem[]` to inherit retry/scoring.
+  - `FrameEngine` (FR-FRAME, FR-FRAME-LADDER) — same `DataItem[]` cast over `FrameItem[]`. One item = one sentence the learner produces from an L1 translation; `data().step` decides the scaffolding (see §3.19). Load-bearing details: the next-empty slot is read from `filledRef`, not from state, so two taps in one React batch cannot target the same slot; `filled` is reset **during render** via a `filledFor` guard, because an effect commits one frame first and that frame paints the previous sentence's words into the new slots; the sentence-initial capital is applied by `cap()` at render, so the bank keeps one lower-case tile per word instead of a capitalised twin; and an accepted `alt` order is submitted to `useGame` **as the canonical string on both sides**, so variants work without teaching `useGame` about variants (`sel === canonical` then means "this attempt was right").
 - **Deps:** `useGame` (most), `useTimer` (timed only), UI atoms.
-- **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`, `MatchEngine`, `OddOneOutEngine`, `ParadigmEngine`.
+- **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`, `MatchEngine`, `OddOneOutEngine`, `ParadigmEngine`, `FrameEngine`.
 
 ### 3.5 ResultsScreen
 - **Purpose:** Show session outcome: score, errors, time. Offer "play again" / "menu".
@@ -105,6 +106,7 @@
 
 ### 3.10 utils/itemKey.ts
 - **Purpose:** Stable natural key for any engine item + mode item-count resolution. `itemKey(item)` → `q` / `translation`. `itemCount(mode)` handles 3 data shapes.
+- **Hazard:** `useGame` calls `itemKey` inside a `try/catch` and skips mastery on failure. A new item shape without its own branch therefore loses progress silently instead of erroring — `FrameItem` gets the `frame:` namespace, and `scripts/check-lesson-lexicon.mjs` asserts the branch resolves.
 - **Deps:** `types.ts`.
 
 ### 3.16 utils/textScale.ts
@@ -121,6 +123,21 @@
 - **Why not a render-time helper:** a blanket strip cannot see any of the above. An earlier `stripFinalPeriod()` did exactly that and ate the period of 24 grammar hints (`ж.р.`, `мн.ч.`, `няма да + гл.`); it was removed once the data was cleaned.
 - **`NegEngine` dependency:** its decoys are word-order permutations of `answer`, so those answers must stay unpunctuated or the dot lands mid-sentence (`студент. Аз не съм`).
 - **Migration:** `migrateDottedKeys()` (§3.5) re-points mastery records whose key still carries a removed period.
+
+### 3.18 Cumulative lesson lexicon (FR-FRAME)
+- **Rule:** a frame drill in lesson N may only use words the learner has already met. The permitted set is derived from the code, never hand-listed: union of the Bulgarian strings of every mode registered in lessons 1..N.
+- **Fields read:** `answer`, `decoys`, `opts`, `words`, `result`, `left`/`right`, `verb`, `forms`, `pronouns`. `q` is excluded — in some modes it carries a Russian prompt, and a whitelist polluted with Russian would weaken the check instead of tightening it.
+- **Self-approval guard:** frame modes are excluded from the source set, so a frame can never license its own vocabulary.
+- **Enforcement:** `node scripts/check-lesson-lexicon.mjs`; `--dump <lessonId>` prints the lexicon when authoring. It also asserts one frame mode per lesson, ≥6 items, bank ≥ 4× the longest sentence, no duplicate or case-twin bank entries, no sentence (or `alt`) repeating a word — the bank offers one tile per word, so a repeat is unfillable — both locales on every role and translation, and that `itemKey` resolves the shape.
+- **Running TS from a `.mjs` script:** Node's ESM resolver rejects the app's extensionless imports. `scripts/resolve-ts-hook.mjs` appends `.ts`; the checker registers it and then imports `src/` dynamically, since static imports would resolve before the hook exists. Node ≥ 22.18 strips the types itself.
+
+### 3.19 Frame scaffolding ladder (FR-FRAME-LADDER)
+- **Steps:** 1 labelled roles → 2 bare slots → 3 empty line + bank → 4 typing. Lessons L1–L2 / L3–L4 / L5–L6 / L7–L8.
+- **State shape:** steps 1–2 keep `filled` as a fixed-length `(string|null)[]` with holes and auto-submit when full; steps 3–4 grow (`filled` appends, or `typed` holds the text) and need an explicit "Проверить". One `fixed = step <= 2` flag drives both the state shape and the render branch.
+- **Error marking:** per slot at steps 1–2, where a slot maps to a known word; whole-line at steps 3–4, where lengths may differ and no such mapping exists.
+- **Alternatives:** `FrameItem.alt` lists full sentences that are also correct Bulgarian. Meaningful only from step 3, where the learner picks order and length — the checker rejects an `alt` below that as dead data. Mostly pro-drop variants (`искам да отида`) and clitic-driven reorderings (`ял съм`, `пил е вино`).
+- **Bank at step 4:** never rendered, still required in the data — it defines the mode's vocabulary and is what the lexicon checker validates every slot and `alt` word against.
+- **Why fading rather than one fixed level:** production practice transfers to production, not comprehension practice (DeKeyser 1997); a difficulty helps only when it is actually overcome (retrieval effort / desirable difficulties); and support that outlives competence turns into a cost (expertise reversal, assistance dilemma). A single level would be wrong at one end of the course or the other.
 
 ### 3.11 iOS shell (Capacitor 8)
 - **Purpose:** Wrap the React SPA in a native iOS app (WKWebView at `capacitor://localhost`). Same JS bundle as web, relative asset base `./`.
