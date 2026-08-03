@@ -140,6 +140,12 @@
 - **What does not move:** `TaskPrompt` (instruction + worked example) is constant for the whole session, so it stays at the top and is allowed to scroll away.
 - **Invariant:** `scripts/stimulus.ts` (run by `deno task test`) scans the two engines as text and asserts the stimulus renders between the answer-area and bank anchors, that `BuildEngine` — which renders it once — has none above the answer area, and that `tapWordsBelow` stays deleted. Anchors are markup-only on purpose: `item.slots.map(` also appears in a `FrameEngine` helper above every render site, and using it made the scan pass on the layout it exists to reject.
 
+### 3.18b Verdict overlay (`components/ui/Reaction.tsx`, FR-FEEDBACK-CENTRED)
+- **Shape:** `absolute inset-0 z-40 flex items-center justify-center pointer-events-none`, holding a white pill. Carries no flow height, so the 36 px spacer the inline version reserved in all twelve engines is gone.
+- **Anchor:** the game wrapper in `App.tsx` is the only positioned ancestor, so the overlay covers the area below the header and does not move while the play area scrolls. `overflow-y-auto` on an engine root does not create a containing block; an added `relative` there would, and would silently centre the verdict in the scrollable content instead. `scripts/feedback.ts` asserts no engine root is positioned.
+- **Layering:** z-40, under `ErrorDialog` and `InfoModal` at z-50 — a wrong answer's explanation must cover the verdict, not compete with it.
+- **Announcement:** the `role="status" aria-live="polite"` region stays mounted and only its content changes; a region that appears together with its text is announced unreliably.
+
 ### 3.19 Hint channel (`hooks/useHintChannel.tsx`, FR-HINT-MODAL)
 - **Problem:** the button belongs in the header, which `App` renders; the hint belongs to the question, which only the engine knows. Prop-drilling through the engine dispatch would mean every engine forwarding a hint it does not display, and a per-engine button would mean five copies of the same UI.
 - **Shape:** `HintProvider` (mounted in `main.tsx` above `App`) holds `content: {hint, rule} | null`, `isOpen`, and a `usedRef`. Engine → `publish(content)` per question and `publish(null)` on unmount; header → `open()` / `close()`; engine → `wasUsed()` at answer time. `publish` also resets `isOpen` and `usedRef`, so a new question starts unhinted with the modal closed.

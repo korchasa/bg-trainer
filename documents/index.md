@@ -12,6 +12,7 @@
 - [FR-FRAME](requirements.md#345-fr-frame) — Sentence-production drill, one per lesson, on that lesson's cumulative lexicon — implemented
 - [FR-FRAME-LADDER](requirements.md#346-fr-frame-ladder) — Scaffolding fades across lessons: labelled roles → bare slots → empty line → typing — implemented
 - [FR-STIMULUS-NEAR-BANK](requirements.md#336-fr-stimulus-near-bank) — The per-question sentence renders between the answer area and the word bank, so it stays in view while the learner taps — implemented
+- [FR-FEEDBACK-CENTRED](requirements.md#337-fr-feedback-centred) — The verdict on an answer is shown over the middle of the visible game area, not in the document flow — implemented
 - [FR-IOS-APPSTORE](requirements.md#319-fr-ios-appstore) — App Store submission assets and metadata — implemented (version 1.0 `READY_FOR_SALE`; signing and store upload happen outside this repo)
 - [FR-IOS-CICD](requirements.md#323-fr-ios-cicd) — no store-release pipeline in this repo; CI publishes the web app only, signing and upload run outside it — implemented
 - [FR-IOS-POLISH](requirements.md#322-fr-ios-polish) — Native a11y, dark, iPad-drop, crash reporting — partial (dark opt-out, iPad drop, VoiceOver labels, Dynamic Type rem done; manual rotor walkthrough + Sentry pending)

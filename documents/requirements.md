@@ -244,6 +244,17 @@
 - **Limit:** A bank taller than the screen (L1's is 39 words, 986 px at scale 1.3) still scrolls past the stimulus at its foot. Adjacency is the most this layout can buy; shrinking those banks is a separate question.
 - **Status:** [x]
 
+### 3.37 FR-FEEDBACK-CENTRED
+- **Desc:** The verdict on an answer (FR-REACTION's «Браво!» / «Мимо!») is shown over the middle of the visible game area, not at whatever point of the document the engine renders it. In the flow it was off-screen whenever the play area was longer than the screen — the learner answers at the foot of a word bank and the reply lands above the fold, so the only feedback is the question changing under them. The overlay is click-through, so it never blocks an answer in progress, and it reserves no flow height, which removes the 36 px spacer the old inline version held in all twelve engines. It sits below `ErrorDialog` and `InfoModal` (z-40 against their z-50), so a wrong answer's explanation still covers it.
+- **Mechanism:** `absolute inset-0` inside an engine resolves against the game wrapper in `App.tsx` (`flex-1 flex flex-col overflow-hidden relative`) — the fixed-height area below the header — because no engine root is positioned and `overflow-y-auto` alone does not make one a containing block. Put `relative` on an engine root and the overlay re-anchors to the scrollable content and centres itself in the document instead of on screen, with nothing at the call site looking wrong; `scripts/feedback.ts` exists for that.
+- **Scenario:** On a 375×667 screen at text size «Крупный», the learner finishes a sentence at the bottom of the word bank. «Браво!» appears in the middle of the screen they are looking at, over the play area, and fades with the next question.
+- **Acceptance:**
+  - [x] Verdict renders as a centred, click-through overlay carrying no flow height. Evidence: `src/components/ui/Reaction.tsx`
+  - [x] Measured live in two engines while answering: bubble centre within 17 px of the game-area centre (the `animate-bounce` offset), fully inside the visible area, `pointer-events: none`, `offsetParent` = the game wrapper. Evidence: `BuildEngine` («Мимо!») and `PickEngine` («Отлично!»)
+  - [x] Announced to assistive tech: the live region is mounted permanently and only its content changes. Evidence: `role="status" aria-live="polite"` in `src/components/ui/Reaction.tsx`
+  - [x] Invariant asserted, red first: the scan named the flow layout, the missing click-through and the reserved `h-9` before the fix. Evidence: `scripts/feedback.ts`, `deno task test`
+- **Status:** [x]
+
 ### 3.5 FR-REACTION
 - **Desc:** After each answer, show a Russian-language reaction (OK or FAIL) and, on wrong, reveal the correct answer.
 - **Acceptance:**
