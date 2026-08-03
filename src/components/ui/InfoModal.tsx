@@ -13,7 +13,7 @@ interface Props {
 export function InfoModal({ title, closeLabel, onClose, children }: Props) {
   return (
     <div
-      className="absolute inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm p-4 pb-6"
+      className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
