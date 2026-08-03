@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { useTimer } from "../../hooks/useTimer";
-import { OK, FAIL } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -32,33 +32,56 @@ interface Props {
 // and no speed bonus is awarded. New learners should not be pushed into System-1 guessing.
 const SPEED_GATE_LEVEL = 5;
 
-export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, prompt, example }: Props) {
+export function TimedEngine(
+  { data, onComplete, onItemAnswer, levelLookup, prompt, example }: Props,
+) {
   const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
   const [qs] = useState<TimedItem[]>(() =>
-    shuffle(items).map(item => {
-      const wrong = shuffle(items.filter(x => x.answer !== item.answer)).slice(0, 3);
+    shuffle(items).map((item) => {
+      const wrong = shuffle(items.filter((x) => x.answer !== item.answer)).slice(0, 3);
       return { ...item, options: shuffle([item, ...wrong]) };
     })
   );
   const hintCh = useHintChannel();
-  const { cur, sel, corr, reaction, score, answered, qsTotal, advance, answer, errorPending, dismissError } =
-    useGame(qs, onComplete, reactions, 10, 1200, onItemAnswer);
+  const {
+    cur,
+    sel,
+    corr,
+    reaction,
+    reactionOk,
+    score,
+    answered,
+    qsTotal,
+    advance,
+    answer,
+    errorPending,
+    dismissError,
+  } = useGame(qs, onComplete, reactions, 10, 1200, onItemAnswer);
 
   const { timeLeft, stop, reset } = useTimer(useCallback(() => {
     advance();
   }, [advance]));
 
   const curItem = qs[cur];
-  const curLevel = levelLookup ? (() => { try { return levelLookup(itemKey(curItem)); } catch { return 0; } })() : 0;
+  const curLevel = levelLookup
+    ? (() => {
+      try {
+        return levelLookup(itemKey(curItem));
+      } catch {
+        return 0;
+      }
+    })()
+    : 0;
   const gated = curLevel < SPEED_GATE_LEVEL;
 
   // FR-HINT-MODAL: hand this question s hint to the header button.
   useEffect(() => {
     const q = qs[cur];
     hintCh.publish({ hint: L(q.hint), rule: q.rule ? L(q.rule) : undefined });
-    if (gated) { stop(); } else { reset(); }
+    if (gated) stop();
+    else reset();
   }, [cur, gated]);
 
   useEffect(() => () => hintCh.publish(null), []);
@@ -75,19 +98,37 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
         {gated
-          ? <div className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6 text-center">{t("noTimerNewItem")}</div>
-          : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-600" : "text-gray-600"}`}>
+          ? (
+            <div className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6 text-center">
+              {t("noTimerNewItem")}
+            </div>
+          )
+          : (
+            <div
+              className={`text-2xl font-mono font-black mb-6 ${
+                timeLeft <= 3 ? "text-red-600" : "text-gray-600"
+              }`}
+            >
               ⏱ {timeLeft}с
-            </div>}
+            </div>
+          )}
         <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">{Lq(item.q)} ___</h1>
+        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">
+          {Lq(item.q)} ___
+        </h1>
       </div>
-      <Reaction text={reaction} />
-      <AnswerGrid options={item.options.map(o => o.answer)}>
-        {item.options.map((o, j) =>
-          <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={corr || item.answer}
-            onClick={() => go(o)} className="text-xl" />
-        )}
+      <Reaction text={reaction} ok={reactionOk} />
+      <AnswerGrid options={item.options.map((o) => o.answer)}>
+        {item.options.map((o, j) => (
+          <AnswerBtn
+            key={o.answer + j}
+            val={o.answer}
+            sel={sel}
+            correctVal={corr || item.answer}
+            onClick={() => go(o)}
+            className="text-xl"
+          />
+        ))}
       </AnswerGrid>
       {errorPending && (
         <ErrorDialog

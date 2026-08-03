@@ -43,6 +43,17 @@ export async function checkFeedback(): Promise<void> {
   if (/\bh-9\b/.test(reaction)) {
     failures.push(`${REACTION} — still reserves flow height; an overlay needs none`);
   }
+  // A white pill over white content is technically on screen and practically
+  // missed. The verdict carries its answer in its colour.
+  if (!/\bok\b/.test(reaction)) {
+    failures.push(`${REACTION} — takes no verdict flag, so it cannot colour itself`);
+  }
+  if (!/bg-emerald-700/.test(reaction)) {
+    failures.push(`${REACTION} — correct answers are not green`);
+  }
+  if (!/bg-\[#E60023\]/.test(reaction)) {
+    failures.push(`${REACTION} — wrong answers do not carry the accent colour`);
+  }
 
   // The anchor. Without it the overlay escapes to the whole page and centres
   // itself over the header too.

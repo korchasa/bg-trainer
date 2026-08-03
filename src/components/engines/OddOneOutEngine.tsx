@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import type { OddItem, DataItem } from "../../types";
+import { useEffect, useState } from "react";
+import type { DataItem, OddItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { OK, FAIL } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -26,8 +26,18 @@ export function OddOneOutEngine({ data, onComplete, onItemAnswer, prompt, exampl
   const items = data();
   const [qs] = useState<OddItem[]>(() => shuffle(items));
   const [tiles, setTiles] = useState<string[]>([]);
-  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
-    useGame(qs as unknown as DataItem[], onComplete, reactions, 10, 1200, onItemAnswer);
+  const {
+    cur,
+    sel,
+    reaction,
+    reactionOk,
+    score,
+    answered,
+    qsTotal,
+    answer,
+    errorPending,
+    dismissError,
+  } = useGame(qs as unknown as DataItem[], onComplete, reactions, 10, 1200, onItemAnswer);
 
   useEffect(() => {
     setTiles(shuffle(qs[cur].words));
@@ -43,15 +53,23 @@ export function OddOneOutEngine({ data, onComplete, onItemAnswer, prompt, exampl
         <TaskPrompt text={prompt} example={example} />
         <p className="text-base font-medium text-gray-600 mb-2">({L(item.hint)})</p>
         {sel !== null && item.rule && sel !== correct && (
-          <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">{L(item.rule)}</div>
+          <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">
+            {L(item.rule)}
+          </div>
         )}
       </div>
-      <Reaction text={reaction} />
+      <Reaction text={reaction} ok={reactionOk} />
       <AnswerGrid options={tiles}>
-        {tiles.map((w, j) =>
-          <AnswerBtn key={w + j} val={w} sel={sel} correctVal={correct}
-            onClick={() => answer(w, correct)} className="text-xl" />
-        )}
+        {tiles.map((w, j) => (
+          <AnswerBtn
+            key={w + j}
+            val={w}
+            sel={sel}
+            correctVal={correct}
+            onClick={() => answer(w, correct)}
+            className="text-xl"
+          />
+        ))}
       </AnswerGrid>
       {errorPending && (
         <ErrorDialog

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { ACCENT, OK, FAIL } from "../../constants";
+import { ACCENT, FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -35,13 +35,24 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: P
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } = useGame(qs, onComplete, reactions, 15, 1200, onItemAnswer);
+  const {
+    cur,
+    sel,
+    reaction,
+    reactionOk,
+    score,
+    answered,
+    qsTotal,
+    answer,
+    errorPending,
+    dismissError,
+  } = useGame(qs, onComplete, reactions, 15, 1200, onItemAnswer);
 
   useEffect(() => {
     // Decoys are word-order permutations of the answer, so the answer must not
     // carry sentence punctuation — a trailing dot would land mid-sentence
     // ("студент. Аз не съм"). The data keeps these answers unpunctuated.
-    const decoys = makeNegDecoys(qs[cur].answer).map(a => ({ ...qs[cur], answer: a }));
+    const decoys = makeNegDecoys(qs[cur].answer).map((a) => ({ ...qs[cur], answer: a }));
     setOptions(shuffle([qs[cur], ...decoys]));
   }, [cur]);
 
@@ -51,13 +62,16 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: P
       <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
         <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight break-words max-w-full">{Lq(item.q)}</h1>
+        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight break-words max-w-full">
+          {Lq(item.q)}
+        </h1>
         <p className="text-base font-medium text-gray-600">({L(item.hint)})</p>
       </div>
-      <Reaction text={reaction} />
+      <Reaction text={reaction} ok={reactionOk} />
       <div className="w-full flex flex-col gap-3 mb-4">
         {options.map((o, j) => {
-          let btnCls = "bg-white border-2 border-[#E9E9E9] text-[#111111] hover:border-[#111111] cursor-pointer";
+          let btnCls =
+            "bg-white border-2 border-[#E9E9E9] text-[#111111] hover:border-[#111111] cursor-pointer";
           let circleStyle = "border-gray-200";
           if (sel !== null) {
             if (o.answer === item.answer) {
@@ -75,11 +89,15 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: P
             <button
               key={o.answer + j}
               onClick={sel === null ? () => answer(o.answer, item.answer) : undefined}
-              style={sel !== null && o.answer === sel && o.answer !== item.answer ? { backgroundColor: ACCENT } : undefined}
+              style={sel !== null && o.answer === sel && o.answer !== item.answer
+                ? { backgroundColor: ACCENT }
+                : undefined}
               className={`w-full p-5 text-left text-base font-semibold flex items-center gap-3 rounded-[20px] transition-all ${btnCls}`}
             >
               <span className="flex-1 break-words leading-snug">{o.answer}</span>
-              <div className={`w-5 h-5 rounded-full border-2 shrink-0 transition-all ${circleStyle}`} />
+              <div
+                className={`w-5 h-5 rounded-full border-2 shrink-0 transition-all ${circleStyle}`}
+              />
             </button>
           );
         })}

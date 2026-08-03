@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { DataItem } from "../types";
-import { pickOK, pickFail } from "../utils/shuffle";
+import { pickFail, pickOK } from "../utils/shuffle";
 import { itemKey } from "../utils/itemKey";
 import { hapticCorrect, hapticWrong } from "../utils/nativeUx";
 import { prefersReducedMotion } from "../utils/motion";
@@ -46,6 +46,9 @@ export function useGame(
   const [sel, setSel] = useState<string | null>(null);
   const [corr, setCorr] = useState<string | null>(null);
   const [reaction, setReaction] = useState("");
+  // FR-FEEDBACK-CENTRED: the overlay colours itself by verdict, so the verdict
+  // has to travel with the text. Kept beside `reaction` and cleared with it.
+  const [reactionOk, setReactionOk] = useState(false);
   const [score, setScore] = useState(0);
   const [errorPending, setErrorPending] = useState(false);
   const [t0] = useState(Date.now());
@@ -66,13 +69,20 @@ export function useGame(
   const advance = useCallback(() => {
     if (finishedRef.current) return;
     const a = answeredRef.current;
-    if (a >= qsTotalRef.current) { finish(); return; }
+    if (a >= qsTotalRef.current) {
+      finish();
+      return;
+    }
     const next = pickNext();
-    if (next < 0) { finish(); return; }
+    if (next < 0) {
+      finish();
+      return;
+    }
     setCur(next);
     setSel(null);
     setCorr(null);
     setReaction("");
+    setReactionOk(false);
     setErrorPending(false);
     firstWrongRef.current = false;
     lockedRef.current = false;
@@ -84,6 +94,7 @@ export function useGame(
     setSel(null);
     setCorr(null);
     setReaction("");
+    setReactionOk(false);
     setErrorPending(false);
   }, []);
 
@@ -106,12 +117,14 @@ export function useGame(
           setScore(ns);
           sRef.current = ns;
           if (onItemAnswer) {
-            try { onItemAnswer(itemKey(qs[cur]), true, extraPts > 0, hinted); }
-            catch { /* unknown item shape — skip mastery */ }
+            try {
+              onItemAnswer(itemKey(qs[cur]), true, extraPts > 0, hinted);
+            } catch { /* unknown item shape — skip mastery */ }
           }
         }
         // Retry-success path silently advances: no score, no mastery event.
         setReaction(pickOK(reactionsRef.current.ok));
+        setReactionOk(true);
         answeredRef.current += 1;
         setAnswered(answeredRef.current);
         lockedRef.current = true;
@@ -122,12 +135,14 @@ export function useGame(
       } else {
         setCorr(correctVal);
         setReaction(pickFail(reactionsRef.current.fail));
+        setReactionOk(false);
         if (!firstWrongRef.current) {
           // First-attempt wrong → record error and fire mastery once.
           errSet.current.add(cur);
           if (onItemAnswer) {
-            try { onItemAnswer(itemKey(qs[cur]), false, false, hinted); }
-            catch { /* unknown item shape — skip mastery */ }
+            try {
+              onItemAnswer(itemKey(qs[cur]), false, false, hinted);
+            } catch { /* unknown item shape — skip mastery */ }
           }
           firstWrongRef.current = true;
         }
@@ -144,6 +159,7 @@ export function useGame(
     sel,
     corr,
     reaction,
+    reactionOk,
     score,
     answered,
     qsTotal: qsTotalRef.current,

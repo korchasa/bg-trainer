@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { BuildItem } from "../../types";
-import { shuffle, pickOK, pickFail } from "../../utils/shuffle";
+import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
 import { buildTemplate, joinTokens } from "../../utils/punct";
-import { OK, FAIL } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
@@ -26,6 +26,9 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
   const [pool, setPool] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [reaction, setReaction] = useState("");
+  // FR-FEEDBACK-CENTRED: the overlay colours itself by verdict, so the verdict
+  // travels with the text.
+  const [reactionOk, setReactionOk] = useState(false);
   const [score, setScore] = useState(0);
   const [t0] = useState(Date.now());
   const sRef = useRef(0);
@@ -68,13 +71,15 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
         setScore(ns);
         sRef.current = ns;
         setReaction(pickOK(L(OK)));
+        setReactionOk(true);
       } else {
         eRef.current++;
         setReaction(pickFail(L(FAIL)));
+        setReactionOk(false);
       }
       onItemAnswer?.(itemKey(item), ok, false);
       setTimeout(() => {
-        if (cur + 1 < qs.length) setCur(c => c + 1);
+        if (cur + 1 < qs.length) setCur((c) => c + 1);
         else onComplete(sRef.current, Date.now() - t0, eRef.current);
       }, 1200);
     }
@@ -89,10 +94,14 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
-        <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
+        <span>{cur + 1}/{qs.length}</span>
+        <span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-8">
-        <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
+        <div
+          className="h-full rounded-full transition-all duration-300 bg-[#111111]"
+          style={{ width: `${(cur / qs.length) * 100}%` }}
+        />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
         <TaskPrompt text={prompt} example={example} />
@@ -102,37 +111,69 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
             return (
               <div key={g} className="flex items-end">
                 {slot !== -1 && (word === undefined
-                  ? <span aria-hidden className="w-12 h-10 rounded-[14px] border-2 border-dashed border-gray-300" />
-                  : <button onClick={() => removeWord(word, slot)}
-                      className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${done ? (word === target[slot] ? "bg-emerald-500 text-white" : "bg-[#E60023] text-white") : "bg-[#111111] text-white hover:bg-gray-800"}`}>
+                  ? (
+                    <span
+                      aria-hidden
+                      className="w-12 h-10 rounded-[14px] border-2 border-dashed border-gray-300"
+                    />
+                  )
+                  : (
+                    <button
+                      onClick={() => removeWord(word, slot)}
+                      className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${
+                        done
+                          ? (word === target[slot]
+                            ? "bg-emerald-500 text-white"
+                            : "bg-[#E60023] text-white")
+                          : "bg-[#111111] text-white hover:bg-gray-800"
+                      }`}
+                    >
                       {word}
-                    </button>)}
-                {/* Punctuation: template furniture. gray-600 is 7.56:1 (FR-A11Y-CONTRAST).
+                    </button>
+                  ))}
+                {
+                  /* Punctuation: template furniture. gray-600 is 7.56:1 (FR-A11Y-CONTRAST).
                     Sits on the tiles' baseline — vertically centred, a "." would read as
-                    a separator dot rather than a full stop. */}
-                {marks.map((mark, j) =>
-                  <span key={j} className="pb-1 pl-0.5 text-gray-600 font-bold text-xl leading-none select-none">{mark}</span>
-                )}
+                    a separator dot rather than a full stop. */
+                }
+                {marks.map((mark, j) => (
+                  <span
+                    key={j}
+                    className="pb-1 pl-0.5 text-gray-600 font-bold text-xl leading-none select-none"
+                  >
+                    {mark}
+                  </span>
+                ))}
               </div>
             );
           })}
         </div>
-        <Correction show={done && placed.join(" ") !== target.join(" ")} text={joinTokens(item.words)} />
+        <Correction
+          show={done && placed.join(" ") !== target.join(" ")}
+          text={joinTokens(item.words)}
+        />
       </div>
-      <Reaction text={reaction} />
-      {/* FR-STIMULUS-NEAR-BANK: the sentence to produce is the one thing on this
+      <Reaction text={reaction} ok={reactionOk} />
+      {
+        /* FR-STIMULUS-NEAR-BANK: the sentence to produce is the one thing on this
           screen that changes per question, so it sits against the bank the
           learner taps — outside the centred block above, whose slack would
           otherwise open a gap between them. Above the template it scrolls out of
-          sight at large text sizes exactly when the bank comes into view. */}
-      <p className="text-base font-semibold text-gray-600 mb-3 text-center leading-snug">{L(item.translation)}</p>
+          sight at large text sizes exactly when the bank comes into view. */
+      }
+      <p className="text-base font-semibold text-gray-600 mb-3 text-center leading-snug">
+        {L(item.translation)}
+      </p>
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
-        {pool.map((word, i) =>
-          <button key={word + i} onClick={() => addWord(word, i)}
-            className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all">
+        {pool.map((word, i) => (
+          <button
+            key={word + i}
+            onClick={() => addWord(word, i)}
+            className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all"
+          >
             {word}
           </button>
-        )}
+        ))}
       </div>
     </div>
   );

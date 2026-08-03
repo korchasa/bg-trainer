@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MatchItem } from "../../types";
-import { shuffle, pickOK, pickFail } from "../../utils/shuffle";
-import { OK, FAIL } from "../../constants";
+import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
@@ -28,6 +28,9 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }:
   const [leftState, setLeftState] = useState<Record<number, SlotState>>({});
   const [rightState, setRightState] = useState<Record<number, SlotState>>({});
   const [reaction, setReaction] = useState("");
+  // FR-FEEDBACK-CENTRED: the overlay colours itself by verdict, so the verdict
+  // travels with the text.
+  const [reactionOk, setReactionOk] = useState(false);
   const [score, setScore] = useState(0);
   const [matched, setMatched] = useState(0);
   const [t0] = useState(Date.now());
@@ -52,8 +55,8 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }:
     if (rightState[idx] === "matched" || selLeft === null) return;
     const ok = selLeft === idx;
     if (ok) {
-      setLeftState(s => ({ ...s, [selLeft]: "matched" }));
-      setRightState(s => ({ ...s, [idx]: "matched" }));
+      setLeftState((s) => ({ ...s, [selLeft]: "matched" }));
+      setRightState((s) => ({ ...s, [idx]: "matched" }));
       setSelLeft(null);
       if (!attemptedRef.current.has(selLeft)) {
         const ns = sRef.current + 10;
@@ -62,6 +65,7 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }:
       }
       attemptedRef.current.add(selLeft);
       setReaction(pickOK(L(OK)));
+      setReactionOk(true);
       onItemAnswer?.(itemKey(pairs[selLeft]), true, false);
       const nm = mRef.current + 1;
       mRef.current = nm;
@@ -73,19 +77,24 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }:
       errRef.current.add(selLeft);
       attemptedRef.current.add(selLeft);
       const leftWas = selLeft;
-      setLeftState(s => ({ ...s, [leftWas]: "flash-fail" }));
-      setRightState(s => ({ ...s, [idx]: "flash-fail" }));
+      setLeftState((s) => ({ ...s, [leftWas]: "flash-fail" }));
+      setRightState((s) => ({ ...s, [idx]: "flash-fail" }));
       setReaction(pickFail(L(FAIL)));
+      setReactionOk(false);
       onItemAnswer?.(itemKey(pairs[selLeft]), false, false);
       setSelLeft(null);
       setTimeout(() => {
-        setLeftState(s => {
+        setLeftState((s) => {
           if (s[leftWas] !== "flash-fail") return s;
-          const ns = { ...s }; delete ns[leftWas]; return ns;
+          const ns = { ...s };
+          delete ns[leftWas];
+          return ns;
         });
-        setRightState(s => {
+        setRightState((s) => {
           if (s[idx] !== "flash-fail") return s;
-          const ns = { ...s }; delete ns[idx]; return ns;
+          const ns = { ...s };
+          delete ns[idx];
+          return ns;
         });
       }, 600);
     }
@@ -105,31 +114,45 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }:
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
-        <span>{matched}/{pairs.length}</span><span>{score} pts</span>
+        <span>{matched}/{pairs.length}</span>
+        <span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-6">
-        <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(matched / pairs.length) * 100}%` }} />
+        <div
+          className="h-full rounded-full transition-all duration-300 bg-[#111111]"
+          style={{ width: `${(matched / pairs.length) * 100}%` }}
+        />
       </div>
       <TaskPrompt text={prompt} example={example} />
       <div className="w-full grid grid-cols-2 gap-3 mb-6 mt-2">
         <div className="flex flex-col gap-2">
-          {leftOrder.map(i =>
-            <button key={`L${i}`} onClick={() => handleLeft(i)}
-              className={`px-3 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-center leading-tight break-words transition-all ${cellCls(leftState[i], selLeft === i)}`}>
+          {leftOrder.map((i) => (
+            <button
+              key={`L${i}`}
+              onClick={() => handleLeft(i)}
+              className={`px-3 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-center leading-tight break-words transition-all ${
+                cellCls(leftState[i], selLeft === i)
+              }`}
+            >
               {pairs[i].left}
             </button>
-          )}
+          ))}
         </div>
         <div className="flex flex-col gap-2">
-          {rightOrder.map(i =>
-            <button key={`R${i}`} onClick={() => handleRight(i)}
-              className={`px-3 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-center leading-tight break-words transition-all ${cellCls(rightState[i], false)}`}>
+          {rightOrder.map((i) => (
+            <button
+              key={`R${i}`}
+              onClick={() => handleRight(i)}
+              className={`px-3 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-center leading-tight break-words transition-all ${
+                cellCls(rightState[i], false)
+              }`}
+            >
               {pairs[i].right}
             </button>
-          )}
+          ))}
         </div>
       </div>
-      <Reaction text={reaction} />
+      <Reaction text={reaction} ok={reactionOk} />
     </div>
   );
 }

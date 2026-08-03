@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { OK, FAIL } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -33,8 +33,18 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: 
   const [input, setInput] = useState("");
   const hintCh = useHintChannel();
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
-    useGame(qs, onComplete, reactions, 10, 1400, onItemAnswer);
+  const {
+    cur,
+    sel,
+    reaction,
+    reactionOk,
+    score,
+    answered,
+    qsTotal,
+    answer,
+    errorPending,
+    dismissError,
+  } = useGame(qs, onComplete, reactions, 10, 1400, onItemAnswer);
 
   // FR-HINT-MODAL: hand this question s hint to the header button.
   useEffect(() => {
@@ -59,14 +69,18 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: 
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
         <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{Lq(item.q)}</h1>
-        {item.label && <div className="text-sm font-semibold text-gray-600 mb-1">{L(item.label)}</div>}
+        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">
+          {Lq(item.q)}
+        </h1>
+        {item.label && (
+          <div className="text-sm font-semibold text-gray-600 mb-1">{L(item.label)}</div>
+        )}
         <form onSubmit={submit} className="w-full max-w-xs">
           <input
             ref={inputRef}
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             disabled={sel !== null}
             autoCapitalize="off"
             autoCorrect="off"
@@ -76,9 +90,13 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: 
             placeholder={t("typeHere")}
           />
         </form>
-        <Correction show={sel !== null && sel !== normalize(item.answer)} text={item.answer} rule={item.rule ? L(item.rule) : undefined} />
+        <Correction
+          show={sel !== null && sel !== normalize(item.answer)}
+          text={item.answer}
+          rule={item.rule ? L(item.rule) : undefined}
+        />
       </div>
-      <Reaction text={reaction} />
+      <Reaction text={reaction} ok={reactionOk} />
       <div className="w-full mb-4">
         <button
           onClick={() => submit()}

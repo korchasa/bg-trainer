@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { OK, FAIL } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -21,14 +21,27 @@ interface Props {
   example?: string;
 }
 
-export function PickEngine({ data, onComplete, onItemAnswer, accent = false, prompt, example }: Props) {
+export function PickEngine(
+  { data, onComplete, onItemAnswer, accent = false, prompt, example }: Props,
+) {
   const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const [qs] = useState(() => shuffle(data()));
   const [options, setOptions] = useState<DataItem[]>([]);
   const hintCh = useHintChannel();
-  const { cur, sel, corr, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
-    useGame(qs, onComplete, reactions, 10, 1800, onItemAnswer);
+  const {
+    cur,
+    sel,
+    corr,
+    reaction,
+    reactionOk,
+    score,
+    answered,
+    qsTotal,
+    answer,
+    errorPending,
+    dismissError,
+  } = useGame(qs, onComplete, reactions, 10, 1800, onItemAnswer);
 
   // FR-HINT-MODAL: the header owns the hint button, so each question hands its
   // hint to the channel; unmounting clears it so the button leaves with the game.
@@ -42,29 +55,39 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
 
   const item = qs[cur];
   const shownAnswer = corr || item.answer;
-  const shownItem = qs.find(x => x.answer === shownAnswer) ?? item;
+  const shownItem = qs.find((x) => x.answer === shownAnswer) ?? item;
 
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
       <div className="flex-1 flex flex-col items-center justify-center mb-8">
         <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{Lq(item.q)}</h1>
+        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">
+          {Lq(item.q)}
+        </h1>
         {sel !== null && (
           <div className="text-center mt-6">
             <div className="text-3xl font-black text-gray-900 break-words">{shownAnswer}</div>
             {item.rule && sel !== item.answer && (
-              <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">{L(item.rule)}</div>
+              <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">
+                {L(item.rule)}
+              </div>
             )}
           </div>
         )}
       </div>
-      <Reaction text={reaction} />
-      <AnswerGrid options={options.map(o => o.answer)}>
-        {options.map((o, j) =>
-          <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={shownAnswer}
-            onClick={() => answer(o.answer, item.answer, { hinted: hintCh.wasUsed() })} className="text-lg" />
-        )}
+      <Reaction text={reaction} ok={reactionOk} />
+      <AnswerGrid options={options.map((o) => o.answer)}>
+        {options.map((o, j) => (
+          <AnswerBtn
+            key={o.answer + j}
+            val={o.answer}
+            sel={sel}
+            correctVal={shownAnswer}
+            onClick={() => answer(o.answer, item.answer, { hinted: hintCh.wasUsed() })}
+            className="text-lg"
+          />
+        ))}
       </AnswerGrid>
       {errorPending && (
         <ErrorDialog

@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ParadigmItem } from "../../types";
-import { shuffle, pickOK, pickFail } from "../../utils/shuffle";
-import { OK, FAIL } from "../../constants";
+import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
@@ -31,6 +31,9 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
   const [pool, setPool] = useState<string[]>([]);
   const [checked, setChecked] = useState<boolean[] | null>(null);
   const [reaction, setReaction] = useState("");
+  // FR-FEEDBACK-CENTRED: the overlay colours itself by verdict, so the verdict
+  // travels with the text.
+  const [reactionOk, setReactionOk] = useState(false);
   const [score, setScore] = useState(0);
   const [t0] = useState(Date.now());
   const sRef = useRef(0);
@@ -49,14 +52,14 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
 
   const fillNext = (form: string, poolIdx: number) => {
     if (checked) return;
-    const nextSlotIdx = slots.findIndex(s => s === null);
+    const nextSlotIdx = slots.findIndex((s) => s === null);
     if (nextSlotIdx < 0) return;
     const newSlots = [...slots];
     newSlots[nextSlotIdx] = form;
     const newPool = pool.filter((_, i) => i !== poolIdx);
     setSlots(newSlots);
     setPool(newPool);
-    if (newSlots.every(s => s !== null)) {
+    if (newSlots.every((s) => s !== null)) {
       const marks = newSlots.map((s, i) => s === item.forms[i]);
       setChecked(marks);
       const correctCount = marks.filter((m, i) => m && i !== GIVEN).length;
@@ -67,9 +70,10 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
       const allOk = marks.every(Boolean);
       if (!allOk) eRef.current++;
       setReaction(allOk ? pickOK(L(OK)) : pickFail(L(FAIL)));
+      setReactionOk(allOk);
       onItemAnswer?.(itemKey(item), allOk, false);
       setTimeout(() => {
-        if (cur + 1 < qs.length) setCur(c => c + 1);
+        if (cur + 1 < qs.length) setCur((c) => c + 1);
         else onComplete(sRef.current, Date.now() - t0, eRef.current);
       }, 2200);
     }
@@ -88,13 +92,19 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
-        <span>{cur + 1}/{qs.length}</span><span>{score} pts</span>
+        <span>{cur + 1}/{qs.length}</span>
+        <span>{score} pts</span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-6">
-        <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
+        <div
+          className="h-full rounded-full transition-all duration-300 bg-[#111111]"
+          style={{ width: `${(cur / qs.length) * 100}%` }}
+        />
       </div>
       <TaskPrompt text={prompt} />
-      <h1 className="text-4xl font-black text-gray-900 mb-1 tracking-tight break-words max-w-full text-center">{item.verb}</h1>
+      <h1 className="text-4xl font-black text-gray-900 mb-1 tracking-tight break-words max-w-full text-center">
+        {item.verb}
+      </h1>
       <p className="text-base font-medium text-gray-600 mb-4 text-center">({L(item.hint)})</p>
       <div className="w-full flex flex-col gap-2 mb-5">
         {item.pronouns.map((p, i) => {
@@ -104,32 +114,54 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
           const cls = given
             ? "bg-gray-100 border-dashed border-gray-400 text-gray-700"
             : checked
-              ? (ok ? "bg-emerald-500 text-white border-emerald-500" : "bg-[#E60023] text-white border-[#E60023]")
-              : (val ? "bg-[#111111] text-white border-[#111111] cursor-pointer" : "bg-gray-50 border-gray-300 text-gray-500");
+            ? (ok
+              ? "bg-emerald-500 text-white border-emerald-500"
+              : "bg-[#E60023] text-white border-[#E60023]")
+            : (val
+              ? "bg-[#111111] text-white border-[#111111] cursor-pointer"
+              : "bg-gray-50 border-gray-300 text-gray-500");
           return (
             <div key={p} className="flex items-center gap-3">
-              <span className="w-20 xs:w-24 text-right text-sm font-semibold text-gray-600 shrink-0">{p}</span>
-              <button onClick={() => val && unsetSlot(i)} disabled={given}
-                className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls}`}>
+              <span className="w-20 xs:w-24 text-right text-sm font-semibold text-gray-600 shrink-0">
+                {p}
+              </span>
+              <button
+                onClick={() => val && unsetSlot(i)}
+                disabled={given}
+                className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls}`}
+              >
                 {val ?? "___"}
-                {given && <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("exampleLabel")}</span>}
-                {!given && checked && !ok && <span className="ml-2 text-white/90 text-sm font-semibold">→ {item.forms[i]}</span>}
+                {given && (
+                  <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {t("exampleLabel")}
+                  </span>
+                )}
+                {!given && checked && !ok && (
+                  <span className="ml-2 text-white/90 text-sm font-semibold">
+                    → {item.forms[i]}
+                  </span>
+                )}
               </button>
             </div>
           );
         })}
       </div>
-      <Reaction text={reaction} />
-      {checked && item.rule && checked.some(c => !c) && (
-        <div className="text-sm text-gray-700 mt-1 mb-2 max-w-xs mx-auto text-center leading-snug">{L(item.rule)}</div>
+      <Reaction text={reaction} ok={reactionOk} />
+      {checked && item.rule && checked.some((c) => !c) && (
+        <div className="text-sm text-gray-700 mt-1 mb-2 max-w-xs mx-auto text-center leading-snug">
+          {L(item.rule)}
+        </div>
       )}
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
-        {pool.map((f, i) =>
-          <button key={f + i} onClick={() => fillNext(f, i)}
-            className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all">
+        {pool.map((f, i) => (
+          <button
+            key={f + i}
+            onClick={() => fillNext(f, i)}
+            className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all"
+          >
             {f}
           </button>
-        )}
+        ))}
       </div>
     </div>
   );

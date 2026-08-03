@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FrameData, FrameItem, DataItem } from "../../types";
+import type { DataItem, FrameData, FrameItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { OK, FAIL } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -24,7 +24,7 @@ interface Props {
  * presentation, applied at render time — never stored, never compared.
  */
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
-const rawSentence = (item: FrameItem) => item.slots.map(s => s.word).join(" ");
+const rawSentence = (item: FrameItem) => item.slots.map((s) => s.word).join(" ");
 /** What is shown back to the learner. */
 const sentence = (item: FrameItem) => cap(rawSentence(item));
 /**
@@ -65,12 +65,25 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   // target the same slot. The ref is the authority for what is placed; state
   // only drives rendering.
   const filledRef = useRef<(string | null)[]>([]);
-  const commit = (next: (string | null)[]) => { filledRef.current = next; setFilled(next); };
+  const commit = (next: (string | null)[]) => {
+    filledRef.current = next;
+    setFilled(next);
+  };
   const [typed, setTyped] = useState("");
   // Which question the state above belongs to. Drives the render-time reset.
   const [filledFor, setFilledFor] = useState(-1);
-  const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
-    useGame(qs as unknown as DataItem[], onComplete, reactions, 10, 1400, onItemAnswer);
+  const {
+    cur,
+    sel,
+    reaction,
+    reactionOk,
+    score,
+    answered,
+    qsTotal,
+    answer,
+    errorPending,
+    dismissError,
+  } = useGame(qs as unknown as DataItem[], onComplete, reactions, 10, 1400, onItemAnswer);
 
   // FR-HINT-MODAL: a hint belongs in the header, never beside the sentence being
   // built. Most frame items carry none — publishing null then keeps the lamp off.
@@ -112,31 +125,37 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   };
 
   const lineOk = checked && sel === canonical;
-  const nextEmpty = filled.findIndex(v => v === null);
+  const nextEmpty = filled.findIndex((v) => v === null);
   // One tile per bank entry. The bank holds each word once (the lexicon checker
   // bans duplicates), so a sentence may not use the same word twice — it would
   // be unfillable, with no way to submit. The checker asserts that too.
-  const usedCount = (word: string) => filled.filter(v => v === word).length;
-  const availableCount = (word: string) => shuffledBank.filter(w => w === word).length;
+  const usedCount = (word: string) => filled.filter((v) => v === word).length;
+  const availableCount = (word: string) => shuffledBank.filter((w) => w === word).length;
   const exhausted = (w: string) => usedCount(w) >= availableCount(w);
 
   const place = (word: string) => {
     if (checked) return;
     const prev = filledRef.current;
-    if (!fixed) { commit([...prev, word]); return; }
-    const idx = prev.findIndex(v => v === null);
+    if (!fixed) {
+      commit([...prev, word]);
+      return;
+    }
+    const idx = prev.findIndex((v) => v === null);
     if (idx < 0) return;
     const next = [...prev];
     next[idx] = word;
     commit(next);
     // With the length given, the sentence is finished the moment it is full.
-    if (next.every(v => v !== null)) submit(next.join(" "));
+    if (next.every((v) => v !== null)) submit(next.join(" "));
   };
 
   const removeAt = (i: number) => {
     if (checked) return;
     const prev = filledRef.current;
-    if (!fixed) { commit(prev.filter((_, j) => j !== i)); return; }
+    if (!fixed) {
+      commit(prev.filter((_, j) => j !== i));
+      return;
+    }
     if (prev[i] === null) return;
     const next = [...prev];
     next[i] = null;
@@ -166,12 +185,16 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <TaskPrompt text={prompt} example={example} />
-      {/* FR-STIMULUS-NEAR-BANK: at steps 1–3 the sentence to produce renders
+      {
+        /* FR-STIMULUS-NEAR-BANK: at steps 1–3 the sentence to produce renders
           down by the bank, not here — see the paragraph before the bank below.
           Step 4 has no bank: the learner types, so the stimulus belongs above
-          the input, where the keyboard cannot cover it. */}
+          the input, where the keyboard cannot cover it. */
+      }
       {typing && (
-        <p className="text-lg font-bold text-gray-900 mb-1 text-center leading-snug">{L(item.translation)}</p>
+        <p className="text-lg font-bold text-gray-900 mb-1 text-center leading-snug">
+          {L(item.translation)}
+        </p>
       )}
 
       {step === 1 && (
@@ -181,14 +204,23 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
           {item.slots.map((slot, i) => {
             const val = filled[i];
             return (
-              <div key={i} className={`flex items-center gap-3 px-3 py-2 border-2 rounded-[16px] transition-all ${tileCls(i, val)}`}>
+              <div
+                key={i}
+                className={`flex items-center gap-3 px-3 py-2 border-2 rounded-[16px] transition-all ${
+                  tileCls(i, val)
+                }`}
+              >
                 <span className="w-24 xs:w-28 shrink-0 text-xs font-bold uppercase tracking-wide text-gray-600 leading-tight">
                   {L(slot.role)}
                 </span>
                 <button
                   onClick={() => removeAt(i)}
                   disabled={checked || val === null}
-                  className={`flex-1 min-w-0 text-left text-base font-bold min-h-[2.25rem] break-words ${val === null ? "text-gray-500 border-b-2 border-dashed border-gray-300" : "text-[#111111]"}`}
+                  className={`flex-1 min-w-0 text-left text-base font-bold min-h-[2.25rem] break-words ${
+                    val === null
+                      ? "text-gray-500 border-b-2 border-dashed border-gray-300"
+                      : "text-[#111111]"
+                  }`}
                 >
                   {val === null ? " " : (i === 0 ? cap(val) : val)}
                 </button>
@@ -217,7 +249,9 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
                 key={i}
                 onClick={() => removeAt(i)}
                 disabled={checked || val === null}
-                className={`px-3 py-2 border-2 rounded-[14px] font-bold text-base min-w-[3rem] transition-all ${tileCls(i, val)}`}
+                className={`px-3 py-2 border-2 rounded-[14px] font-bold text-base min-w-[3rem] transition-all ${
+                  tileCls(i, val)
+                }`}
               >
                 {val === null ? " " : (i === 0 ? cap(val) : val)}
               </button>
@@ -232,15 +266,19 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
           <input
             type="text"
             value={typed}
-            onChange={e => setTyped(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && canCheck) submit(typed); }}
+            onChange={(e) => setTyped(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && canCheck) submit(typed);
+            }}
             disabled={checked}
             placeholder={t("typeHere")}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="none"
             spellCheck={false}
-            className={`w-full px-4 py-3 border-2 rounded-[16px] text-base font-bold text-[#111111] outline-none transition-all ${checked ? (lineOk ? GREEN : RED) : "border-[#E9E9E9] focus:border-[#111111] bg-white"}`}
+            className={`w-full px-4 py-3 border-2 rounded-[16px] text-base font-bold text-[#111111] outline-none transition-all ${
+              checked ? (lineOk ? GREEN : RED) : "border-[#E9E9E9] focus:border-[#111111] bg-white"
+            }`}
           />
         </div>
       )}
@@ -256,12 +294,16 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
         </button>
       )}
 
-      <Reaction text={reaction} />
+      <Reaction text={reaction} ok={reactionOk} />
 
       {!typing && (
         <div className="w-full mt-2">
-          <p className="text-lg font-bold text-gray-900 mb-3 text-center leading-snug">{L(item.translation)}</p>
-          <p className="text-xs font-bold uppercase tracking-wide text-gray-600 mb-2">{t("frameBank")}</p>
+          <p className="text-lg font-bold text-gray-900 mb-3 text-center leading-snug">
+            {L(item.translation)}
+          </p>
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-600 mb-2">
+            {t("frameBank")}
+          </p>
           <div className="flex flex-wrap gap-2 justify-center">
             {shuffledBank.map((w, i) => (
               <button
