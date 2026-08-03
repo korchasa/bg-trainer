@@ -104,12 +104,12 @@
 - **Status:** [x]
 
 ### 3.4 FR-ENGINES
-- **Desc:** 11 engine types implement distinct interaction patterns. Multiple-choice engines hide L1 hints by default and expose a "Подсказка" reveal button; reveal sets `hinted=true` which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
+- **Desc:** 11 engine types implement distinct interaction patterns. Multiple-choice engines keep the L1 hint out of the play area and publish it to the header lamp (FR-HINT-MODAL); opening it sets `hinted=true`, which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
 - **Acceptance:**
-  - [x] `pick` — 3 shuffled options, hint-on-demand. Evidence: `src/components/engines/PickEngine.tsx:11,18,39-45`
-  - [x] `timed` — timed quiz + speed bonus, hint-on-demand. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useTimer.ts`
-  - [x] `pickOpt` — fixed option set (articles, gender), hint-on-demand. Evidence: `src/components/engines/PickOptEngine.tsx`
-  - [x] `pickFrom` — pick correct form from decoys, hint-on-demand. Evidence: `src/components/engines/PickFromEngine.tsx`
+  - [x] `pick` — 3 shuffled options, hint in the header. Evidence: `src/components/engines/PickEngine.tsx:29,36-41,66`
+  - [x] `timed` — timed quiz + speed bonus, hint in the header. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useTimer.ts`
+  - [x] `pickOpt` — fixed option set (articles, gender), hint in the header. Evidence: `src/components/engines/PickOptEngine.tsx`
+  - [x] `pickFrom` — pick correct form from decoys, hint in the header. Evidence: `src/components/engines/PickFromEngine.tsx:30,40-44,61`
   - [x] `negation` — build negation from word tiles. Evidence: `src/components/engines/NegEngine.tsx`
   - [x] `build` — drag-to-order sentence. Evidence: `src/components/engines/BuildEngine.tsx`
   - [x] `li` — tap position to insert particle "ли". Evidence: `src/components/engines/LiEngine.tsx`
@@ -178,6 +178,29 @@
   - [x] `DataItem.rule?: string` field exists. Evidence: `src/types.ts:26`
   - [x] `Correction` renders `rule` when provided. Evidence: `src/components/ui/Correction.tsx:1-10`
   - [x] Rules defined for core paradigms/articles. Evidence: `src/data/index.ts:3-10,12-19,21-28,30-54`
+- **Status:** [x]
+
+### 3.34 FR-TASK-MODEL
+- **Desc:** The textbook prints a worked example above an exercise («Примерен образец», «Работете по модела») so the learner sees the expected answer shape before starting. The app repeats that example under the task prompt on **every** question of a mode, since a session shows one question at a time and has no exercise header to carry it. Every mode owns one except `paradigm`, whose model the engine already renders as the pre-filled 1sg row labelled «пример» (FR-PARADIGM) — a text model above that table would spell out forms the learner still has to place. Format is `stimulus → answer` (`↔` for `match`); `build` modes state the finished sentence. Examples are prose, not `words[]` rows: no space before a mark. Where a mode's material allows it, the model steps outside that material so it does not hand a live question its answer: paradigms use an undrilled verb, `match` avoids a pair on the board. Closed sets (pronoun tables, the `съм` paradigm) have no outside — there the model is a typical item, as the textbook's grammar page prints the full table anyway.
+- **Scenario:** Learner opens «Расскажи о человеке» → under «Собери 3 предложения: имя, страна, язык» reads «ОБРАЗЕЦ: Емилия Иванова е студентка. Тя е от България. Говори български.» — the same model the textbook prints for lesson 1, exercise 7 — and the model stays visible on questions 2, 3, … of the session.
+- **Acceptance:**
+  - [x] `Mode.example` carried by every non-`paradigm` mode; `paradigm` models itself via the 1sg row. Evidence: `src/types.ts:74-81`, `src/components/engines/ParadigmEngine.tsx:18-21,40`
+  - [x] `TaskPrompt` renders it under the instruction, labelled «Образец» / «Зразок». Evidence: `src/components/ui/TaskPrompt.tsx:12-30`, `src/i18n/strings.ts:46,109`
+  - [x] Passed to every engine on every question, from the single dispatch point. Evidence: `src/App.tsx:303`, `src/components/engines/PickEngine.tsx:23,50`
+  - [x] All 224 non-`paradigm` modes carry ru + uk models. Evidence: `src/data/index.ts`, `deno task test` → "Scanned 232 modes"
+  - [x] Invariant asserted both ways: non-empty ru + uk, never a copy of `desc`, answer shown via `→`/`↔` outside `build`, no space before a mark — and no text model on a `paradigm` mode. Evidence: `scripts/examples.ts`, `scripts/test.ts:18-19`
+- **Status:** [x]
+
+### 3.35 FR-HINT-MODAL
+- **Desc:** Reference material never sits in the play area — it is reached from the game header and shown in a modal over the question. The header carries two icon buttons: 💡 opens the current question's hint, 📖 opens the verb-form table. The lamp appears in every mode whose engine publishes a hint (`pick`, `timed`, `pickOpt`, `pickFrom`, `type`), the book only in verb modes outside a Round. The hint modal shows the L1 translation and, when the item has one, the rule (FR-FEEDBACK-RULE). Opening the hint still counts as help: the answer is reported `hinted=true` and mastery softens (FR-MASTERY), exactly as the old inline reveal did. The translation is not shown anywhere else during play — it no longer appears under the word after answering; a wrong answer still explains itself through `ErrorDialog`. The engine knows which question is on screen, the header owns the button, so the two talk through a small React context (`useHintChannel`): the engine publishes on every question change and clears on unmount, which is why the icons disappear on the results screen. Engines that show the translation as part of the task itself (`negation`, `build`, `li`, `match`, `odd`, `paradigm`) publish nothing and get no lamp.
+- **Scenario:** In «Подбери форму» the learner sees only the Bulgarian word and the options. Tapping 💡 opens «ПОДСКАЗКА → ПЕРЕВОД: ты есть · ПРАВИЛО: «съм» — неправильный глагол-связка…» over a dimmed board; «Понятно» or a backdrop tap closes it. The answer that follows earns points but no mastery level.
+- **Acceptance:**
+  - [x] Header renders 💡 when a hint is published and 📖 in verb modes. Evidence: `src/App.tsx:284-301`, `src/components/ui/NavHeader.tsx:12`
+  - [x] Both open the same modal component, dismissable by button or backdrop. Evidence: `src/components/ui/InfoModal.tsx:13-33`, `src/App.tsx:306-331`
+  - [x] Hint modal shows translation + rule. Evidence: `src/App.tsx:307-316`, `src/i18n/strings.ts:62-65,129-132`
+  - [x] Opening marks the item hinted; engines pass it at answer time. Evidence: `src/hooks/useHintChannel.tsx:39-47`, `src/components/engines/PickEngine.tsx:66`, `src/components/engines/TypeEngine.tsx:54`
+  - [x] Engines publish per question and clear on unmount. Evidence: `src/components/engines/PickFromEngine.tsx:40-44`
+  - [x] No inline hint button and no post-answer translation in the play area. Evidence: `deno task test` (`scripts/hint.ts`)
 - **Status:** [x]
 
 ### 3.5 FR-REACTION

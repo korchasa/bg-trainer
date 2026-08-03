@@ -88,7 +88,7 @@ maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`
 - `DataItem` — `{ q, answer, hint, label?, decoys? }` standard exercise
 - `BuildItem` — `{ words, translation }` sentence ordering
 - `LiItem` — `{ words, liPosition, result, translation }` particle insertion
-- `Mode` — `{ id, icon, label, desc, type, data: () => ... }`
+- `Mode` — `{ id, icon, label, desc, example, type, data: () => ... }` (`example` = required worked model, see below)
 - `Category` — `{ id, name, modes: Mode[] }`
 - `HistoryEntry` — `{ mode, score, time, errors, ts }`
 - `Screen` — `"menu" | "game" | "results" | "analytics"`
@@ -106,7 +106,7 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - Wrong: error count++, no points
 
 ## Key Decisions
-- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation), which is where this app's bugs actually live.
+- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation, FR-TASK-MODEL worked examples) and over the engines (FR-HINT-MODAL), which is where this app's bugs actually live.
 - **Styling:** Tailwind utility classes throughout; no CSS modules; no external UI component library — all UI is custom.
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
@@ -120,7 +120,7 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Stale `app/` in `gh-pages`:** `keep_files: true` never deletes, so anything published under an older layout lingers until removed by hand.
 - **Adding a new mode:**
   1. Add `DataItem[]` / `BuildItem[]` / `LiItem[]` to `src/data/index.ts`
-  2. Add `Mode` entry to the relevant `Category` (or create new `Category`)
+  2. Add `Mode` entry to the relevant `Category` (or create new `Category`), including `example` — the worked model shown under the task on every question (FR-TASK-MODEL). Write it `stimulus → answer` (`↔` for `match`, finished sentence for `build`), in prose spacing, and take the textbook's own «Примерен образец» when the lesson prints one. `paradigm` modes take no `example` — `ParadigmEngine` pre-fills the 1sg row as the model. `deno task test` asserts all of this
   3. If engine exists: no engine code changes
   4. If new interaction pattern: add engine in `src/components/engines/` and register in `App.tsx` dispatch
 
@@ -313,7 +313,7 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
 - `npm ci` — install the Node dependencies the tasks call (`tsc`, `vite`, `cap`)
 - `deno task check` — the gate: task-script tooling (`deno fmt --check`, `deno lint`, `deno check`) + `tsc` + Vite bundle + comment scan + data invariants
-- `deno task test` — the automated assertions: build-mode punctuation invariants over every `words[]` array in `src/data` (FR-BUILD). No unit-test suite exists yet
+- `deno task test` — the automated assertions: build-mode punctuation over every `words[]` array in `src/data` (FR-BUILD), a worked example on every mode (FR-TASK-MODEL), and the hint living in the header modal rather than in an engine (FR-HINT-MODAL). No unit-test suite exists yet
 - `deno task dev` — Vite dev server at http://localhost:5173/
 - `deno task prod` — build, then serve that build locally
 - `deno task build` / `deno task build:ios` — `tsc` + Vite bundle, web or iOS flavour (the iOS one forces a relative base path)
@@ -323,7 +323,7 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
 ### Command Scripts
 - `deno.json` — the task table; it is the only place a verb is declared. Every task is `deno run -A scripts/<verb>.ts`.
-- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts` — the FR-BUILD data invariants.
+- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts`, `scripts/examples.ts` and `scripts/hint.ts` — the FR-BUILD, FR-TASK-MODEL and FR-HINT-MODAL invariants, all run by `test`.
 - The scripts import nothing from JSR or npm; `check` type-checks and lints them before it does anything else.
 
 ### Browser Automation Access

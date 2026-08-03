@@ -14,8 +14,14 @@ interface Props {
   prompt?: string;
 }
 
+// FR-PARADIGM / FR-TASK-MODEL: the 1sg row is pre-filled as the worked example —
+// it anchors the pattern the learner extends, so it is not tappable and earns no
+// points. This row IS the mode's model, which is why no `example` text is shown
+// above the paradigm: spelling more forms out there would solve the open slots.
+const GIVEN = 0;
+
 // FR-PARADIGM: whole-paradigm completion trains schema, not isolated forms.
-// One item = one 6-slot paradigm. Score = +5 per correct slot.
+// One item = one 6-slot paradigm. Score = +5 per correct slot the learner fills.
 export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
   const { L, t } = useI18n();
   const items = data();
@@ -32,8 +38,8 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
 
   useEffect(() => {
     const item = qs[cur];
-    setSlots(item.pronouns.map(() => null));
-    setPool(shuffle(item.forms));
+    setSlots(item.pronouns.map((_, i) => (i === GIVEN ? item.forms[GIVEN] : null)));
+    setPool(shuffle(item.forms.filter((_, i) => i !== GIVEN)));
     setChecked(null);
     setReaction("");
   }, [cur]);
@@ -53,7 +59,7 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
     if (newSlots.every(s => s !== null)) {
       const marks = newSlots.map((s, i) => s === item.forms[i]);
       setChecked(marks);
-      const correctCount = marks.filter(Boolean).length;
+      const correctCount = marks.filter((m, i) => m && i !== GIVEN).length;
       const pts = correctCount * 5;
       const ns = sRef.current + pts;
       setScore(ns);
@@ -70,7 +76,7 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
   };
 
   const unsetSlot = (idx: number) => {
-    if (checked) return;
+    if (checked || idx === GIVEN) return;
     const val = slots[idx];
     if (!val) return;
     const newSlots = [...slots];
@@ -94,16 +100,20 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
         {item.pronouns.map((p, i) => {
           const val = slots[i];
           const ok = checked?.[i];
-          const cls = checked
-            ? (ok ? "bg-emerald-500 text-white border-emerald-500" : "bg-[#E60023] text-white border-[#E60023]")
-            : (val ? "bg-[#111111] text-white border-[#111111] cursor-pointer" : "bg-gray-50 border-gray-300 text-gray-500");
+          const given = i === GIVEN;
+          const cls = given
+            ? "bg-gray-100 border-dashed border-gray-400 text-gray-700"
+            : checked
+              ? (ok ? "bg-emerald-500 text-white border-emerald-500" : "bg-[#E60023] text-white border-[#E60023]")
+              : (val ? "bg-[#111111] text-white border-[#111111] cursor-pointer" : "bg-gray-50 border-gray-300 text-gray-500");
           return (
             <div key={p} className="flex items-center gap-3">
               <span className="w-20 xs:w-24 text-right text-sm font-semibold text-gray-600 shrink-0">{p}</span>
-              <button onClick={() => val && unsetSlot(i)}
+              <button onClick={() => val && unsetSlot(i)} disabled={given}
                 className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls}`}>
                 {val ?? "___"}
-                {checked && !ok && <span className="ml-2 text-white/90 text-sm font-semibold">→ {item.forms[i]}</span>}
+                {given && <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("exampleLabel")}</span>}
+                {!given && checked && !ok && <span className="ml-2 text-white/90 text-sm font-semibold">→ {item.forms[i]}</span>}
               </button>
             </div>
           );

@@ -12,11 +12,13 @@ import { SESSION_SIZE_BY_PACE, ROUND_GAMES, DEFAULT_PACE } from "./constants";
 import { ENGINES } from "./components/engines";
 import { NavHeader } from "./components/ui/NavHeader";
 import { ConfirmBar } from "./components/ui/ConfirmBar";
+import { InfoModal } from "./components/ui/InfoModal";
 import { ResultsScreen } from "./components/screens/ResultsScreen";
 const AnalyticsScreen = lazy(() => import("./components/screens/AnalyticsScreen").then(m => ({ default: m.AnalyticsScreen })));
 import { LessonsScreen } from "./components/screens/LessonsScreen";
 import { LessonScreen } from "./components/screens/LessonScreen";
 import { useI18n } from "./i18n/context";
+import { useHintChannel } from "./hooks/useHintChannel";
 import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent, SessionPace } from "./types";
 
 interface RoundState {
@@ -29,6 +31,7 @@ interface RoundState {
 
 export default function App() {
   const { t, f, L } = useI18n();
+  const hintCh = useHintChannel();
   const [screen, setScreen] = useState<Screen>("lessons");
   const [lessonId, setLessonId] = useState<string | null>(null);
   const [modeId, setModeId] = useState<string | null>(null);
@@ -274,33 +277,62 @@ export default function App() {
             <NavHeader
               title={gameTitle}
               onBack={backFromGame}
-              right={isVerb && !round ? (
-                <button
-                  onClick={() => setShowRef(s => !s)}
-                  className="text-xl font-bold text-gray-600 hover:text-gray-900 transition-colors p-1"
-                >
-                  📖
-                </button>
-              ) : undefined}
+              right={(
+                <>
+                  {/* FR-HINT-MODAL: the hint button lives here, not under the
+                      question — the engine publishes what it should open. */}
+                  {hintCh.content && (
+                    <button
+                      onClick={hintCh.open}
+                      aria-label={t("hintBtn")}
+                      className="text-xl font-bold text-gray-600 hover:text-gray-900 transition-colors p-1"
+                    >
+                      💡
+                    </button>
+                  )}
+                  {isVerb && !round && (
+                    <button
+                      onClick={() => setShowRef(true)}
+                      aria-label={t("refTitle")}
+                      className="text-xl font-bold text-gray-600 hover:text-gray-900 transition-colors p-1"
+                    >
+                      📖
+                    </button>
+                  )}
+                </>
+              )}
             />
+
+            {hintCh.isOpen && hintCh.content && (
+              <InfoModal title={t("hintBtn")} closeLabel={t("gotIt")} onClose={hintCh.close}>
+                <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">{t("hintMeaning")}</div>
+                <div className="text-2xl font-black text-gray-900 break-words">{hintCh.content.hint}</div>
+                {hintCh.content.rule && (
+                  <>
+                    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mt-4 mb-1">{t("hintRule")}</div>
+                    <div className="text-base text-gray-700 leading-snug">{hintCh.content.rule}</div>
+                  </>
+                )}
+              </InfoModal>
+            )}
 
             {showRef && currentMode && !round && (() => {
               const verbData = currentMode.data() as Array<{ q: string; answer: string }>;
               return (
-                <div className="mx-4 mt-3 bg-gray-50 rounded-[20px] border border-gray-100 overflow-hidden">
-                  <div className="grid grid-cols-3">
+                <InfoModal title={t("refTitle")} closeLabel={t("gotIt")} onClose={() => setShowRef(false)}>
+                  <div className="grid grid-cols-3 rounded-[20px] border border-gray-100 overflow-hidden">
                     {verbData.map((form, i) => (
-                      <div key={form.q} className={`px-3 py-2 text-center text-sm ${i % 3 !== 2 ? "border-r border-gray-100" : ""} ${i < verbData.length - 3 ? "border-b border-gray-100" : ""}`}>
+                      <div key={form.q} className={`px-3 py-2 text-center text-sm bg-gray-50 ${i % 3 !== 2 ? "border-r border-gray-100" : ""} ${i < verbData.length - 3 ? "border-b border-gray-100" : ""}`}>
                         <span className="text-gray-600 font-semibold">{form.q} </span>
                         <span className="text-gray-900 font-black">{form.answer}</span>
                       </div>
                     ))}
                   </div>
-                </div>
+                </InfoModal>
               );
             })()}
 
-            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} levelLookup={levelLookup} prompt={currentMode.desc ? L(currentMode.desc) : undefined} />
+            <Engine key={gameKey} data={gameDataFn} onComplete={handleComplete} onItemAnswer={onItemAnswer} levelLookup={levelLookup} prompt={currentMode.desc ? L(currentMode.desc) : undefined} example={currentMode.example ? L(currentMode.example) : undefined} />
 
             {showAbortBar && (
               <ConfirmBar

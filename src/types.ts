@@ -76,6 +76,14 @@ export interface Mode {
   icon: string;
   label: Localized<string>;
   desc: Localized<string>;
+  /**
+   * FR-TASK-MODEL: worked example shown under the instruction on every question,
+   * mirroring the textbook's «Примерен образец». Every mode carries one except
+   * `paradigm`, whose model is the pre-filled 1sg row the engine renders — a
+   * text model there would spell out forms the learner still has to place.
+   * `deno task test` enforces both halves of that rule.
+   */
+  example?: Localized<string>;
   type: EngineType;
   data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[] | MatchItem[] | OddItem[] | ParadigmItem[];
 }

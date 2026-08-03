@@ -70,10 +70,10 @@ Output is written to `dist/`.
 
 ```bash
 deno task check   # everything below
-deno task test    # the data invariants alone
+deno task test    # the invariants alone
 ```
 
-Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `deno task check`. The gate type-checks with `tsc`, produces the production bundle, scans the sources for leftover work markers, and asserts the lesson-data invariants (punctuation is rendered by the template and never offered as a tile). There is no unit-test suite yet. Feature branches build the same way in the preview workflow.
+Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `deno task check`. The gate type-checks with `tsc`, produces the production bundle, scans the sources for leftover work markers, and asserts the invariants: punctuation is rendered by the template and never offered as a tile, every mode carries a worked example, and the hint lives in the header modal instead of the play area. There is no unit-test suite yet. Feature branches build the same way in the preview workflow.
 
 ## Deployment
 

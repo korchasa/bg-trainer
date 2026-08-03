@@ -14,9 +14,10 @@ interface Props {
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
+  example?: string;
 }
 
-export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
+export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L } = useI18n();
   const items = data();
   const [qs] = useState<BuildItem[]>(() => shuffle(items).slice(0, 12));
@@ -94,7 +95,7 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
-        <TaskPrompt text={prompt} />
+        <TaskPrompt text={prompt} example={example} />
         <p className="text-base font-semibold text-gray-600 mb-4 text-center leading-snug">{L(item.translation)}</p>
         {placed.length === 0 && <p className="text-gray-500 text-sm font-medium mb-2">{t("tapWordsBelow")}</p>}
         <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">

@@ -13,9 +13,10 @@ interface Props {
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
+  example?: string;
 }
 
-export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
+export function LiEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L } = useI18n();
   const items = data();
   const [qs] = useState<LiItem[]>(() => shuffle(items).slice(0, 12));
@@ -62,7 +63,7 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(cur / qs.length) * 100}%` }} />
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-6">
-        <TaskPrompt text={prompt} />
+        <TaskPrompt text={prompt} example={example} />
         <p className="text-base font-semibold text-gray-600 mb-2 text-center leading-snug">
           {L(q.translation).split(/(\*[^*]+\*)/g).map((part, i) =>
             part.startsWith("*") && part.endsWith("*")

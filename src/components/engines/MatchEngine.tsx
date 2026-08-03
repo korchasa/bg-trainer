@@ -12,12 +12,13 @@ interface Props {
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
+  example?: string;
 }
 
 type SlotState = "idle" | "matched" | "flash-ok" | "flash-fail";
 
 // FR-MATCH: relational encoding via pair tapping (left ↔ right). Session = all pairs once.
-export function MatchEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
+export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { L } = useI18n();
   const items = data();
   const [pairs] = useState<MatchItem[]>(() => shuffle(items));
@@ -109,7 +110,7 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-6">
         <div className="h-full rounded-full transition-all duration-300 bg-[#111111]" style={{ width: `${(matched / pairs.length) * 100}%` }} />
       </div>
-      <TaskPrompt text={prompt} />
+      <TaskPrompt text={prompt} example={example} />
       <div className="w-full grid grid-cols-2 gap-3 mb-6 mt-2">
         <div className="flex flex-col gap-2">
           {leftOrder.map(i =>

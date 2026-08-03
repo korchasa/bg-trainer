@@ -10,6 +10,7 @@ import { AnswerBtn } from "../ui/AnswerBtn";
 import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { useHintChannel } from "../../hooks/useHintChannel";
 
 interface Props {
   data: () => DataItem[];
@@ -17,47 +18,41 @@ interface Props {
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   accent?: boolean;
   prompt?: string;
+  example?: string;
 }
 
-export function PickEngine({ data, onComplete, onItemAnswer, accent = false, prompt }: Props) {
+export function PickEngine({ data, onComplete, onItemAnswer, accent = false, prompt, example }: Props) {
   const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const [qs] = useState(() => shuffle(data()));
   const [options, setOptions] = useState<DataItem[]>([]);
-  const [showHint, setShowHint] = useState(false);
-  const hintedRef = useRef(false);
+  const hintCh = useHintChannel();
   const { cur, sel, corr, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
     useGame(qs, onComplete, reactions, 10, 1800, onItemAnswer);
 
+  // FR-HINT-MODAL: the header owns the hint button, so each question hands its
+  // hint to the channel; unmounting clears it so the button leaves with the game.
   useEffect(() => {
     setOptions(shuffle(qs));
-    setShowHint(false);
-    hintedRef.current = false;
+    const q = qs[cur];
+    hintCh.publish({ hint: L(q.hint), rule: q.rule ? L(q.rule) : undefined });
   }, [cur]);
+
+  useEffect(() => () => hintCh.publish(null), []);
 
   const item = qs[cur];
   const shownAnswer = corr || item.answer;
   const shownItem = qs.find(x => x.answer === shownAnswer) ?? item;
-  const shownHint = L(shownItem.hint);
-  const revealHint = () => { setShowHint(true); hintedRef.current = true; };
 
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
       <div className="flex-1 flex flex-col items-center justify-center mb-8">
-        <TaskPrompt text={prompt} />
+        <TaskPrompt text={prompt} example={example} />
         <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{Lq(item.q)}</h1>
-        {showHint || sel !== null
-          ? <p className="text-lg font-semibold text-gray-600 text-center">({L(item.hint)})</p>
-          : (
-            <button onClick={revealHint} className="mt-2 text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors py-2 px-3">
-              {t("hintBtn")}
-            </button>
-          )}
         {sel !== null && (
           <div className="text-center mt-6">
             <div className="text-3xl font-black text-gray-900 break-words">{shownAnswer}</div>
-            <div className="text-base text-gray-600 mt-1">{shownHint}</div>
             {item.rule && sel !== item.answer && (
               <div className="text-sm text-gray-700 mt-3 max-w-xs mx-auto leading-snug">{L(item.rule)}</div>
             )}
@@ -68,7 +63,7 @@ export function PickEngine({ data, onComplete, onItemAnswer, accent = false, pro
       <AnswerGrid options={options.map(o => o.answer)}>
         {options.map((o, j) =>
           <AnswerBtn key={o.answer + j} val={o.answer} sel={sel} correctVal={shownAnswer}
-            onClick={() => answer(o.answer, item.answer, { hinted: hintedRef.current })} className="text-lg" />
+            onClick={() => answer(o.answer, item.answer, { hinted: hintCh.wasUsed() })} className="text-lg" />
         )}
       </AnswerGrid>
       {errorPending && (

@@ -43,13 +43,14 @@
   - **Persistence (`utils/history.ts`):** thin wrapper over `localStorage` with size cap + error swallow.
   - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`).
   - **i18n (`src/i18n/*`):** `LocaleProvider` + `useI18n` hook expose `t` (plain UI strings), `f` (parametric strings), `L` (resolves `Localized<T>`), `Lq` (splits `"<ru> / <uk>"` convention in `DataItem.q`). `STRINGS`/`FORMATS` dictionaries enforce locale completeness via `Record<Locale, …>`. Locale persisted under `bg-trainer-lang-v1`; first-run detection from `navigator.language` (only literal `uk` prefix triggers UK).
-  - **UI atoms (`components/ui/*`):** `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`, `TaskPrompt`.
+  - **UI atoms (`components/ui/*`):** `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`, `TaskPrompt`, `InfoModal`.
+  - **Hint channel (`hooks/useHintChannel.tsx`):** `HintProvider` context carrying the current question's hint from the engine to the header button (FR-HINT-MODAL).
   - **Screens (`components/screens/*`):** `ResultsScreen`, `AnalyticsScreen`, `PaywallScreen` (mobile only).
 
 ## 3. Components
 
 ### 3.1 App.tsx
-- **Purpose:** Root component. Owns `screen`, `lessonId`, `modeId`, `round`, `result`, `history`. Dispatches to screens/engines. Passes `currentMode.desc` as `prompt` prop to the active engine, which renders it via `TaskPrompt` directly above the question in its centered block. Round machine: queue of 3 random `modeIds`, per-game completion accumulates totals; final game emits aggregated `HistoryEntry` with `mode="round:<lessonId>"`. Scroll: inner `max-w-md` wrapper is `overflow-y-auto no-scrollbar` (single scroll container for all screens); outer wrapper has `onWheel` forwarder that redirects wheel events from side gutters (viewport wider than `md`) into the inner scroll container.
+- **Purpose:** Root component. Owns `screen`, `lessonId`, `modeId`, `round`, `result`, `history`, `showRef`. Renders the game header's two reference buttons and their modals (FR-HINT-MODAL): 💡 shown while `hintCh.content` is set, 📖 in verb modes outside a Round; both open `InfoModal`. Dispatches to screens/engines. Passes `currentMode.desc` as `prompt` and `currentMode.example` as `example` to the active engine, which renders both via `TaskPrompt` directly above the question in its centered block (FR-TASK-MODEL). Round machine: queue of 3 random `modeIds`, per-game completion accumulates totals; final game emits aggregated `HistoryEntry` with `mode="round:<lessonId>"`. Scroll: inner `max-w-md` wrapper is `overflow-y-auto no-scrollbar` (single scroll container for all screens); outer wrapper has `onWheel` forwarder that redirects wheel events from side gutters (viewport wider than `md`) into the inner scroll container.
 - **Interfaces:** `screen: Screen`, lesson lookup via `data/lessons.ts`, mode lookup via `data/index.ts`, data slicing via `utils/sliceData.ts`, history r/w via `utils/history`.
 - **Deps:** All screens, all engines, `data/index.ts`, `data/lessons.ts`, `utils/sliceData.ts`, `utils/history.ts`, `utils/shuffle.ts`, `types.ts`.
 
@@ -64,8 +65,8 @@
 
 ### 3.4 Engines (11)
 - **Purpose:** Render one question and produce answer events for `useGame.answer()` (or directly, for engines with custom session shapes).
-- **Interfaces:** Props `{ data, onComplete, onItemAnswer?, levelLookup?, prompt? }` (shape varies slightly per engine). Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`, `MatchItem`, `OddItem`, `ParadigmItem`, `PickOptData`).
-- **Hint toggle:** Multiple-choice engines (`pick`, `pickOpt`, `pickFrom`, `timed`, `type`) hide the L1 hint by default behind a "Подсказка" button; revealing sets a local `hintedRef` that is forwarded to `useGame.answer({ hinted: true })` and then to `onItemAnswer(..., hinted=true)`.
+- **Interfaces:** Props `{ data, onComplete, onItemAnswer?, levelLookup?, prompt?, example? }` (shape varies slightly per engine). `prompt` = `Mode.desc`, `example` = `Mode.example`; both come from the single `<Engine>` dispatch in `App.tsx` and render through `TaskPrompt` on every question (FR-TASK-MODEL). `ParadigmEngine` takes no `example`: its pre-filled 1sg row is the model. Engine-specific data types (`DataItem`, `BuildItem`, `LiItem`, `MatchItem`, `OddItem`, `ParadigmItem`, `PickOptData`).
+- **Hint channel:** Multiple-choice engines (`pick`, `pickOpt`, `pickFrom`, `timed`, `type`) keep no hint UI of their own. On every question change they `hintCh.publish({ hint, rule })` and on unmount `publish(null)`; at answer time they read `hintCh.wasUsed()` into `useGame.answer({ hinted })`, which reaches `onItemAnswer(..., hinted=true)` (FR-HINT-MODAL). The header renders the button and the modal. Engines that print the translation as part of the task itself (`negation`, `build`, `li`, `match`, `odd`, `paradigm`) publish nothing, so no lamp appears.
 - **Speed-gate:** `TimedEngine` receives `levelLookup(itemId)` and disables the timer + speed bonus when `level < 5`.
 - **Normalization:** `TypeEngine` normalizes user input with a strict whitelist (trim + lowercase + whitespace collapse). No character substitutions.
 - **Focus marker:** `LiEngine` parses `*word*` in `translation` and renders the wrapped word with underline — disambiguates which word is questioned when L1 word order hides focus.
@@ -85,7 +86,9 @@
 - **Deps:** `recharts`, `utils/history.ts`, `constants.CHART_COLORS`.
 
 ### 3.7 UI atoms
-- `AnswerBtn`, `AnswerGrid`, `Progress`, `Reaction`, `Correction`, `TaskPrompt`, `ErrorDialog`, `TextSizeControl`, `NavHeader`, `BackButton`, `ConfirmBar` — small presentational components with Tailwind classes. `ConfirmBar` = bottom-anchored inline confirm panel (two buttons) used for round-abort.
+- `AnswerBtn`, `AnswerGrid`, `Progress`, `Reaction`, `Correction`, `TaskPrompt` (instruction + «Образец» line), `ErrorDialog`, `InfoModal`, `TextSizeControl`, `NavHeader`, `BackButton`, `ConfirmBar` — small presentational components with Tailwind classes. `ConfirmBar` = bottom-anchored inline confirm panel (two buttons) used for round-abort.
+- **InfoModal** = learner-opened reference sheet over the game (hint, verb table). Unlike `ErrorDialog` it has no accent frame and closes on a backdrop tap as well as the button, because nothing is being corrected (FR-HINT-MODAL).
+- **NavHeader** right slot is `min-w-10 flex items-center justify-end gap-1` so it holds the two reference buttons side by side.
 - **AnswerBtn** owns padding, min height and wrapping (`px-4 py-3 min-h-[3.5rem] break-words`). Call sites pass only font size — the earlier split, where four of five engines passed height alone, is what made text touch the borders (FR-A11Y-TEXT).
 - **AnswerGrid** picks the column count from the longest option (≤5 chars → 3, ≤11 → 2, else 1). Every choice engine routes its options through it, so the rule lives in one place (FR-RESPONSIVE-LAYOUT).
 - **TextSizeControl** = collapsed "Aa" button expanding to 4 options; sits next to the language switch on `LessonsScreen`.
@@ -121,6 +124,20 @@
 - **Why not a render-time helper:** a blanket strip cannot see any of the above. An earlier `stripFinalPeriod()` did exactly that and ate the period of 24 grammar hints (`ж.р.`, `мн.ч.`, `няма да + гл.`); it was removed once the data was cleaned.
 - **`NegEngine` dependency:** its decoys are word-order permutations of `answer`, so those answers must stay unpunctuated or the dot lands mid-sentence (`студент. Аз не съм`).
 - **Migration:** `migrateDottedKeys()` (§3.5) re-points mastery records whose key still carries a removed period.
+
+### 3.18 Worked examples (`Mode.example`, FR-TASK-MODEL)
+- **Rule:** every mode carries one model answer, shown under the instruction on every question. Exception: `paradigm` — `ParadigmEngine` pre-fills the 1sg row and labels it «пример», so that row is the model and the mode stores no `example`.
+- **Format:** `stimulus → answer`; `↔` for `match` (pairing, not transformation); `build` states the finished sentence. Prose spacing, not `words[]` spacing — `Емилия Иванова е студентка.`, never `студентка .`.
+- **Source:** the textbook's own model where it prints one (`documents/lessons/lesson-N.md`: «Примерен образец», «Работете по модела»); otherwise a typical item of that mode written out.
+- **No free answers:** where a mode's own material can be stepped outside, the model steps outside it. `paradigm` uses an undrilled verb (`съм` for L3/L4/L6/L7, `ще бъда` for L5, `чел съм` for L8) — a drilled verb would hand over three slots of the next question; `match` avoids a pair sitting on the board (`град ↔ градът`, `искам ↔ иска`, `уча ↔ учител`). Closed sets — pronoun tables, the `съм` paradigm itself — have no outside, and there the model is a typical item, exactly as the textbook prints the whole table on its grammar page.
+- **Invariant:** `scripts/examples.ts` (run by `deno task test`) scans `src/data/index.ts` as text — extensionless imports there would otherwise force `--sloppy-imports` — and asserts: non-empty ru + uk, never a copy of `desc`, an arrow outside `build`, no space before a mark.
+
+### 3.19 Hint channel (`hooks/useHintChannel.tsx`, FR-HINT-MODAL)
+- **Problem:** the button belongs in the header, which `App` renders; the hint belongs to the question, which only the engine knows. Prop-drilling through the engine dispatch would mean every engine forwarding a hint it does not display, and a per-engine button would mean five copies of the same UI.
+- **Shape:** `HintProvider` (mounted in `main.tsx` above `App`) holds `content: {hint, rule} | null`, `isOpen`, and a `usedRef`. Engine → `publish(content)` per question and `publish(null)` on unmount; header → `open()` / `close()`; engine → `wasUsed()` at answer time. `publish` also resets `isOpen` and `usedRef`, so a new question starts unhinted with the modal closed.
+- **Why a ref for "used":** `wasUsed()` is read inside a click handler, not during render — a state value would re-render every engine on hint open for nothing.
+- **Consequences:** the lamp is present exactly when a hint is published, so it disappears by itself on the results screen and never appears in engines that print the translation in the task. `open()` marks the item hinted, so mastery softens the same way the old inline reveal did (FR-MASTERY).
+- **Invariant:** `scripts/hint.ts` (run by `deno task test`) scans the engines and `App.tsx`: no engine may keep inline-hint code (`hintBtn`, `showHint`, `revealHint`, `hintedRef`, `shownHint`), and every engine that uses the channel must publish per question, clear on unmount, and pass `hinted: hintCh.wasUsed()`.
 
 ### 3.11 iOS shell (Capacitor 8)
 - **Purpose:** Wrap the React SPA in a native iOS app (WKWebView at `capacitor://localhost`). Same JS bundle as web, relative asset base `./`.
@@ -181,7 +198,7 @@
   - `MatchItem = { left, right, hint }`
   - `OddItem = { words, odd, hint, rule? }`
   - `ParadigmItem = { verb, pronouns, forms, hint, rule? }`
-  - `Mode = { id, icon, label, desc, type: EngineType, data: () => Item[] }`
+  - `Mode = { id, icon, label, desc, example, type: EngineType, data: () => Item[] }` — `example` is the required worked model (FR-TASK-MODEL), `stimulus → answer` (`↔` for match, finished sentence for build)
   - `SessionPace = "quick" | "standard" | "deep"` → `SESSION_SIZE_BY_PACE = {quick:3, standard:5, deep:8}`
   - `Category = { id, name, modes: Mode[] }`
   - `Lesson = { id, num, title, modeIds: string[], available: boolean, tier: "free" | "pro" }`

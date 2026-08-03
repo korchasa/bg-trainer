@@ -9,10 +9,18 @@
 
 import { section } from "./lib.ts";
 import { checkPunctuation } from "./punct.ts";
+import { checkExamples } from "./examples.ts";
+import { checkHints } from "./hint.ts";
 
 export async function test(): Promise<void> {
   section("Data invariants: build-mode punctuation (FR-BUILD)");
   await checkPunctuation();
+
+  section("Data invariants: worked examples per mode (FR-TASK-MODEL)");
+  await checkExamples();
+
+  section("UI invariants: hint in the header modal (FR-HINT-MODAL)");
+  await checkHints();
 }
 
 if (import.meta.main) await test();

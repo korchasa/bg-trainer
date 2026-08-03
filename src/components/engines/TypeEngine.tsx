@@ -9,6 +9,7 @@ import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { useHintChannel } from "../../hooks/useHintChannel";
 
 // FR-TYPE: keyboard-input engine.
 // Whitelist normalization ONLY: trim, lowercase, collapse internal whitespace.
@@ -22,49 +23,44 @@ interface Props {
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   prompt?: string;
+  example?: string;
 }
 
-export function TypeEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
+export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const [qs] = useState<DataItem[]>(() => shuffle(data()));
   const [input, setInput] = useState("");
-  const [showHint, setShowHint] = useState(false);
-  const hintedRef = useRef(false);
+  const hintCh = useHintChannel();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { cur, sel, reaction, score, answered, qsTotal, answer, errorPending, dismissError } =
     useGame(qs, onComplete, reactions, 10, 1400, onItemAnswer);
 
+  // FR-HINT-MODAL: hand this question s hint to the header button.
   useEffect(() => {
     setInput("");
-    setShowHint(false);
-    hintedRef.current = false;
+    const q = qs[cur];
+    hintCh.publish({ hint: L(q.hint), rule: q.rule ? L(q.rule) : undefined });
     inputRef.current?.focus();
   }, [cur]);
+
+  useEffect(() => () => hintCh.publish(null), []);
 
   const item = qs[cur];
   const submit = (e?: React.FormEvent) => {
     e?.preventDefault();
     const normalized = normalize(input);
     if (normalized.length === 0) return;
-    answer(normalized, normalize(item.answer), { hinted: hintedRef.current });
+    answer(normalized, normalize(item.answer), { hinted: hintCh.wasUsed() });
   };
-  const revealHint = () => { setShowHint(true); hintedRef.current = true; };
 
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
-        <TaskPrompt text={prompt} />
+        <TaskPrompt text={prompt} example={example} />
         <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">{Lq(item.q)}</h1>
         {item.label && <div className="text-sm font-semibold text-gray-600 mb-1">{L(item.label)}</div>}
-        {showHint || sel !== null
-          ? <p className="text-base font-medium text-gray-600 mb-4 text-center">({L(item.hint)})</p>
-          : (
-            <button onClick={revealHint} className="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors mb-4 py-2 px-3">
-              {t("hintBtn")}
-            </button>
-          )}
         <form onSubmit={submit} className="w-full max-w-xs">
           <input
             ref={inputRef}

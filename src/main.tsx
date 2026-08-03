@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { LocaleProvider } from './i18n/context'
+import { HintProvider } from './hooks/useHintChannel'
 import { initStorage } from './utils/storage'
 import { applyTextScale, loadTextScale } from './utils/textScale'
 import { applyStatusBarStyle, hideNativeSplash } from './utils/nativeUx'
@@ -17,7 +18,9 @@ initStorage().then(() => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <LocaleProvider>
-        <App />
+        <HintProvider>
+          <App />
+        </HintProvider>
       </LocaleProvider>
     </StrictMode>,
   )

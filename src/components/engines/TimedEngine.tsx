@@ -11,6 +11,7 @@ import { AnswerBtn } from "../ui/AnswerBtn";
 import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { ErrorDialog } from "../ui/ErrorDialog";
+import { useHintChannel } from "../../hooks/useHintChannel";
 import { itemKey } from "../../utils/itemKey";
 
 interface TimedItem extends DataItem {
@@ -23,6 +24,7 @@ interface Props {
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   levelLookup?: (itemId: string) => number;
   prompt?: string;
+  example?: string;
 }
 
 // FR-ENGINES: timed multiple-choice with speed bonus.
@@ -30,7 +32,7 @@ interface Props {
 // and no speed bonus is awarded. New learners should not be pushed into System-1 guessing.
 const SPEED_GATE_LEVEL = 5;
 
-export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, prompt }: Props) {
+export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, prompt, example }: Props) {
   const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
@@ -40,8 +42,7 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
       return { ...item, options: shuffle([item, ...wrong]) };
     })
   );
-  const [showHint, setShowHint] = useState(false);
-  const hintedRef = useRef(false);
+  const hintCh = useHintChannel();
   const { cur, sel, corr, reaction, score, answered, qsTotal, advance, answer, errorPending, dismissError } =
     useGame(qs, onComplete, reactions, 10, 1200, onItemAnswer);
 
@@ -53,19 +54,20 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
   const curLevel = levelLookup ? (() => { try { return levelLookup(itemKey(curItem)); } catch { return 0; } })() : 0;
   const gated = curLevel < SPEED_GATE_LEVEL;
 
+  // FR-HINT-MODAL: hand this question s hint to the header button.
   useEffect(() => {
-    setShowHint(false);
-    hintedRef.current = false;
+    const q = qs[cur];
+    hintCh.publish({ hint: L(q.hint), rule: q.rule ? L(q.rule) : undefined });
     if (gated) { stop(); } else { reset(); }
   }, [cur, gated]);
+
+  useEffect(() => () => hintCh.publish(null), []);
 
   const go = (o: DataItem) => {
     stop();
     const bonus = gated ? 0 : Math.max(0, timeLeft * 2);
-    answer(o.answer, qs[cur].answer, { extraPts: bonus, hinted: hintedRef.current });
+    answer(o.answer, qs[cur].answer, { extraPts: bonus, hinted: hintCh.wasUsed() });
   };
-
-  const revealHint = () => { setShowHint(true); hintedRef.current = true; };
 
   const item = qs[cur];
   return (
@@ -77,15 +79,8 @@ export function TimedEngine({ data, onComplete, onItemAnswer, levelLookup, promp
           : <div className={`text-2xl font-mono font-black mb-6 ${timeLeft <= 3 ? "text-red-600" : "text-gray-600"}`}>
               ⏱ {timeLeft}с
             </div>}
-        <TaskPrompt text={prompt} />
+        <TaskPrompt text={prompt} example={example} />
         <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">{Lq(item.q)} ___</h1>
-        {showHint || sel !== null
-          ? <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
-          : (
-            <button onClick={revealHint} className="text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors py-2 px-3">
-              {t("hintBtn")}
-            </button>
-          )}
       </div>
       <Reaction text={reaction} />
       <AnswerGrid options={item.options.map(o => o.answer)}>

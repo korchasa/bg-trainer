@@ -26,9 +26,10 @@ interface Props {
   onComplete: (score: number, time: number, errors: number) => void;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
+  example?: string;
 }
 
-export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
+export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L, Lq } = useI18n();
   const reactions = { ok: L(OK), fail: L(FAIL) };
   const items = data();
@@ -49,7 +50,7 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt }: Props) {
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent />
       <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
-        <TaskPrompt text={prompt} />
+        <TaskPrompt text={prompt} example={example} />
         <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight break-words max-w-full">{Lq(item.q)}</h1>
         <p className="text-base font-medium text-gray-600">({L(item.hint)})</p>
       </div>

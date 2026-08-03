@@ -38,7 +38,7 @@ MatchItem    { left: string; right: string; hint: Localized<string> }
 OddItem      { words: string[]; odd: string; hint: Localized<string>; rule? }
 ParadigmItem { verb: string; pronouns: string[]; forms: string[]; hint: Localized<string>; rule? }
 PickOptData  { items: DataItem[]; opts: string[] }                   // `pickOpt` data()
-Mode         { id; icon; label: Localized; desc: Localized; type: EngineType; data: () => ... }
+Mode         { id; icon; label: Localized; desc: Localized; example: Localized; type: EngineType; data: () => ... }
 ```
 
 `Localized<T> = { ru: T; uk: T }` — both keys always present (compiler-enforced).
@@ -58,7 +58,11 @@ These fields hold source-language content and stay Bulgarian:
 `DataItem.hint`, `DataItem.label`, `DataItem.rule`,
 `BuildItem.translation`, `LiItem.translation`,
 `MatchItem.hint`, `OddItem.hint`, `OddItem.rule`, `ParadigmItem.hint`, `ParadigmItem.rule`,
-`Mode.label`, `Mode.desc`, `Category.name`, `Lesson.title`.
+`Mode.label`, `Mode.desc`, `Mode.example`, `Category.name`, `Lesson.title`.
+
+### `Mode.example` — the worked model (FR-TASK-MODEL)
+
+Required on every mode except `paradigm`, whose pre-filled 1sg row already is the model — give a `paradigm` mode no `example` at all. Elsewhere it renders under the task prompt on every question, the way the textbook prints «Примерен образец» once above the exercise. Write it `stimulus → answer` (`↔` for `match`, the finished sentence for `build`), in prose spacing — `Емилия Иванова е студентка.`, never `студентка .`. Take the lesson's own model when it prints one («Примерен образец», «Работете по модела»). Step outside the mode's own material where the material allows it: a `paradigm` model uses a verb the mode does not drill, a `match` model avoids a pair that sits on the board — otherwise the model hands a live question its answer. `deno task test` asserts all of this (`scripts/examples.ts`).
 
 Share `Localized<string>` constants across items that use the same rule/hint to cut duplication:
 
