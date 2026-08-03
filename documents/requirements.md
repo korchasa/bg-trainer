@@ -104,7 +104,7 @@
 - **Status:** [x]
 
 ### 3.4 FR-ENGINES
-- **Desc:** 11 engine types implement distinct interaction patterns. Multiple-choice engines keep the L1 hint out of the play area and publish it to the header lamp (FR-HINT-MODAL); opening it sets `hinted=true`, which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
+- **Desc:** 12 engine types implement distinct interaction patterns. Multiple-choice engines keep the L1 hint out of the play area and publish it to the header lamp (FR-HINT-MODAL); opening it sets `hinted=true`, which is forwarded to `onItemAnswer` and softens mastery effects (see FR-MASTERY).
 - **Acceptance:**
   - [x] `pick` — 3 shuffled options, hint in the header. Evidence: `src/components/engines/PickEngine.tsx:29,36-41,66`
   - [x] `timed` — timed quiz + speed bonus, hint in the header. Evidence: `src/components/engines/TimedEngine.tsx`, `src/hooks/useTimer.ts`
@@ -152,6 +152,36 @@
   - [x] Correction line composed with `joinTokens` — no space before a mark. Evidence: `src/components/engines/BuildEngine.tsx:121`
   - [x] Invariant asserted over all 427 `words[]` arrays in `src/data`: no punctuation reaches the pool, every template round-trips. Evidence: `deno task test` (`scripts/punct.ts`)
   - [x] `src/data/*.ts` unchanged, so mastery keys survive. Evidence: `git diff --stat -- 'src/data/*.ts'` is empty
+- **Status:** [x]
+
+### 3.4.5 FR-FRAME
+- **Desc:** Sentence production, one drill per lesson. The learner always sees an L1 translation and must produce the Bulgarian sentence; how much scaffolding surrounds that task is set per lesson by FR-FRAME-LADDER. Where a word bank is shown it belongs to the mode, not to the item, and is ≥ 4× the longest sentence of its mode, so picking a word is recall — `build` already covers ordering a handed-out word set, and a `build` mode exists in every lesson without closing this gap. Role labels name the job, never the word. Data: `FrameData` = `{ step, items: FrameItem[], bank: string[] }`; `FrameItem` = `{ slots: { role, word }[], translation, alt?, hint?, rule? }`. Words are stored lower case (proper nouns excepted); the sentence-initial capital is applied at render. Comparison normalizes case, surrounding/repeated whitespace and one sentence-final `.!?…` — at step 4 the learner types both by hand, so neither may decide right from wrong. Every Bulgarian word of lesson N's drill, `alt` strings included, comes from the cumulative lexicon of lessons 1..N, derived from the code and asserted by a script. Built on `useGame`, so scoring (+10 first-attempt), FR-RETRY and FR-MASTERY apply unchanged.
+- **Scenario:** User opens lesson N → taps "Построй предложение · LN" → reads the translation → produces the sentence at that lesson's step → on a wrong answer the FR-RETRY dialog shows the canonical sentence (steps 1–2 additionally mark each slot and show its correct word) → after "Продолжить" the input clears and the same sentence is retried.
+- **Acceptance:**
+  - [x] `frame` engine registered and dispatched. Evidence: `src/types.ts:110-113`, `src/components/engines/FrameEngine.tsx`, `src/components/engines/index.ts:13,28`
+  - [x] Exactly one frame mode per lesson, 8 in total. Evidence: `src/data/index.ts` (`frames` category), `src/data/lessons.ts` (`l1_frame`…`l8_frame`); asserted by `deno task test` (`scripts/lexicon.ts`)
+  - [x] Every frame word belongs to its lesson's cumulative lexicon; the lexicon is rebuilt from `LESSONS` + mode data, and frame modes are excluded from the source so none can approve its own vocabulary. Evidence: `scripts/lexicon.ts`; run output `OK: every frame word comes from its lesson's cumulative lexicon`
+  - [x] Bank ≥ 4× the longest sentence of its mode, no duplicates, no two entries differing only by case. Evidence: `scripts/lexicon.ts`
+  - [x] No sentence (or `alt`) uses the same word twice — the bank offers one tile per word, so a repeat would be unfillable and leave the learner unable to submit. Evidence: `scripts/lexicon.ts`; asserted red by duplicating a word in one L1 sentence → `item "аз не знам аз" repeats "аз" — one tile per word, unfillable`
+  - [x] `sliceData` slices `items` and keeps `bank` whole. Evidence: `src/utils/sliceData.ts:28-33`
+  - [x] `itemKey` has its own `frame:` branch — `useGame` swallows `itemKey` failures, so a missing branch would silently disable mastery. Evidence: `src/utils/itemKey.ts:10-14`; observed store `{"l1_frame":{"frame:аз|съм|студент":{…}}}`
+  - [x] Session completes and writes one `HistoryEntry`. Evidence: observed `{mode:"l1_frame", lessonId:"l1", errors:5, time:49996}` after a full 5-question session
+  - [x] Slots reset before the next sentence paints — the reset happens during render, not in an effect. Evidence: `src/components/engines/FrameEngine.tsx` (`filledFor` guard)
+  - [x] Two taps inside one React batch fill two different slots. Evidence: `src/components/engines/FrameEngine.tsx` (`filledRef`)
+  - [x] `frameBank` and `frameLineEmpty` strings defined for `ru` and `uk`. Evidence: `src/i18n/strings.ts:49-50,112-113`
+  - [x] An equally correct word order listed in `alt` counts as correct. Evidence: `src/components/engines/FrameEngine.tsx` (`accepted` set); observed at L5 — "Ще пиша утре" scored against canonical "аз ще пиша утре"
+- **Status:** [x]
+
+### 3.4.6 FR-FRAME-LADDER
+- **Desc:** How much of the sentence the drill hands over is a property of the lesson, so support fades as the course advances. Four steps: **1** labelled roles, one slot per word — the frame is given, the words are recalled; **2** slots without labels — the length is given, the grammar is not; **3** an empty line — order and length are the learner's, words still come from the bank; **4** typing — no bank, no line, nothing but the translation. Assignment: L1–L2 → 1, L3–L4 → 2, L5–L6 → 3, L7–L8 → 4. Steps 1–2 submit themselves when the last blank is filled; steps 3–4 need an explicit "Проверить". Rationale: production practice is what transfers to production (skill specificity), but an A0 novice needs the difficulty to be one they actually overcome, and a scaffold that stays past competence starts to cost — hence a fading, not a fixed, level of support.
+- **Scenario:** The same learner meets the same exercise in every lesson and each time gets less help: role labels in L1, bare blanks in L3, an empty line in L5, an empty field in L7.
+- **Acceptance:**
+  - [x] `FrameStep` = 1..4, carried on `FrameData` and preserved by `sliceData`. Evidence: `src/types.ts:60-84`, `src/utils/sliceData.ts:30-33`
+  - [x] Engine renders one distinct interaction per step. Evidence: `src/components/engines/FrameEngine.tsx` (`fixed`/`typing` branches)
+  - [x] Step never drops as lessons advance, and all four steps are reached. Evidence: `scripts/lexicon.ts` (ladder check); run output `step 1,1,2,2,3,3,4,4`
+  - [x] `alt` is rejected below step 3, where order and length are fixed and it could never be reached. Evidence: `scripts/lexicon.ts`
+  - [x] Mode descriptions state the step, so the menu does not promise the same exercise eight times. Evidence: `src/data/index.ts:488-495`
+  - [x] Verified live at every step: L2 (roles), L3 (bare slots + per-slot error marking), L5 (free line, alternative order accepted), L7 (typing, capital and final period normalized away, error dialog shows the canonical sentence)
 - **Status:** [x]
 
 ### 3.13 FR-SCHED
@@ -245,7 +275,7 @@
   - [x] Hinted softening: `ok+hinted = +0`, `fail+hinted = −1`. Evidence: `src/utils/mastery.ts:51-62`
   - [x] Speed-gate: `TimedEngine` disables timer+bonus when item level < 5. Evidence: `src/components/engines/TimedEngine.tsx:25,32-43`
   - [x] Decay: stale-correct path reduces 1 level before reward. Evidence: `src/utils/mastery.ts:44,47`
-  - [x] All 11 engines forward item identity via `onItemAnswer(itemId, ok, fast)`. Evidence: `src/hooks/useGame.ts:47-55`, `src/components/engines/PickEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/NegEngine.tsx`, `src/components/engines/BuildEngine.tsx`, `src/components/engines/LiEngine.tsx`, `src/components/engines/TypeEngine.tsx`, `src/components/engines/MatchEngine.tsx`, `src/components/engines/OddOneOutEngine.tsx`, `src/components/engines/ParadigmEngine.tsx`
+  - [x] All 12 engines forward item identity via `onItemAnswer(itemId, ok, fast)`. Evidence: `src/hooks/useGame.ts:47-55`, `src/components/engines/PickEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/NegEngine.tsx`, `src/components/engines/BuildEngine.tsx`, `src/components/engines/LiEngine.tsx`, `src/components/engines/TypeEngine.tsx`, `src/components/engines/MatchEngine.tsx`, `src/components/engines/OddOneOutEngine.tsx`, `src/components/engines/ParadigmEngine.tsx`
   - [x] Mastery persisted once per session (on complete + on abort), not per answer. Evidence: `src/App.tsx:56-66,78-82,165,170`
   - [x] `LessonsScreen` shows progress bar + `K/M · X%`; mastered badge when criteria met. Evidence: `src/components/screens/LessonsScreen.tsx`
   - [x] `LessonScreen` shows per-mode mastery bars. Evidence: `src/components/screens/LessonScreen.tsx`

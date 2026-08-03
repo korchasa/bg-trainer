@@ -7,6 +7,12 @@ export function itemKey(item: unknown): string {
     if (typeof o.result === "string") return o.result;
     if (typeof o.verb === "string") return o.verb;
     if (typeof o.left === "string" && typeof o.right === "string") return `${o.left}↔${o.right}`;
+    // FR-FRAME. Must stay ahead of the generic `words` branch and be a distinct
+    // namespace: useGame swallows itemKey failures, so a missing branch here
+    // would silently drop mastery instead of erroring.
+    if (Array.isArray(o.slots)) {
+      return `frame:${(o.slots as { word: string }[]).map(s => s.word).join("|")}`;
+    }
     if (Array.isArray(o.words) && typeof o.odd === "string") return `odd:${(o.words as string[]).join("|")}:${o.odd}`;
     if (Array.isArray(o.words)) return (o.words as string[]).join("|");
   }

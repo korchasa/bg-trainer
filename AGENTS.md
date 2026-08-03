@@ -22,7 +22,7 @@
 - Marketing site + policies: https://bgtrainer.korchasa.dev/ (maintained outside this repository, Cloudflare Pages)
 
 ## Project Vision
-Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (20 categories, 232 modes, 11 engine types) with persistent progress and analytics.
+Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (21 categories, 240 modes, 12 engine types) with persistent progress and analytics.
 
 ## Project tooling Stack
 - **Runtime/UI:** React 18, TypeScript 5
@@ -66,6 +66,7 @@ src/
 │   │   ├── NegEngine.tsx        # Construct negation from tiles
 │   │   ├── BuildEngine.tsx      # Drag-to-order sentence
 │   │   ├── LiEngine.tsx         # Insert particle "ли"
+│   │   ├── FrameEngine.tsx      # Produce a sentence from a translation; scaffolding fades by lesson
 │   │   └── index.ts
 │   ├── screens/
 │   │   ├── ResultsScreen.tsx    # End-of-game results + stats
@@ -84,7 +85,7 @@ The landing page, privacy policy and terms are NOT in this repo — they are
 maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`.
 
 ### Key Types (`src/types.ts`)
-- `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type" | "match" | "odd" | "paradigm"`
+- `EngineType` — `"pick" | "timed" | "pickOpt" | "pickFrom" | "negation" | "build" | "li" | "type" | "match" | "odd" | "paradigm" | "frame"`
 - `DataItem` — `{ q, answer, hint, label?, decoys? }` standard exercise
 - `BuildItem` — `{ words, translation }` sentence ordering
 - `LiItem` — `{ words, liPosition, result, translation }` particle insertion
@@ -94,7 +95,7 @@ maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`
 - `Screen` — `"menu" | "game" | "results" | "analytics"`
 
 ### Game Data
-Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts`, and the lesson→mode mapping in `src/data/lessons.ts`. Currently 20 categories and 232 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
+Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts` plus `src/data/frames.ts` (sentence-production drills), and the lesson→mode mapping in `src/data/lessons.ts`. Currently 21 categories and 240 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
 
 Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
 
@@ -106,11 +107,11 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - Wrong: error count++, no points
 
 ## Key Decisions
-- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation, FR-TASK-MODEL worked examples) and over the engines (FR-HINT-MODAL), which is where this app's bugs actually live.
+- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation, FR-TASK-MODEL worked examples, FR-FRAME lexicon) and over the engines (FR-HINT-MODAL), which is where this app's bugs actually live.
 - **Styling:** Tailwind utility classes throughout; no CSS modules; no external UI component library — all UI is custom.
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
-- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `deno task check` — the task-script tooling, `tsc` plus the Vite bundle, a comment scan, and the FR-BUILD data invariants over every `words[]` array. There is still no unit-test suite. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
+- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `deno task check` — the task-script tooling, `tsc` plus the Vite bundle, a comment scan, and the data invariants (FR-BUILD punctuation, FR-TASK-MODEL examples, FR-HINT-MODAL engines, FR-FRAME lexicon). There is still no unit-test suite. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
 - **Deployment:**
   - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. Only `web-v*` publishes; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
@@ -313,7 +314,7 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
 - `npm ci` — install the Node dependencies the tasks call (`tsc`, `vite`, `cap`)
 - `deno task check` — the gate: task-script tooling (`deno fmt --check`, `deno lint`, `deno check`) + `tsc` + Vite bundle + comment scan + data invariants
-- `deno task test` — the automated assertions: build-mode punctuation over every `words[]` array in `src/data` (FR-BUILD), a worked example on every mode (FR-TASK-MODEL), and the hint living in the header modal rather than in an engine (FR-HINT-MODAL). No unit-test suite exists yet
+- `deno task test` — the automated assertions: build-mode punctuation over every `words[]` array in `src/data` (FR-BUILD), a worked example on every mode (FR-TASK-MODEL), the hint living in the header modal rather than in an engine (FR-HINT-MODAL), and every frame word coming from its lesson's cumulative lexicon (FR-FRAME). No unit-test suite exists yet
 - `deno task dev` — Vite dev server at http://localhost:5173/
 - `deno task prod` — build, then serve that build locally
 - `deno task build` / `deno task build:ios` — `tsc` + Vite bundle, web or iOS flavour (the iOS one forces a relative base path)
@@ -323,8 +324,18 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
 ### Command Scripts
 - `deno.json` — the task table; it is the only place a verb is declared. Every task is `deno run -A scripts/<verb>.ts`.
-- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts`, `scripts/examples.ts` and `scripts/hint.ts` — the FR-BUILD, FR-TASK-MODEL and FR-HINT-MODAL invariants, all run by `test`.
+- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts`, `scripts/examples.ts`, `scripts/hint.ts` and `scripts/lexicon.ts` — the FR-BUILD, FR-TASK-MODEL, FR-HINT-MODAL and FR-FRAME invariants, all run by `test`.
 - The scripts import nothing from JSR or npm; `check` type-checks and lints them before it does anything else.
+
+**A new invariant belongs in a script, and the script belongs in `check`.** With no test runner, these scripts are the only thing standing between a bad data edit and production — and one that runs only when an agent remembers it guards nothing. Add it to `scripts/`, wire it into `scripts/test.ts`, and `check` picks it up.
+
+### Scripts that evaluate the app's data
+Most invariants scan `src/` as text. `scripts/lexicon.ts` cannot: it has to call `mode.data()`. `deno.json` enables `sloppy-imports`, so a script may import the app's extensionless sources directly (`import { ALL_MODES } from "../src/data/index.ts"`).
+
+One wall, found the hard way: anything reaching `src/utils/platform.ts` reads `import.meta.env`, which does not exist outside Vite, and throws `Cannot read properties of undefined (reading 'VITE_PLATFORM')`. That rules out `utils/storage.ts`, `utils/mastery.ts`, `utils/nativeUx.ts` and `hooks/useGame.ts` — and so `sliceData.ts`, which imports `mastery`. Safe today: everything under `src/data/`, `utils/itemKey.ts`, `utils/punct.ts`, `utils/shuffle.ts`. Confirm with `grep -rln "import\.meta" src/` before assuming.
+
+### Worktrees
+`.claude/worktrees/*` contains an **empty** `node_modules`; dependency resolution walks up to `/Users/korchasa/www/business/bg-trainer/node_modules`, which is why builds work there at all. A worktree created outside the repository tree (say under `/tmp`, to build a parent revision for comparison) resolves nothing and fails with hundreds of `Cannot find module 'react'`. Symlink its `node_modules` at the **main repo** path, never at the current worktree's.
 
 ### Browser Automation Access
 - `foxcode-run-project-profile` (skill) launches a Firefox profile bridged via `mcp__plugin_foxcode_foxcode__evalInBrowser` (ws://localhost:8795).
@@ -332,6 +343,10 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 - Use it to: inspect live app state, fetch IAP/subscription config, verify deploys, scrape pages, automate forms, take screenshots, run JS in the page context.
 - Prefer this over guessing or asking the user for data that is reachable from a logged-in browser. Do not ask for credentials — the user is already authenticated in the profile.
 - Treat as a real action with side effects: confirm before clicking destructive buttons (delete, submit, publish, transfer).
+
+**Prototypes go into the app, not into a scratch file.** A standalone HTML mockup outside the project cannot be shown to anyone: `file://` renders as a static snapshot with no JS, and an ad-hoc local server is blocked by policy. Build the prototype as a real screen behind the dev server (`preview_start` → `bg-trainer-dev`) — it renders with the project's own styles, it is clickable, and a screenshot of it is evidence.
+
+**A `computer` click that reports success may still have done nothing.** Clicking a mode card by `ref` returned `left_click at (188, 741)` and only scrolled; a second click at the settled coordinates changed nothing at all, while `javascript_tool` clicking the same button by text worked immediately. So: after a click that should change state, read the state back. If it did not move, do not repeat the click — switch to `javascript_tool`. Note that a click handler fired that way runs before React re-renders, so a follow-up button that only just became enabled is still disabled at that instant — check `disabled` and click it in a separate call.
 
 ## Code Documentation
 

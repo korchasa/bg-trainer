@@ -14,6 +14,7 @@
     "ios:sync": "deno run -A scripts/ios.ts sync",
     "ios:open": "deno run -A scripts/ios.ts open"
   },
+  "unstable": ["sloppy-imports"],
   "fmt": {
     "include": ["scripts/", "deno.json"],
     "lineWidth": 100

@@ -9,7 +9,7 @@ Interactive Bulgarian language trainer for A0-level learners. The UI is in Russi
 - **8 textbook-aligned lessons** (L1–L8 fully playable) with curated per-lesson game sets
 - **Round mode** — 3 random games from the selected lesson, one aggregated result
 - **Session pace** — 3 presets (quick/standard/deep = 3/5/8 questions per game); persisted per-browser
-- **11 game engine types** — multiple choice, timed quiz, keyboard input, drag-and-drop, particle insertion, pair matching, odd-one-out, paradigm drill, and more
+- **12 game engine types** — multiple choice, timed quiz, keyboard input, drag-and-drop, particle insertion, pair matching, odd-one-out, paradigm drill, sentence production with fading support, and more
 - **SRS-like item scheduling + error re-queue** — weak and due items surface first; wrong answers return later in the same session
 - **Analytics dashboard** — score history + per-lesson aggregated stats
 - **Persistent progress** — game history saved to browser local storage (up to 200 sessions)
@@ -73,7 +73,7 @@ deno task check   # everything below
 deno task test    # the invariants alone
 ```
 
-Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `deno task check`. The gate type-checks with `tsc`, produces the production bundle, scans the sources for leftover work markers, and asserts the invariants: punctuation is rendered by the template and never offered as a tile, every mode carries a worked example, and the hint lives in the header modal instead of the play area. There is no unit-test suite yet. Feature branches build the same way in the preview workflow.
+Every pull request and every push to `main` runs `.github/workflows/check.yml`: `npm ci` followed by `deno task check`. The gate type-checks with `tsc`, produces the production bundle, scans the sources for leftover work markers, and asserts the invariants: punctuation is rendered by the template and never offered as a tile, every mode carries a worked example, the hint lives in the header modal instead of the play area, and every word of a sentence-production drill comes from its lesson's cumulative lexicon. There is no unit-test suite yet. Feature branches build the same way in the preview workflow.
 
 ## Deployment
 

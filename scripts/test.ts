@@ -11,6 +11,7 @@ import { section } from "./lib.ts";
 import { checkPunctuation } from "./punct.ts";
 import { checkExamples } from "./examples.ts";
 import { checkHints } from "./hint.ts";
+import { checkLexicon } from "./lexicon.ts";
 
 export async function test(): Promise<void> {
   section("Data invariants: build-mode punctuation (FR-BUILD)");
@@ -21,6 +22,9 @@ export async function test(): Promise<void> {
 
   section("UI invariants: hint in the header modal (FR-HINT-MODAL)");
   await checkHints();
+
+  section("Data invariants: frame lexicon and ladder (FR-FRAME, FR-FRAME-LADDER)");
+  checkLexicon();
 }
 
 if (import.meta.main) await test();

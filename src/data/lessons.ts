@@ -38,6 +38,7 @@ export const LESSONS: Lesson[] = [
       "transform_q",
       "register_tivie",
       "profile_build",
+      "l1_frame",
     ],
   },
   {
@@ -73,6 +74,7 @@ export const LESSONS: Lesson[] = [
       "kolko_kude_pick",
       "odd_l2",
       "room_build",
+      "l2_frame",
     ],
   },
   {
@@ -112,6 +114,7 @@ export const LESSONS: Lesson[] = [
       "l3_days_type",
       "l3_months_type",
       "l3_zhiveya_fill",
+      "l3_frame",
     ],
   },
   {
@@ -149,6 +152,7 @@ export const LESSONS: Lesson[] = [
       "l4_match_ant",
       "l4_match_conj",
       "l4_odd",
+      "l4_frame",
     ],
   },
   {
@@ -187,6 +191,7 @@ export const LESSONS: Lesson[] = [
       "l5_match_color",
       "l5_match_ant",
       "l5_odd",
+      "l5_frame",
     ],
   },
   {
@@ -223,6 +228,7 @@ export const LESSONS: Lesson[] = [
       "l6_dir_build",
       "l6_paradigm",
       "l6_odd",
+      "l6_frame",
     ],
   },
   {
@@ -263,6 +269,7 @@ export const LESSONS: Lesson[] = [
       "l7_match_ant",
       "l7_match_store",
       "l7_odd",
+      "l7_frame",
     ],
   },
   {
@@ -302,6 +309,7 @@ export const LESSONS: Lesson[] = [
       "l8_match_pairs",
       "l8_match_taste",
       "l8_odd",
+      "l8_frame",
     ],
   },
 ];

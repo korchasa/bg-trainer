@@ -1,4 +1,4 @@
-import type { Mode, DataItem, BuildItem, LiItem, MatchItem, OddItem, ParadigmItem, PickOptData, MasteryStore } from "../types";
+import type { Mode, DataItem, BuildItem, LiItem, MatchItem, OddItem, ParadigmItem, PickOptData, FrameData, MasteryStore } from "../types";
 import { shuffle } from "./shuffle";
 import { pickDueItems } from "./mastery";
 
@@ -24,6 +24,12 @@ export function sliceData(
       case "pickOpt": {
         const d = raw as PickOptData;
         return { items: pickN(d.items, n), opts: d.opts };
+      }
+      // FR-FRAME: slice the sentences, keep the word bank whole — a bank cut down
+      // to the session's items would offer exactly the words those items need.
+      case "frame": {
+        const d = raw as FrameData;
+        return { step: d.step, items: pickN(d.items, n), bank: d.bank };
       }
       case "build":
         return pickN(raw as BuildItem[], n);
