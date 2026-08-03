@@ -166,7 +166,13 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <TaskPrompt text={prompt} example={example} />
-      <p className="text-lg font-bold text-gray-900 mb-1 text-center leading-snug">{L(item.translation)}</p>
+      {/* FR-STIMULUS-NEAR-BANK: at steps 1–3 the sentence to produce renders
+          down by the bank, not here — see the paragraph before the bank below.
+          Step 4 has no bank: the learner types, so the stimulus belongs above
+          the input, where the keyboard cannot cover it. */}
+      {typing && (
+        <p className="text-lg font-bold text-gray-900 mb-1 text-center leading-snug">{L(item.translation)}</p>
+      )}
 
       {step === 1 && (
         // Step 1: one labelled row per word. The label names the job the word
@@ -254,6 +260,7 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
 
       {!typing && (
         <div className="w-full mt-2">
+          <p className="text-lg font-bold text-gray-900 mb-3 text-center leading-snug">{L(item.translation)}</p>
           <p className="text-xs font-bold uppercase tracking-wide text-gray-600 mb-2">{t("frameBank")}</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {shuffledBank.map((w, i) => (

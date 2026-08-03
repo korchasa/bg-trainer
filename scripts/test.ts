@@ -11,6 +11,7 @@ import { section } from "./lib.ts";
 import { checkPunctuation } from "./punct.ts";
 import { checkExamples } from "./examples.ts";
 import { checkHints } from "./hint.ts";
+import { checkStimulus } from "./stimulus.ts";
 import { checkLexicon } from "./lexicon.ts";
 
 export async function test(): Promise<void> {
@@ -22,6 +23,9 @@ export async function test(): Promise<void> {
 
   section("UI invariants: hint in the header modal (FR-HINT-MODAL)");
   await checkHints();
+
+  section("UI invariants: changing text next to the bank (FR-STIMULUS-NEAR-BANK)");
+  await checkStimulus();
 
   section("Data invariants: frame lexicon and ladder (FR-FRAME, FR-FRAME-LADDER)");
   checkLexicon();

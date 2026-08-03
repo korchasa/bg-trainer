@@ -233,6 +233,17 @@
   - [x] No inline hint button and no post-answer translation in the play area. Evidence: `deno task test` (`scripts/hint.ts`)
 - **Status:** [x]
 
+### 3.36 FR-STIMULUS-NEAR-BANK
+- **Desc:** Where the learner answers by tapping a word bank at the foot of the screen, the per-question stimulus — the L1 sentence to produce — renders between the answer area and that bank, not above the answer area. Reading order (instruction, stimulus, answer area, bank) is the intuitive layout and the one that fails on a short phone: at the larger text sizes (FR-A11Y-TEXT) the play area does not fit, so reaching the bank means scrolling the stimulus off the top, and the learner taps words with the question out of sight. Since nothing resets the scroll position between questions, placing the stimulus by the bank also means the next question arrives already in view — the layout costs zero scrolls per question against reading order's one. The constant text stays put: the mode instruction and the worked example (FR-TASK-MODEL) are identical on every question of a session, so keeping them on screen buys nothing. `frame` steps 1–3 follow this rule; step 4 has no bank (the learner types) and keeps the stimulus above the input, where a software keyboard cannot cover it. Removed with the same change: the «Нажми на слова ниже» caption over the bank — a row of tappable word tiles needs no label.
+- **Scenario:** On a 375×667 screen at text size «Крупный», the learner opens «Расскажи о человеке», scrolls down to the word bank and sees the template, the sentence «Его зовут Янис. Он из Греции. Говорит по-гречески.» and the words together. Answering leaves the view where it is, and the next sentence appears in the same place.
+- **Acceptance:**
+  - [x] `BuildEngine` renders the translation between the template and the pool. Evidence: `src/components/engines/BuildEngine.tsx`; measured at scale 1.3 on 375×667 — scrolled to the bank the translation went from 6/61 px visible to 61/61, bank 56/56
+  - [x] `FrameEngine` renders it directly above the bank at steps 1–3 and above the input at step 4. Evidence: `src/components/engines/FrameEngine.tsx`; verified live at L1 (bank) and L7 (typing, no scroll at all)
+  - [x] `tapWordsBelow` is gone from the engines and from both locales. Evidence: `src/i18n/strings.ts`, `src/components/engines/{Build,Paradigm}Engine.tsx`
+  - [x] Invariant asserted, and asserted red first: the scan initially passed `FrameEngine` because its anchor `item.slots.map(` also appears in a helper above every render site; re-anchored on markup. Evidence: `scripts/stimulus.ts`, `deno task test`
+- **Limit:** A bank taller than the screen (L1's is 39 words, 986 px at scale 1.3) still scrolls past the stimulus at its foot. Adjacency is the most this layout can buy; shrinking those banks is a separate question.
+- **Status:** [x]
+
 ### 3.5 FR-REACTION
 - **Desc:** After each answer, show a Russian-language reaction (OK or FAIL) and, on wrong, reveal the correct answer.
 - **Acceptance:**

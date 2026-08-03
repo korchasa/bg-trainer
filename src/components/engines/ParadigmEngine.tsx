@@ -124,7 +124,6 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
         <div className="text-sm text-gray-700 mt-1 mb-2 max-w-xs mx-auto text-center leading-snug">{L(item.rule)}</div>
       )}
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
-        {pool.length === 0 && !checked && <span className="text-gray-500 text-sm font-medium">{t("tapWordsBelow")}</span>}
         {pool.map((f, i) =>
           <button key={f + i} onClick={() => fillNext(f, i)}
             className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all">

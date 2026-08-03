@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
-  const { t, L } = useI18n();
+  const { L } = useI18n();
   const items = data();
   const [qs] = useState<BuildItem[]>(() => shuffle(items).slice(0, 12));
   const [cur, setCur] = useState(0);
@@ -96,8 +96,6 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
       </div>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
         <TaskPrompt text={prompt} example={example} />
-        <p className="text-base font-semibold text-gray-600 mb-4 text-center leading-snug">{L(item.translation)}</p>
-        {placed.length === 0 && <p className="text-gray-500 text-sm font-medium mb-2">{t("tapWordsBelow")}</p>}
         <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">
           {groups.map(({ slot, marks }, g) => {
             const word = slot === -1 ? undefined : placed[slot];
@@ -122,6 +120,12 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
         <Correction show={done && placed.join(" ") !== target.join(" ")} text={joinTokens(item.words)} />
       </div>
       <Reaction text={reaction} />
+      {/* FR-STIMULUS-NEAR-BANK: the sentence to produce is the one thing on this
+          screen that changes per question, so it sits against the bank the
+          learner taps — outside the centred block above, whose slack would
+          otherwise open a gap between them. Above the template it scrolls out of
+          sight at large text sizes exactly when the bank comes into view. */}
+      <p className="text-base font-semibold text-gray-600 mb-3 text-center leading-snug">{L(item.translation)}</p>
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
         {pool.map((word, i) =>
           <button key={word + i} onClick={() => addWord(word, i)}
