@@ -39,3 +39,26 @@ jobs:
       # proves the app still compiles end to end.
       - name: Type-check and build
         run: npm run build
+
+  # The data invariants that neither `tsc` nor the bundler can see: punctuation
+  # never reaching a BuildEngine tile pool (FR-BUILD), and every frame word
+  # belonging to its lesson's cumulative lexicon (FR-FRAME). Until now these
+  # scripts only ran when someone remembered to.
+  #
+  # Own job on Node 22 on purpose: both scripts import `src/*.ts` directly and
+  # rely on Node's native type stripping (>= 22.18). The build job stays on the
+  # Node version the deploy workflows use, so this cannot change what ships.
+  data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Data invariants
+        run: |
+          node scripts/check-build-punct.mjs
+          node scripts/check-lesson-lexicon.mjs

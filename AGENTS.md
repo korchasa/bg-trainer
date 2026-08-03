@@ -110,7 +110,7 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Styling:** Tailwind utility classes throughout; no CSS modules; no external UI component library — all UI is custom.
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
-- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `npm run build`, which is `tsc && vite build`. The project has no tests, so the type check plus a clean production bundle is the whole gate. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
+- **Checks:** every pull request and every push to `main` → `check.yml`, two jobs. `check` (Node 20, the deploy workflows' version): `npm ci` then `npm run build` = `tsc && vite build`. `data` (Node 22, no `npm ci` — the scripts import `src/*.ts` through native type stripping and pull in no package): `check-build-punct.mjs` and `check-lesson-lexicon.mjs`. The project has no tests, so the type check, a clean bundle and the data invariants are the whole gate. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
 - **Deployment:**
   - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. Only `web-v*` publishes; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
@@ -308,16 +308,32 @@ When the root cause is outside your control (missing API keys/URLs, missing gene
 - `prod` — run the app in production mode.
 
 ### Detected Commands
-Project uses npm scripts (`package.json`). No standardized `check/test/prod` scripts configured — no test runner or linter installed. Mapping:
+Project uses npm scripts (`package.json`). No test runner or linter is installed. Mapping:
 
 - `npm install` — install dependencies
 - `npm run dev` — Vite dev server at http://localhost:5173/ (maps to `dev`)
-- `npm run build` — `tsc` type-check + Vite bundle → `dist/` (closest to `check`; no linter or tests)
+- `npm run check` — data invariants + `tsc` type-check + Vite bundle (maps to `check`)
+- `npm run build` — just `tsc && vite build`; what the deploy workflows run
 - `npm run preview` — serve the production build locally (maps to `prod`)
 - `test` — **not configured**. No test suite exists.
 
 ### Command Scripts
-No helper scripts in `scripts/`. All commands are inline npm scripts in `package.json`.
+`scripts/` holds the invariant checkers `npm run check` chains, plus `resolve-ts-hook.mjs` (a resolver so `.mjs` can import the app's extensionless `.ts`). Everything else is an inline npm script.
+
+**A new invariant belongs in a script, and the script belongs in `check`.** With no test runner, these scripts are the only thing standing between a bad data edit and production — and one that runs only when an agent remembers it guards nothing. Chain it into `npm run check` and into the `data` job of `check.yml`.
+
+### Node-side scripts (`scripts/*.mjs`)
+Node ≥ 22.18 strips the types itself and `scripts/resolve-ts-hook.mjs` supplies the missing `.ts` extensions, so most of `src/` imports straight into a plain `.mjs`. Register the hook **before** importing `src/` and pull it in dynamically — static imports are hoisted and would resolve before the hook exists. CI runs these on Node 22 in their own job for exactly this reason; the build job stays on the Node version the deploy workflows use.
+
+Two walls, both found the hard way:
+
+- Anything reaching `src/utils/platform.ts` reads `import.meta.env`, which does not exist outside Vite, and throws `Cannot read properties of undefined (reading 'VITE_PLATFORM')`. That rules out `utils/storage.ts`, `utils/mastery.ts`, `utils/nativeUx.ts` and `hooks/useGame.ts` — and so `sliceData.ts`, which imports `mastery`.
+- `src/i18n/strings.ts`, `src/i18n/storage.ts` and `src/i18n/context.tsx` import types in value position (`import { Localized }`, not `import type`). Type stripping cannot erase those, so Node fails with `does not provide an export named 'Localized'`. Fixing the three imports would make locale data checkable from a script.
+
+Safe today: everything under `src/data/`, `utils/itemKey.ts`, `utils/punct.ts`, `utils/shuffle.ts`. Confirm with `grep -rln "import\.meta" src/` before assuming.
+
+### Worktrees
+`.claude/worktrees/*` contains an **empty** `node_modules`; dependency resolution walks up to `/Users/korchasa/www/business/bg-trainer/node_modules`, which is why builds work there at all. A worktree created outside the repository tree (say under `/tmp`, to build a parent revision for comparison) resolves nothing and fails with hundreds of `Cannot find module 'react'`. Symlink its `node_modules` at the **main repo** path, never at the current worktree's.
 
 ### Browser Automation Access
 - `foxcode-run-project-profile` (skill) launches a Firefox profile bridged via `mcp__plugin_foxcode_foxcode__evalInBrowser` (ws://localhost:8795).
@@ -325,6 +341,10 @@ No helper scripts in `scripts/`. All commands are inline npm scripts in `package
 - Use it to: inspect live app state, fetch IAP/subscription config, verify deploys, scrape pages, automate forms, take screenshots, run JS in the page context.
 - Prefer this over guessing or asking the user for data that is reachable from a logged-in browser. Do not ask for credentials — the user is already authenticated in the profile.
 - Treat as a real action with side effects: confirm before clicking destructive buttons (delete, submit, publish, transfer).
+
+**Prototypes go into the app, not into a scratch file.** A standalone HTML mockup outside the project cannot be shown to anyone: `file://` renders as a static snapshot with no JS, and an ad-hoc local server is blocked by policy. Build the prototype as a real screen behind the dev server (`preview_start` → `bg-trainer-dev`) — it renders with the project's own styles, it is clickable, and a screenshot of it is evidence.
+
+**A `computer` click that reports success may still have done nothing.** Clicking a mode card by `ref` returned `left_click at (188, 741)` and only scrolled; a second click at the settled coordinates changed nothing at all, while `javascript_tool` clicking the same button by text worked immediately. So: after a click that should change state, read the state back. If it did not move, do not repeat the click — switch to `javascript_tool`. Note that a click handler fired that way runs before React re-renders, so a follow-up button that only just became enabled is still disabled at that instant — check `disabled` and click it in a separate call.
 
 ## Code Documentation
 

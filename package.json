@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "check": "node scripts/check-build-punct.mjs && node scripts/check-lesson-lexicon.mjs && npm run build",
     "preview": "vite preview",
     "build:ios": "VITE_BASE_PATH=./ VITE_PLATFORM=ios tsc && VITE_BASE_PATH=./ VITE_PLATFORM=ios vite build",
     "ios:sync": "npm run build:ios && cap sync ios",
