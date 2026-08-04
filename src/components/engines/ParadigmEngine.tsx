@@ -91,6 +91,55 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
     setPool([...pool, val]);
   };
 
+  // One pronoun and its form. Lifted out of the map so the worked-example row can
+  // be rendered inside the pinned header while the rest stay in the scrolling
+  // block — see the pinning note at the call site.
+  const row = (p: string, i: number) => {
+    const val = slots[i];
+    const ok = checked?.[i];
+    const given = i === GIVEN;
+    const cls = given
+      ? "bg-gray-100 border-dashed border-gray-400 text-gray-700"
+      : checked
+      ? (ok
+        ? "bg-emerald-500 text-white border-emerald-500"
+        : "bg-[#E60023] text-white border-[#E60023]")
+      : (val
+        ? "bg-[#111111] text-white border-[#111111] cursor-pointer"
+        : "bg-gray-50 border-gray-300 text-gray-500");
+    return (
+      <div key={p} className="flex items-center gap-3">
+        <span className="w-20 xs:w-24 text-right text-sm font-semibold text-gray-600 shrink-0">
+          {p}
+        </span>
+        <button
+          // Keyed by the form it holds, so one arriving mounts a new node and the
+          // landing animation plays. The worked-example row keeps a constant key:
+          // it is filled before the learner does anything, so animating it would
+          // announce a placement that never happened.
+          key={given ? "given" : (val ?? "empty")}
+          onClick={() => val && unsetSlot(i)}
+          disabled={given}
+          className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls} ${
+            val && !given ? "slot-drop" : ""
+          }`}
+        >
+          {val ?? "___"}
+          {given && (
+            <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {t("exampleLabel")}
+            </span>
+          )}
+          {!given && checked && !ok && (
+            <span className="ml-2 text-white/90 text-sm font-semibold">
+              → {item.forms[i]}
+            </span>
+          )}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
@@ -109,54 +158,17 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
           {item.verb}
         </h1>
         <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
+        {
+          /* FR-QUESTION-PINNED: the 1sg row is this mode's model — it is why no
+            worked example is printed above the paradigm. Left in the scrolling
+            block it left the screen exactly while the last rows were being
+            filled, which is when a learner most wants to check the pattern. */
+        }
+        <div className="w-full mt-3">{row(item.pronouns[GIVEN], GIVEN)}</div>
       </StickyQuestion>
       <div className="h-4" />
       <div className="w-full flex flex-col gap-2 mb-5">
-        {item.pronouns.map((p, i) => {
-          const val = slots[i];
-          const ok = checked?.[i];
-          const given = i === GIVEN;
-          const cls = given
-            ? "bg-gray-100 border-dashed border-gray-400 text-gray-700"
-            : checked
-            ? (ok
-              ? "bg-emerald-500 text-white border-emerald-500"
-              : "bg-[#E60023] text-white border-[#E60023]")
-            : (val
-              ? "bg-[#111111] text-white border-[#111111] cursor-pointer"
-              : "bg-gray-50 border-gray-300 text-gray-500");
-          return (
-            <div key={p} className="flex items-center gap-3">
-              <span className="w-20 xs:w-24 text-right text-sm font-semibold text-gray-600 shrink-0">
-                {p}
-              </span>
-              <button
-                // Keyed by the form it holds, so one arriving mounts a new node
-                // and the landing animation plays. The worked-example row keeps a
-                // constant key: it is filled before the learner does anything, so
-                // animating it would announce a placement that never happened.
-                key={given ? "given" : (val ?? "empty")}
-                onClick={() => val && unsetSlot(i)}
-                disabled={given}
-                className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls} ${
-                  val && !given ? "slot-drop" : ""
-                }`}
-              >
-                {val ?? "___"}
-                {given && (
-                  <span className="ml-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {t("exampleLabel")}
-                  </span>
-                )}
-                {!given && checked && !ok && (
-                  <span className="ml-2 text-white/90 text-sm font-semibold">
-                    → {item.forms[i]}
-                  </span>
-                )}
-              </button>
-            </div>
-          );
-        })}
+        {item.pronouns.map((p, i) => (i === GIVEN ? null : row(p, i)))}
       </div>
       <Reaction text={reaction} ok={reactionOk} />
       {checked && item.rule && checked.some((c) => !c) && (

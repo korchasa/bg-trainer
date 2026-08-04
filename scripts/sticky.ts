@@ -39,13 +39,22 @@ interface EngineSpec {
   /** What the pinned block must contain — the text that changes per question. */
   question: string;
   /**
-   * Set where the answer area is pinned too. Only the two sentence-building
-   * engines do this: the learner drops words into slots from a bank far below,
-   * so a pinned question without the slots would show the task and hide the
-   * work. Everywhere else the answers are the tappable options themselves and
-   * pinning them would leave nothing to scroll.
+   * Set where something beyond the question is pinned with it.
+   *
+   * The two sentence-building engines pin their answer area: the learner drops
+   * words into slots from a bank far below, so a pinned question without the
+   * slots would show the task and hide the work. `paradigm` pins its
+   * worked-example row, which is not an answer area but a reference — it is
+   * this mode's model, filled before the learner acts, and the reason no
+   * example text is printed above the paradigm. Left in the scrolling block it
+   * disappears exactly when the last rows are being filled.
+   *
+   * Everywhere else the answers are the tappable options themselves and pinning
+   * them would leave nothing to scroll.
    */
   answerArea?: string;
+  /** What breaks when `answerArea` is not pinned. Goes into the failure line. */
+  whyPinned?: string;
 }
 
 /**
@@ -55,11 +64,27 @@ interface EngineSpec {
  * gaps), so there is nothing to pin above it.
  */
 const ENGINES: EngineSpec[] = [
-  { file: "BuildEngine.tsx", question: "L(item.translation)", answerArea: "{template}" },
-  { file: "FrameEngine.tsx", question: "L(item.translation)", answerArea: "{answerArea}" },
+  {
+    file: "BuildEngine.tsx",
+    question: "L(item.translation)",
+    answerArea: "{template}",
+    whyPinned: "the learner would watch the sentence while the slots they fill scroll away",
+  },
+  {
+    file: "FrameEngine.tsx",
+    question: "L(item.translation)",
+    answerArea: "{answerArea}",
+    whyPinned: "the learner would watch the sentence while the slots they fill scroll away",
+  },
   { file: "NegEngine.tsx", question: "Lq(item.q)" },
   { file: "OddOneOutEngine.tsx", question: "L(item.hint)" },
-  { file: "ParadigmEngine.tsx", question: "item.verb" },
+  {
+    file: "ParadigmEngine.tsx",
+    question: "item.verb",
+    answerArea: "row(item.pronouns[GIVEN], GIVEN)",
+    whyPinned: "this mode's worked example would leave the screen exactly while the last rows " +
+      "are filled, and no example text is printed above the paradigm to replace it",
+  },
   { file: "PickEngine.tsx", question: "Lq(item.q)" },
   { file: "PickFromEngine.tsx", question: "Lq(item.q)" },
   { file: "PickOptEngine.tsx", question: "Lq(item.q)" },
@@ -123,8 +148,7 @@ export async function checkSticky(): Promise<void> {
     }
     if (spec.answerArea && !block.includes(spec.answerArea)) {
       failures.push(
-        `${path} — the pinned block does not render \`${spec.answerArea}\`; in a bank engine ` +
-          `that leaves the learner watching the task while the slots they are filling scroll away`,
+        `${path} — the pinned block does not render \`${spec.answerArea}\`; ${spec.whyPinned}`,
       );
     }
   }
