@@ -3,7 +3,7 @@ import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { useTimer } from "../../hooks/useTimer";
-import { FAIL, OK } from "../../constants";
+import { OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -37,7 +37,7 @@ export function TimedEngine(
   { data, onComplete, onItemAnswer, levelLookup, prompt, example }: Props,
 ) {
   const { t, L, Lq } = useI18n();
-  const reactions = { ok: L(OK), fail: L(FAIL) };
+  const reactions = { ok: L(OK) };
   const items = data();
   const [qs] = useState<TimedItem[]>(() =>
     shuffle(items).map((item) => {

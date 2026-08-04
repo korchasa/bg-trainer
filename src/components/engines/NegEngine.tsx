@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { DataItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { ACCENT, FAIL, OK } from "../../constants";
+import { ACCENT, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -32,7 +32,7 @@ interface Props {
 
 export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L, Lq } = useI18n();
-  const reactions = { ok: L(OK), fail: L(FAIL) };
+  const reactions = { ok: L(OK) };
   const items = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 12));
   const [options, setOptions] = useState<DataItem[]>([]);

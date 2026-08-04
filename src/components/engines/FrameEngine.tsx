@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DataItem, FrameData, FrameItem } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { FAIL, OK } from "../../constants";
+import { OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -49,7 +49,7 @@ const RED = "border-[#E60023] bg-red-50";
  */
 export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L } = useI18n();
-  const reactions = { ok: L(OK), fail: L(FAIL) };
+  const reactions = { ok: L(OK) };
   const { step, items, bank } = data();
   const [qs] = useState<FrameItem[]>(() => shuffle(items));
   // Shuffled once per session: a stable order would let the learner memorise

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import type { DataItem } from "../types";
-import { pickFail, pickOK } from "../utils/shuffle";
+import { pickOK } from "../utils/shuffle";
 import { itemKey } from "../utils/itemKey";
 import { hapticCorrect, hapticWrong } from "../utils/nativeUx";
 import { prefersReducedMotion } from "../utils/motion";
@@ -12,9 +12,14 @@ export interface AnswerOpts {
 
 type AnswerArg = AnswerOpts | number;
 
+/**
+ * Only the congratulation. A wrong answer raises the FR-RETRY dialog in the same
+ * commit, and every engine built on this hook renders that dialog (asserted by
+ * scripts/feedback.ts), so a failure message would be born underneath a modal
+ * that already names the mistake and gives the correct answer.
+ */
 export interface Reactions {
   ok: string[];
-  fail: string[];
 }
 
 // FR-GAME-SESSION, FR-MASTERY: session runs exactly `qsTotal` correctly-answered slots.
@@ -48,6 +53,10 @@ export function useGame(
   const [reaction, setReaction] = useState("");
   // FR-FEEDBACK-CENTRED: the overlay colours itself by verdict, so the verdict
   // has to travel with the text. Kept beside `reaction` and cleared with it.
+  // Here it is only ever true — this hook shows the overlay for a correct answer
+  // and leaves wrong ones to the dialog — but the flag stays, because the four
+  // engines that keep their own state do raise a red one and the component takes
+  // the same prop from all of them.
   const [reactionOk, setReactionOk] = useState(false);
   const [score, setScore] = useState(0);
   const [errorPending, setErrorPending] = useState(false);
@@ -134,8 +143,6 @@ export function useGame(
         setTimeout(advance, effectiveDelay);
       } else {
         setCorr(correctVal);
-        setReaction(pickFail(reactionsRef.current.fail));
-        setReactionOk(false);
         if (!firstWrongRef.current) {
           // First-attempt wrong → record error and fire mastery once.
           errSet.current.add(cur);

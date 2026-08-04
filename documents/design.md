@@ -57,7 +57,7 @@
 ### 3.2 useGame hook
 - **Purpose:** Encapsulate per-session state: `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`, `errorPending` + `answer()` + `advance()` + `dismissError()`. Owns `indexPlan`, `errSet`, `firstWrongRef`, `lockedRef` to drive immediate-retry-on-wrong, single-counted scoring/mastery/error per question.
 - **Interfaces:** `useGame(qs, onComplete, reactions, pts=10, delay=1000, onItemAnswer?)`. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`. `dismissError()` clears visual state to allow another attempt at the same question without unsetting `firstWrongRef`.
-- **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`, `pickFail`), `utils/itemKey`.
+- **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`), `utils/itemKey`. Not `pickFail`: a wrong answer belongs to the retry dialog, and every engine on this hook renders one.
 
 ### 3.3 useTimer hook
 - **Purpose:** Countdown for `TimedEngine`, exposes remaining time and bonus calculation hook.
@@ -147,7 +147,7 @@
 - **Shape:** `absolute inset-0 z-40 flex items-center justify-center pointer-events-none`, holding a coloured pill with white bold text. Carries no flow height, so the 36 px spacer the inline version reserved in all twelve engines is gone.
 - **Anchor:** the game wrapper in `App.tsx` is the only positioned ancestor, so the overlay covers the area below the header and does not move while the play area scrolls. `overflow-y-auto` on an engine root does not create a containing block; an added `relative` there would, and would silently centre the verdict in the scrollable content instead. `scripts/feedback.ts` asserts no engine root is positioned.
 - **Colour:** `bg-emerald-700` for a right answer, `bg-[#E60023]` for a wrong one — the same green/accent pair the answer tiles use. Moving the pill onto white content is only half the fix: a white pill there is visible and still missed, so the colour carries the verdict faster than the word does.
-- **Where the flag comes from:** `ok` is a required prop, so every call site has to state the verdict and a forgotten one is a compile error. Eight engines read `reactionOk` from `useGame`, which sets it beside `reaction` and clears it in `advance` and `dismissError`; the four that hold their own reaction (`Build`, `Li`, `Match`, `Paradigm`) keep a local `reactionOk` next to each `setReaction` call.
+- **Where the flag comes from:** `ok` is a required prop, so every call site has to state the verdict and a forgotten one is a compile error. Eight engines read `reactionOk` from `useGame`, which sets it beside `reaction` and clears it in `advance` and `dismissError` — there it is only ever true, since the hook produces a verdict for correct answers only and leaves wrong ones to the dialog. The four that hold their own reaction (`Build`, `Li`, `Match`, `Paradigm`) have no dialog and so keep a local `reactionOk` next to each `setReaction` call, red included.
 - **Layering:** z-40, under `ErrorDialog` and `InfoModal` at z-50 — a wrong answer's explanation must cover the verdict, not compete with it.
 - **Announcement:** the `role="status" aria-live="polite"` region stays mounted and only its content changes; a region that appears together with its text is announced unreliably.
 

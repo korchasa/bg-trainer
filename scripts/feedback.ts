@@ -23,6 +23,7 @@ import { walk } from "./lib.ts";
 const ENGINE_DIR = "src/components/engines";
 const REACTION = "src/components/ui/Reaction.tsx";
 const APP = "src/App.tsx";
+const GAME = "src/hooks/useGame.ts";
 
 /** Tailwind classes that would make an engine root a containing block. */
 const POSITIONED = /className="flex-1 flex flex-col[^"]*\b(relative|absolute|fixed|sticky)\b/;
@@ -62,9 +63,32 @@ export async function checkFeedback(): Promise<void> {
     failures.push(`${APP} — the game wrapper is no longer the positioned anchor for the overlay`);
   }
 
+  // A wrong answer raises the FR-RETRY dialog, which names the mistake and gives
+  // the correct answer. A bouncing "Мимо!" born underneath it is a second verdict
+  // the learner never reads. `useGame` therefore leaves failures to the dialog —
+  // which is only safe while every engine built on it actually renders one.
+  const game = await Deno.readTextFile(GAME);
+  if (/pickFail/.test(game)) {
+    failures.push(
+      `${GAME} — sets a failure message, which is born underneath the retry dialog and cannot ` +
+        `be read`,
+    );
+  }
+
   let engines = 0;
+  let hookEngines = 0;
   for await (const path of walk(ENGINE_DIR, [".tsx"])) {
     const src = await Deno.readTextFile(path);
+    if (src.includes("useGame(")) {
+      hookEngines++;
+      if (!src.includes("<ErrorDialog")) {
+        failures.push(
+          `${path} — builds on useGame but renders no <ErrorDialog>, so a wrong answer would now ` +
+            `pass with no verdict at all: the hook stopped producing one on the assumption that ` +
+            `the dialog gives it`,
+        );
+      }
+    }
     if (!src.includes("<Reaction")) continue;
     engines++;
     if (POSITIONED.test(src)) {
@@ -76,8 +100,11 @@ export async function checkFeedback(): Promise<void> {
   }
 
   if (engines === 0) failures.push(`no engine renders <Reaction> — the scan is broken`);
+  if (hookEngines === 0) failures.push(`no engine calls useGame — the scan is broken`);
 
-  console.log(`Scanned ${engines} engines, ${REACTION} and ${APP}.`);
+  console.log(
+    `Scanned ${engines} engines (${hookEngines} on useGame), ${REACTION}, ${GAME} and ${APP}.`,
+  );
   if (failures.length) {
     console.error(`\nFAIL: ${failures.length} problem(s):`);
     for (const f of failures) console.error(`  ${f}`);

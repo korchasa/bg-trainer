@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DataItem, PickOptData } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
-import { FAIL, OK } from "../../constants";
+import { OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
@@ -24,7 +24,7 @@ interface Props {
 
 export function PickOptEngine({ data, onComplete, onItemAnswer, prompt, example }: Props) {
   const { t, L, Lq } = useI18n();
-  const reactions = { ok: L(OK), fail: L(FAIL) };
+  const reactions = { ok: L(OK) };
   const { items, opts: options } = data();
   const [qs] = useState<DataItem[]>(() => shuffle(items).slice(0, 15));
   const hintCh = useHintChannel();
