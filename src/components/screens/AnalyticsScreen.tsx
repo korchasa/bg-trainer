@@ -62,26 +62,33 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
   const average = Math.round(history.reduce((s, h) => s + h.score, 0) / total);
   const totalErrors = history.reduce((s, h) => s + (h.errors || 0), 0);
   const bestScore = Math.max(...history.map(h => h.score));
-  const totalQs = history.reduce((s, h) => s + (h.qsTotal ?? 8), 0);
-  const byLesson: Record<string, { count: number; rounds: number; score: number; errors: number; qs: number; best: number }> = {};
+  // FR-ANALYTICS: only sessions that recorded how many answers they held. A
+  // session stored before `qsTotal` existed used to be assumed eight answers
+  // long, which quietly turned a 35-answer session with 12 errors into 12 errors
+  // out of 8 and clamped it to 0%. An entry without the count contributes to
+  // neither side of the fraction, and the label says how many were counted.
+  const measured = history.filter(h => typeof h.qsTotal === "number");
+  const totalQs = measured.reduce((s, h) => s + h.qsTotal!, 0);
+  const measuredErrors = measured.reduce((s, h) => s + (h.errors || 0), 0);
+  const byLesson: Record<string, { count: number; rounds: number; score: number; errors: number; measuredErrors: number; qs: number; best: number }> = {};
   let unassigned = 0;
   history.forEach(h => {
     const lid = lessonOf(h);
     if (!lid) { unassigned++; return; }
-    if (!byLesson[lid]) byLesson[lid] = { count: 0, rounds: 0, score: 0, errors: 0, qs: 0, best: 0 };
+    if (!byLesson[lid]) byLesson[lid] = { count: 0, rounds: 0, score: 0, errors: 0, measuredErrors: 0, qs: 0, best: 0 };
     const b = byLesson[lid];
     b.count++;
     if (h.round) b.rounds++;
     b.score += h.score;
     b.errors += h.errors || 0;
-    b.qs += h.qsTotal ?? (h.round ? 15 : 8);
+    if (typeof h.qsTotal === "number") { b.qs += h.qsTotal; b.measuredErrors += h.errors || 0; }
     if (h.score > b.best) b.best = h.score;
   });
   const lessonRows = LESSONS
     .filter(l => byLesson[l.id])
     .map(l => {
       const b = byLesson[l.id];
-      const acc = Math.max(0, Math.round((1 - b.errors / Math.max(b.qs, 1)) * 100));
+      const acc = b.qs > 0 ? Math.max(0, Math.round((1 - b.measuredErrors / b.qs) * 100)) : null;
       return { id: l.id, num: l.num, title: L(l.title), ...b, avg: Math.round(b.score / b.count), acc };
     });
   const last20 = history.slice(-20).map((h, i) => ({ n: i + 1, score: h.score, errors: h.errors || 0 }));
@@ -91,7 +98,7 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
     { icon: "⭐", value: bestScore, label: t("statBest") },
     { icon: "📈", value: average, label: t("statAvg") },
     { icon: "❌", value: totalErrors, label: t("statErrors") },
-    { icon: "🎯", value: Math.max(0, Math.round((1 - totalErrors / Math.max(totalQs, 1)) * 100)) + "%", label: t("statAccuracy") },
+    { icon: "🎯", value: totalQs > 0 ? Math.max(0, Math.round((1 - measuredErrors / totalQs) * 100)) + "%" : "—", label: t("statAccuracy") },
     { icon: "📚", value: lessonRows.length, label: t("statLessons") },
   ];
 
@@ -130,7 +137,7 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
                       <span className="text-xs font-bold text-gray-500 uppercase">{t("shortAvg")}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <span className="text-base font-black" style={{ color: ACCENT }}>{l.acc}%</span>
+                      <span className="text-base font-black" style={{ color: ACCENT }}>{l.acc === null ? "—" : `${l.acc}%`}</span>
                       <span className="text-xs font-bold text-gray-500 uppercase">{t("shortAcc")}</span>
                     </div>
                   </div>

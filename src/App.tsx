@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react"
 import { ALL_MODES } from "./data";
 import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
-import { loadMastery, saveMastery, clearMastery, applyAnswer, migrateDottedKeys } from "./utils/mastery";
+import { loadMastery, saveMastery, clearMastery, applyAnswer, migrateDottedKeys, migrateParadigmKeys } from "./utils/mastery";
 import { loadPace, savePace } from "./utils/pace";
 import { applyTextScale, loadTextScale, saveTextScale, DEFAULT_TEXT_SCALE, type TextScale } from "./utils/textScale";
 import { hapticRoundFinished } from "./utils/nativeUx";
@@ -55,8 +55,12 @@ export default function App() {
     setHistory(loadHistory());
     // Exercise texts lost their sentence-final periods, and mastery keys are those
     // texts verbatim — re-point stored records before anything reads them.
-    const migrated = migrateDottedKeys(loadMastery(), ALL_MODES);
-    if (migrated.changed) saveMastery(migrated.store);
+    // Paradigms first: mastery moved from one record per verb to one per form, and
+    // the dotted-key pass judges a record by whether its key is live — which every
+    // old verb key has stopped being.
+    const spread = migrateParadigmKeys(loadMastery(), ALL_MODES);
+    const migrated = migrateDottedKeys(spread.store, ALL_MODES);
+    if (spread.changed || migrated.changed) saveMastery(migrated.store);
     setMastery(migrated.store);
     setPace(loadPace());
     setTextScale(loadTextScale());
@@ -113,7 +117,7 @@ export default function App() {
     });
   }, []);
 
-  const handleComplete = useCallback((score: number, time: number, errors = 0) => {
+  const handleComplete = useCallback((score: number, time: number, errors: number, qsTotal: number) => {
     if (pendingRef.current.length === 0) {
       console.warn(`[mastery] engine ${modeIdRef.current} produced zero item events`);
     }
@@ -123,7 +127,10 @@ export default function App() {
         score: round.totals.score + score,
         time: round.totals.time + time,
         errors: round.totals.errors + errors,
-        qsTotal: round.totals.qsTotal + round.size,
+        // What the engine reported, not `round.size`: the planned size and the
+        // answers actually asked part company in `paradigm`, which asks five per
+        // item, and accuracy divides `errors` by this.
+        qsTotal: round.totals.qsTotal + qsTotal,
       };
       const nextIdx = round.idx + 1;
       if (nextIdx < round.queue.length) {
@@ -144,7 +151,7 @@ export default function App() {
         qsTotal: nextTotals.qsTotal,
       });
       hapticRoundFinished();
-      setResult({ score: nextTotals.score, time: nextTotals.time, errors: nextTotals.errors });
+      setResult({ score: nextTotals.score, time: nextTotals.time, errors: nextTotals.errors, qsTotal: nextTotals.qsTotal });
       setResultMode(roundMode);
       setRound(null);
       setScreen("results");
@@ -158,8 +165,9 @@ export default function App() {
       errors,
       ts: Date.now(),
       lessonId: lessonId ?? undefined,
+      qsTotal,
     });
-    setResult({ score, time, errors });
+    setResult({ score, time, errors, qsTotal });
     setResultMode(mid);
     setScreen("results");
   }, [round, modeId, lessonId, appendHistory]);
@@ -353,6 +361,7 @@ export default function App() {
               score={result.score}
               time={result.time}
               errors={result.errors}
+              qsTotal={result.qsTotal}
               onRestart={() => {
                 if (resultMode?.startsWith("round:")) { startRound(); return; }
                 setGameKey(k => k + 1);

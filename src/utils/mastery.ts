@@ -1,5 +1,5 @@
 import type { MasteryStore, ModeMastery, PickOptData, Lesson, Mode } from "../types";
-import { itemCount, itemKey } from "./itemKey";
+import { itemCount, itemKey, paradigmFormKey } from "./itemKey";
 import { shuffle } from "./shuffle";
 import { getRaw, removeRaw, setRaw } from "./storage";
 
@@ -42,12 +42,90 @@ function modeItemKeys(mode: Mode): Set<string> {
       : [];
   for (const it of list) {
     try {
+      // A paradigm item is answered once per form and stored once per form, so
+      // its live keys are the form keys — the bare verb is not one of them.
+      const o = it as { pronouns?: unknown; forms?: unknown[] };
+      if (Array.isArray(o.pronouns) && Array.isArray(o.forms)) {
+        o.forms.forEach((_, i) => {
+          if (i !== PARADIGM_GIVEN) keys.add(paradigmFormKey(it as never, i));
+        });
+        continue;
+      }
       keys.add(itemKey(it));
     } catch {
       // Shape without a natural key — nothing that could have been stored.
     }
   }
   return keys;
+}
+
+/**
+ * The pre-filled first-person row of a paradigm. Duplicated from
+ * `ParadigmEngine`'s `GIVEN` rather than imported: a store migration reaching
+ * into a React component for a constant is the kind of dependency that survives
+ * one refactor and breaks on the next. `scripts/accuracy.ts` asserts the two
+ * agree.
+ */
+const PARADIGM_GIVEN = 0;
+
+/**
+ * Carries a paradigm's old single record onto the per-form records that replaced
+ * it.
+ *
+ * Mastery used to hold one level per verb; it now holds one per form, and
+ * `itemCount` counts a paradigm mode in forms to match. Dropping the old records
+ * would reset every learner's paradigm progress to zero, and leaving them would
+ * be worse: `modeStats` sums whatever is in the store against a total that is now
+ * five times larger, so the progress bar would collapse and the stranded verb
+ * keys would never be touched again.
+ *
+ * Copying the verb's level onto each of its forms keeps the displayed ratio
+ * exactly where it was — the sum and the total both grow by the same factor —
+ * and every record is live from then on.
+ */
+export function migrateParadigmKeys(
+  store: MasteryStore,
+  modes: Mode[],
+): { store: MasteryStore; changed: boolean } {
+  const next: MasteryStore = { ...store };
+  let changed = false;
+
+  for (const mode of modes) {
+    const entries = store[mode.id];
+    if (!entries) continue;
+    let items: unknown[];
+    try {
+      const d = mode.data();
+      if (!Array.isArray(d)) continue;
+      items = d;
+    } catch {
+      continue;
+    }
+    const paradigms = items.filter((it) => {
+      const o = it as { pronouns?: unknown; forms?: unknown[] };
+      return Array.isArray(o.pronouns) && Array.isArray(o.forms);
+    }) as { forms: string[] }[];
+    if (paradigms.length === 0) continue;
+
+    const migrated: ModeMastery = {};
+    for (const key in entries) migrated[key] = entries[key];
+    for (const item of paradigms) {
+      const verbKey = itemKey(item);
+      const legacy = migrated[verbKey];
+      if (!legacy) continue;
+      delete migrated[verbKey];
+      changed = true;
+      item.forms.forEach((_, i) => {
+        if (i === PARADIGM_GIVEN) return;
+        const k = paradigmFormKey(item as never, i);
+        // A form already answered under the new scheme wins: it is the more
+        // recent measurement of that exact form.
+        if (!migrated[k]) migrated[k] = { ...legacy };
+      });
+    }
+    next[mode.id] = migrated;
+  }
+  return { store: next, changed };
 }
 
 /**

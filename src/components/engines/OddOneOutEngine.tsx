@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DataItem, OddItem } from "../../types";
+import type { DataItem, OddItem, SessionComplete } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { OK } from "../../constants";
@@ -14,7 +14,7 @@ import { ErrorDialog } from "../ui/ErrorDialog";
 
 interface Props {
   data: () => OddItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   prompt?: string;
   example?: string;

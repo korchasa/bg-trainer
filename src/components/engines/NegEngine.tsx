@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DataItem } from "../../types";
+import type { DataItem, SessionComplete } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { ACCENT, OK } from "../../constants";
@@ -24,7 +24,7 @@ function makeNegDecoys(corr: string): string[] {
 
 interface Props {
   data: () => DataItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
   example?: string;

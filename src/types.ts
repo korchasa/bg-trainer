@@ -163,7 +163,28 @@ export interface GameResult {
   score: number;
   time: number;
   errors: number;
+  /** Answers the session held. The denominator of FR-RESULTS accuracy. */
+  qsTotal: number;
 }
+
+/**
+ * How an engine reports a finished session.
+ *
+ * `errors` and `qsTotal` must be in the same unit — answers. Most engines answer
+ * once per item, so for them both are questions; `paradigm` asks five forms per
+ * verb and counts both in forms, or a session with 36 wrong forms out of 45
+ * would report nine errors against nine questions.
+ *
+ * One shared signature on purpose: this callback lived as twelve identical
+ * copies, and adding an argument to it would have reached some of them and not
+ * others.
+ */
+export type SessionComplete = (
+  score: number,
+  time: number,
+  errors: number,
+  qsTotal: number,
+) => void;
 
 export type Screen = "lessons" | "lesson" | "game" | "results" | "analytics";
 

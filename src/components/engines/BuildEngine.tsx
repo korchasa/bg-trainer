@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { BuildItem } from "../../types";
+import type { BuildItem, SessionComplete } from "../../types";
 import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
 import { buildTemplate, joinTokens } from "../../utils/punct";
 import { FAIL, OK } from "../../constants";
@@ -12,7 +12,7 @@ import { StickyQuestion } from "../ui/StickyQuestion";
 
 interface Props {
   data: () => BuildItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
   example?: string;
@@ -81,7 +81,7 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
       onItemAnswer?.(itemKey(item), ok, false);
       setTimeout(() => {
         if (cur + 1 < qs.length) setCur((c) => c + 1);
-        else onComplete(sRef.current, Date.now() - t0, eRef.current);
+        else onComplete(sRef.current, Date.now() - t0, eRef.current, qs.length);
       }, 1200);
     }
   };

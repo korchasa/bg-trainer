@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { MatchItem } from "../../types";
+import type { MatchItem, SessionComplete } from "../../types";
 import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
 import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
@@ -9,7 +9,7 @@ import { TaskPrompt } from "../ui/TaskPrompt";
 
 interface Props {
   data: () => MatchItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
   example?: string;
@@ -43,7 +43,7 @@ export function MatchEngine({ data, onComplete, onItemAnswer, prompt, example }:
   const finish = () => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    onComplete(sRef.current, Date.now() - t0, errRef.current.size);
+    onComplete(sRef.current, Date.now() - t0, errRef.current.size, pairs.length);
   };
 
   const handleLeft = (idx: number) => {

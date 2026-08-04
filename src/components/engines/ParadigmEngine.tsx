@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import type { ParadigmItem } from "../../types";
+import type { ParadigmItem, SessionComplete } from "../../types";
 import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
 import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
-import { itemKey } from "../../utils/itemKey";
+import { itemKey, paradigmFormKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { StickyQuestion } from "../ui/StickyQuestion";
@@ -11,7 +11,7 @@ import { StickyPool } from "../ui/StickyPool";
 
 interface Props {
   data: () => ParadigmItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
 }
@@ -51,6 +51,8 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
 
   if (qs.length === 0) return null;
   const item = qs[cur];
+  // The unit `errors` is counted in, so accuracy divides like by like.
+  const answerCount = qs.reduce((n, q) => n + q.forms.length - 1, 0);
 
   const fillNext = (form: string, poolIdx: number) => {
     if (checked) return;
@@ -70,13 +72,24 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
       setScore(ns);
       sRef.current = ns;
       const allOk = marks.every(Boolean);
-      if (!allOk) eRef.current++;
+      // Counted in forms, not in verbs. The learner answers five times here and
+      // once in every other mode; charging one error for a paradigm however many
+      // forms were misplaced made a session with 36 wrong forms out of 45 report
+      // nine errors, and the results screen divided by that.
+      eRef.current += marks.filter((m, i) => !m && i !== GIVEN).length;
       setReaction(allOk ? pickOK(L(OK)) : pickFail(L(FAIL)));
       setReactionOk(allOk);
-      onItemAnswer?.(itemKey(item), allOk, false);
+      // Mastery per form for the same reason, and with a key per form: one
+      // all-or-nothing event per verb made four right out of five worth exactly
+      // as much as none, and firing five events against a single verb key would
+      // have moved that key five times faster than any other mode's item.
+      marks.forEach((m, i) => {
+        if (i === GIVEN) return;
+        onItemAnswer?.(paradigmFormKey(item, i), m, false);
+      });
       setTimeout(() => {
         if (cur + 1 < qs.length) setCur((c) => c + 1);
-        else onComplete(sRef.current, Date.now() - t0, eRef.current);
+        else onComplete(sRef.current, Date.now() - t0, eRef.current, answerCount);
       }, 2200);
     }
   };

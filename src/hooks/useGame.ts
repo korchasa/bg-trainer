@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import type { DataItem } from "../types";
+import type { DataItem, SessionComplete } from "../types";
 import { pickOK } from "../utils/shuffle";
 import { itemKey } from "../utils/itemKey";
 import { hapticCorrect, hapticWrong } from "../utils/nativeUx";
@@ -28,7 +28,7 @@ export interface Reactions {
 // subsequent retries are silent (no score, no mastery, no error increment).
 export function useGame(
   qs: DataItem[],
-  onComplete: (score: number, time: number, errors: number) => void,
+  onComplete: SessionComplete,
   reactions: Reactions,
   pts = 10,
   delay = 1000,
@@ -72,7 +72,10 @@ export function useGame(
   const finish = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    onComplete(sRef.current, Date.now() - t0, errSet.current.size);
+    // `qsTotal`, not `answeredRef`: the two are equal on a finished session and
+    // differ on an aborted one, and accuracy has to be measured against the
+    // questions the session held, not the ones the learner got through.
+    onComplete(sRef.current, Date.now() - t0, errSet.current.size, qsTotalRef.current);
   }, [onComplete, t0]);
 
   const advance = useCallback(() => {

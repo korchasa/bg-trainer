@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { DataItem } from "../../types";
+import type { DataItem, SessionComplete } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { OK } from "../../constants";
@@ -16,7 +16,7 @@ import { useHintChannel } from "../../hooks/useHintChannel";
 
 interface Props {
   data: () => DataItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   prompt?: string;
   example?: string;

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { LiItem } from "../../types";
+import type { LiItem, SessionComplete } from "../../types";
 import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
 import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
@@ -10,7 +10,7 @@ import { TaskPrompt } from "../ui/TaskPrompt";
 
 interface Props {
   data: () => LiItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean) => void;
   prompt?: string;
   example?: string;
@@ -53,7 +53,7 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt, example }: Pr
         setSel(null);
         setReaction("");
       } else {
-        onComplete(sRef.current, Date.now() - t0, eRef.current);
+        onComplete(sRef.current, Date.now() - t0, eRef.current, qs.length);
       }
     }, 1500);
   };

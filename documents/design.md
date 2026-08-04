@@ -41,7 +41,7 @@
   - **Lessons layer (`data/lessons.ts`):** `LESSONS` array (8 textbook units, localized titles) + `LESSON_BY_ID`.
   - **Slicer (`utils/sliceData.ts`):** type-aware wrapper around `mode.data()` that shuffles+slices to round size while preserving `pickOpt.opts`.
   - **Persistence (`utils/history.ts`):** thin wrapper over `localStorage` with size cap + error swallow.
-  - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`).
+  - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`); `paradigm` stores one record per form (`paradigmFormKey` → `<verb>#<i>`) and `itemCount` counts that mode in forms, so the level sum and the total it is divided by stay in the same unit. `migrateParadigmKeys` copies an old per-verb level onto each of its forms — both sides of the ratio grow by the same factor, so the displayed progress does not move.
   - **i18n (`src/i18n/*`):** `LocaleProvider` + `useI18n` hook expose `t` (plain UI strings), `f` (parametric strings), `L` (resolves `Localized<T>`), `Lq` (splits `"<ru> / <uk>"` convention in `DataItem.q`). `STRINGS`/`FORMATS` dictionaries enforce locale completeness via `Record<Locale, …>`. Locale persisted under `bg-trainer-lang-v1`; first-run detection from `navigator.language` (only literal `uk` prefix triggers UK).
   - **UI atoms (`components/ui/*`):** `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`, `TaskPrompt`, `InfoModal`.
   - **Hint channel (`hooks/useHintChannel.tsx`):** `HintProvider` context carrying the current question's hint from the engine to the header button (FR-HINT-MODAL).
@@ -56,7 +56,7 @@
 
 ### 3.2 useGame hook
 - **Purpose:** Encapsulate per-session state: `cur`, `sel`, `corr`, `reaction`, `score`, `answered`, `qsTotal`, `errorPending` + `answer()` + `advance()` + `dismissError()`. Owns `indexPlan`, `errSet`, `firstWrongRef`, `lockedRef` to drive immediate-retry-on-wrong, single-counted scoring/mastery/error per question.
-- **Interfaces:** `useGame(qs, onComplete, reactions, pts=10, delay=1000, onItemAnswer?)`. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`. `dismissError()` clears visual state to allow another attempt at the same question without unsetting `firstWrongRef`.
+- **Interfaces:** `useGame(qs, onComplete, reactions, pts=10, delay=1000, onItemAnswer?)`, where `onComplete` is the shared `SessionComplete = (score, time, errors, qsTotal) => void` — one type rather than twelve copies of the signature, so an argument added to it reaches every engine. `errors` and `qsTotal` are both in answers. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`. `dismissError()` clears visual state to allow another attempt at the same question without unsetting `firstWrongRef`.
 - **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`), `utils/itemKey`. Not `pickFail`: a wrong answer belongs to the retry dialog, and every engine on this hook renders one.
 
 ### 3.2a Tailwind class names
@@ -84,11 +84,13 @@
 - **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`, `MatchEngine`, `OddOneOutEngine`, `ParadigmEngine`, `FrameEngine`.
 
 ### 3.5 ResultsScreen
-- **Purpose:** Show session outcome: score, errors, time. Offer "play again" / "menu".
-- **Deps:** `types.HistoryEntry` (implicit).
+- **Purpose:** Show session outcome: score, `errors/qsTotal`, time, accuracy. Offer "play again" / "menu".
+- **Accuracy (FR-RESULTS):** `1 - errors / qsTotal` — the share answered right on the first attempt. It replaced `1 - errors / (errors + 8)`, whose 8 was a constant rather than the session's length: that formula could not reach 0, showed 50% for an eight-question `frame` session answered entirely wrong, and gave the same 73% to a 35-question `build` session with three errors and a three-item `paradigm` with three. The badge is chosen from the same share (🏆 ≥ 80%, 👍 ≥ 50%, 💪 below) rather than from points, because points per answer differ by mode — at 15 a piece the old 80-point trophy came for six answers right out of thirty-five, while at 10 a piece an eight-question mode needed all eight.
+- **Deps:** `types.GameResult` (`score`, `time`, `errors`, `qsTotal`).
 
 ### 3.6 AnalyticsScreen
 - **Purpose:** Aggregate history + render charts (Recharts).
+- **Accuracy (FR-ANALYTICS):** same formula, summed over the entries that carry `qsTotal`. Entries written before the field existed are left out of both sides of the fraction and the figure reads `—`; they used to be assumed eight answers long, which turned a 35-answer session with 12 errors into 12 errors out of 8 and clamped it to 0%. The raw error card still counts every entry — a count needs no denominator.
 - **Deps:** `recharts`, `utils/history.ts`, `constants.CHART_COLORS`.
 
 ### 3.7 UI atoms

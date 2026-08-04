@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { DataItem } from "../../types";
+import type { DataItem, SessionComplete } from "../../types";
 import { shuffle } from "../../utils/shuffle";
 import { useGame } from "../../hooks/useGame";
 import { useTimer } from "../../hooks/useTimer";
@@ -21,7 +21,7 @@ interface TimedItem extends DataItem {
 
 interface Props {
   data: () => DataItem[];
-  onComplete: (score: number, time: number, errors: number) => void;
+  onComplete: SessionComplete;
   onItemAnswer?: (itemId: string, ok: boolean, fast: boolean, hinted?: boolean) => void;
   levelLookup?: (itemId: string) => number;
   prompt?: string;

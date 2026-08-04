@@ -293,18 +293,22 @@
   - [x] Clear-history action available. Evidence: `src/utils/history.ts:18`, `src/App.tsx:315`
   - [ ] Mode distribution chart color-cycles through `CHART_COLORS`. Not wired: `CHART_COLORS` is declared in `src/constants.ts:12` and referenced nowhere.
   - [x] Mode distribution excludes `round:*` entries; rounds aggregated in dedicated "Раунды" section. Evidence: `src/components/screens/AnalyticsScreen.tsx:34-41,92-120`
-  - [x] Accuracy uses per-entry `qsTotal` (fallback = 8). Evidence: `src/components/screens/AnalyticsScreen.tsx:33,54`
+  - [x] Accuracy uses per-entry `qsTotal` and counts only entries that carry one — no fallback. Sessions recorded before the field existed show `—` instead of a figure built on a guessed length. Evidence: `src/components/screens/AnalyticsScreen.tsx`, `scripts/accuracy.ts`
 - **Status:** [ ]
 
 ### 3.8 FR-RESULTS
-- **Desc:** End-of-game screen shows score, time, error count; offers "Play again" and "Back to menu".
+- **Desc:** End-of-game screen shows score, time, errors against the number of answers, and accuracy; offers "Play again" and "Back to menu". Accuracy is the share answered right on the first attempt — `1 - errors / qsTotal` — and the badge follows the same share (🏆 ≥ 80%, 👍 ≥ 50%, 💪 below), not the point total, because points per answer differ by mode. Every engine reports `qsTotal` through the shared `SessionComplete` signature, and `errors` and `qsTotal` are in the same unit: answers, which for `paradigm` means forms rather than verbs.
 - **Acceptance:**
   - [x] Screen component exists. Evidence: `src/components/screens/ResultsScreen.tsx`
-  - [x] Appends `HistoryEntry` on completion. Evidence: `src/App.tsx`, `src/utils/history.ts`
+  - [x] Appends `HistoryEntry` on completion, `qsTotal` included. Evidence: `src/App.tsx`, `src/utils/history.ts`
+  - [x] Accuracy divides by the session's answer count, never by a constant. Evidence: `src/components/screens/ResultsScreen.tsx:10-20`, `scripts/accuracy.ts`
+  - [x] Badge chosen by share correct, not by absolute points. Evidence: `src/components/screens/ResultsScreen.tsx`
+  - [x] All twelve engines report through `SessionComplete`. Evidence: `src/types.ts`, `scripts/accuracy.ts`
 - **Status:** [x]
+- **Limits:** the count is the session's questions, not the ones the learner reached. An aborted session never reaches this screen, so the two only differ where nothing reads them.
 
 ### 3.12 FR-MASTERY
-- **Desc:** Per-item mastery level (0–10) persisted in `localStorage` (key `bg-trainer-mastery-v1`). Independent from history. Update rule: correct `+1`, fast-correct (timed, within timer bonus) `+2`, wrong `−3`. Hinted answers soften the update: `ok+hinted = +0`, `fail+hinted = −1`. Lazy decay: correct answers on items untouched ≥7 days first drop 1 level, then apply reward. Speed-gate: `TimedEngine` disables the timer and speed bonus when the current item's level `< 5` to prevent System-1 guessing on undermastered items. Session item selection uses FR-SCHED (`pickDueItems`). Lesson-level aggregation: `ratio = sum(level) / (10 × totalItems)`. Lesson "полностью изучено" = ≥90% items at level ≥7 AND ≥60% at level 10.
+- **Desc:** Per-item mastery level (0–10) persisted in `localStorage` (key `bg-trainer-mastery-v1`). Independent from history. Update rule: correct `+1`, fast-correct (timed, within timer bonus) `+2`, wrong `−3`. Hinted answers soften the update: `ok+hinted = +0`, `fail+hinted = −1`. Lazy decay: correct answers on items untouched ≥7 days first drop 1 level, then apply reward. Speed-gate: `TimedEngine` disables the timer and speed bonus when the current item's level `< 5` to prevent System-1 guessing on undermastered items. Session item selection uses FR-SCHED (`pickDueItems`). Lesson-level aggregation: `ratio = sum(level) / (10 × totalItems)`. One record per answer, which for `paradigm` means one per form rather than one per verb — a single all-or-nothing event per verb made four correct forms out of five worth exactly what none were worth, and `itemCount` counts a paradigm mode in forms so the two stay in the same unit. Stores written under the old per-verb scheme are carried over by `migrateParadigmKeys`, which copies the verb's level onto each of its forms and leaves the displayed ratio unchanged. Lesson "полностью изучено" = ≥90% items at level ≥7 AND ≥60% at level 10.
 - **Scenario:** User plays a mode → every answered item updates its level → `LessonsScreen` shows per-lesson progress bar + "K/M освоено · X%" → `LessonScreen` shows per-mode mini bar → `AnalyticsScreen` has separate reset for mastery.
 - **Acceptance:**
   - [x] Mastery persisted under `bg-trainer-mastery-v1`, independent of `bg-trainer-v3`. Evidence: `src/utils/mastery.ts:4`, `src/constants.ts:7`
@@ -312,6 +316,8 @@
   - [x] Hinted softening: `ok+hinted = +0`, `fail+hinted = −1`. Evidence: `src/utils/mastery.ts:51-62`
   - [x] Speed-gate: `TimedEngine` disables timer+bonus when item level < 5. Evidence: `src/components/engines/TimedEngine.tsx:25,32-43`
   - [x] Decay: stale-correct path reduces 1 level before reward. Evidence: `src/utils/mastery.ts:44,47`
+  - [x] `paradigm` stores one record per form (`<verb>#<i>`) and `itemCount` counts that mode in forms. Evidence: `src/utils/itemKey.ts`, `src/components/engines/ParadigmEngine.tsx`, `scripts/accuracy.ts`
+  - [x] Per-verb records migrate onto per-form records without moving the ratio. Evidence: `src/utils/mastery.ts`, `src/App.tsx`
   - [x] All 12 engines forward item identity via `onItemAnswer(itemId, ok, fast)`. Evidence: `src/hooks/useGame.ts:47-55`, `src/components/engines/PickEngine.tsx`, `src/components/engines/TimedEngine.tsx`, `src/components/engines/PickOptEngine.tsx`, `src/components/engines/PickFromEngine.tsx`, `src/components/engines/NegEngine.tsx`, `src/components/engines/BuildEngine.tsx`, `src/components/engines/LiEngine.tsx`, `src/components/engines/TypeEngine.tsx`, `src/components/engines/MatchEngine.tsx`, `src/components/engines/OddOneOutEngine.tsx`, `src/components/engines/ParadigmEngine.tsx`
   - [x] Mastery persisted once per session (on complete + on abort), not per answer. Evidence: `src/App.tsx:56-66,78-82,165,170`
   - [x] `LessonsScreen` shows progress bar + `K/M · X%`; mastered badge when criteria met. Evidence: `src/components/screens/LessonsScreen.tsx`
