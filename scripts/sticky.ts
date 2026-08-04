@@ -27,9 +27,12 @@
 
 const ENGINE_DIR = "src/components/engines";
 const COMPONENT = "src/components/ui/StickyQuestion.tsx";
+const POOL = "src/components/ui/StickyPool.tsx";
+const POOL_ENGINE = "src/components/engines/ParadigmEngine.tsx";
 
 /** Indentation of a direct child of the engine's scroll root. */
 const DIRECT_CHILD = /^ {6}<StickyQuestion[ >]/m;
+const POOL_DIRECT_CHILD = /^ {6}<StickyPool[ >]/m;
 
 interface EngineSpec {
   file: string;
@@ -126,7 +129,48 @@ export async function checkSticky(): Promise<void> {
     }
   }
 
-  console.log(`Scanned ${ENGINES.length} engines and ${COMPONENT}.`);
+  // The paradigm drill pins the opposite end. Its six rows and its pool of forms
+  // are both fixed in size, so what does not fit is fixed too: pinning the rows
+  // with the verb would take 554px of the 594px play area and leave no room for
+  // the pool at all. Pinning the pool instead keeps the forms under the thumb
+  // while the rows — including the worked-example row that IS this mode's model —
+  // stay in view above them.
+  // Read tolerantly: a deleted component should read as a named failure here, not
+  // as a stack trace that buries which invariant broke.
+  const pool = await Deno.readTextFile(POOL).catch(() => "");
+  if (pool === "") {
+    failures.push(`${POOL} — missing; nothing pins the pool of forms`);
+  }
+  if (!/\bsticky\b/.test(pool)) {
+    failures.push(`${POOL} — not sticky; the forms scroll away from the rows they fill`);
+  }
+  if (!/-bottom-4/.test(pool)) {
+    failures.push(
+      `${POOL} — no negative sticky offset, so the scroll root's own padding leaves an ` +
+        `uncovered band below the pool and rows ride through it`,
+    );
+  }
+  if (!/-mx-4/.test(pool) || !/w-\[calc\(100%\+2rem\)\]/.test(pool)) {
+    failures.push(`${POOL} — not full-bleed; rows show through the side gutters`);
+  }
+  if (!/bg-white/.test(pool)) {
+    failures.push(`${POOL} — transparent, so the rows scroll through the forms`);
+  }
+
+  const poolEngine = await Deno.readTextFile(POOL_ENGINE);
+  if (!poolEngine.includes("<StickyPool")) {
+    failures.push(
+      `${POOL_ENGINE} — the pool of forms is not pinned; at a large text size the learner taps ` +
+        `it with the example row and the slot being filled both off-screen`,
+    );
+  } else if (!POOL_DIRECT_CHILD.test(poolEngine)) {
+    failures.push(
+      `${POOL_ENGINE} — <StickyPool> is not a direct child of the scroll root, so it comes ` +
+        `unstuck as soon as its wrapper scrolls past`,
+    );
+  }
+
+  console.log(`Scanned ${ENGINES.length} engines, ${COMPONENT} and ${POOL}.`);
   if (failures.length) {
     console.error(`\nFAIL: ${failures.length} problem(s):`);
     for (const f of failures) console.error(`  ${f}`);

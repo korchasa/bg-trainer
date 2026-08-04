@@ -59,6 +59,11 @@
 - **Interfaces:** `useGame(qs, onComplete, reactions, pts=10, delay=1000, onItemAnswer?)`. `answer(val, correctVal, opts | extraPts)` where `opts = { extraPts?, hinted? }`. `onItemAnswer(itemId, ok, fast, hinted?)`. `dismissError()` clears visual state to allow another attempt at the same question without unsetting `firstWrongRef`.
 - **Deps:** `types.DataItem`, `utils/shuffle` (`pickOK`), `utils/itemKey`. Not `pickFail`: a wrong answer belongs to the retry dialog, and every engine on this hook renders one.
 
+### 3.2a Tailwind class names
+- **Rule:** no class is assembled from a variable. Tailwind generates CSS by scanning source text, so `` `bg-[${ACCENT}]` `` produces no rule and fails silently — the element still carries a plausible class and the build succeeds.
+- **How it hid:** three files (`AnswerBtn`, `NegEngine`, `LiEngine`) built their wrong-answer colour this way and all three looked right, because four other files spell `bg-[#E60023]`/`border-[#E60023]` out in full and those rules reach the bundle for everyone. Removing the last literal use elsewhere would have stopped «Вставь ли» turning red, with cause and effect in unrelated files.
+- **Guard:** `scripts/classnames.ts` scans for an arbitrary-value bracket opened straight into an interpolation. Choosing between whole class strings stays legal — both are there for the scanner. `ACCENT` survives for inline `style` objects only, and says so at its definition.
+
 ### 3.3 useTimer hook
 - **Purpose:** Countdown for `TimedEngine`, exposes remaining time and bonus calculation hook.
 - **Deps:** None.
@@ -142,6 +147,12 @@
 - **Vertical rhythm:** a bare `flex-1` spacer above the pinned block mirrors the one below, so a screen with room to spare still centres the question group; when it overflows both collapse to nothing. No shadow under the block — on a screen that never scrolls it reads as a divider drawn across the layout for no reason.
 - **Invariant:** `scripts/sticky.ts` (run by `deno task test`) scans the ten engines as text, asserts `<StickyQuestion>` is present at the scroll root's own indentation and that the pinned block renders the per-question expression, and checks the component still carries the negative offset, the full-bleed width and an opaque background.
 - **Replaced:** `FR-STIMULUS-NEAR-BANK` and `scripts/stimulus.ts`, which put the sentence next to the word bank instead. That bought adjacency, not visibility — a 940 px bank scrolls past a stimulus at its head just the same — and it only ever applied to the two engines that have a bank.
+
+### 3.18a-bis Pinned pool (`components/ui/StickyPool.tsx`, FR-QUESTION-PINNED)
+- **Rule:** `ParadigmEngine` pins its pool of forms to the **bottom** of the play area — the mirror of `StickyQuestion`, and the only engine that does it.
+- **Why the mirror:** the drill runs 895–1029 px in a 594 px play area at scale 1.3, and its rows (429–456 px) plus the pinned verb (125 px) exceed the area on their own, so the answer area cannot be pinned the way `frame` and `build` pin theirs. Pinning the pool costs 151–213 px and keeps the tap targets reachable from any scroll position. It works here and nowhere else because this drill's size is fixed at six pronouns and six forms; `frame`'s bank grows to 39 words.
+- **Same two invisible rules** as the top-pinned block (direct child of the scroll root; a negative offset to cancel the root's padding), plus one that flips: it must be the **last child in the flow**, because a bottom-sticky element settles into its natural position once reached and anything after it would sit unreachable behind it. `scripts/sticky.ts` asserts all of it.
+- **Landing animation:** slot buttons are keyed by the form they hold, so a placement mounts a new node and `.slot-drop` plays. The worked-example row keeps a constant key — it is filled before the learner acts, so animating it would announce a placement that never happened.
 
 ### 3.18b Verdict overlay (`components/ui/Reaction.tsx`, FR-FEEDBACK-CENTRED)
 - **Shape:** `absolute inset-0 z-40 flex items-center justify-center pointer-events-none`, holding a coloured pill with white bold text. Carries no flow height, so the 36 px spacer the inline version reserved in all twelve engines is gone.

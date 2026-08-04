@@ -10,10 +10,24 @@ export const FAIL: Localized<string[]> = {
 };
 
 export const CHART_COLORS = [
-  "#8b5cf6", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e",
-  "#6366f1", "#ec4899", "#14b8a6", "#a855f7", "#fb923c",
+  "#8b5cf6",
+  "#0ea5e9",
+  "#10b981",
+  "#f59e0b",
+  "#f43f5e",
+  "#6366f1",
+  "#ec4899",
+  "#14b8a6",
+  "#a855f7",
+  "#fb923c",
 ];
 export const STORAGE_KEY = "bg-trainer-v3";
+/**
+ * For inline `style` objects only. It must never be interpolated into a Tailwind
+ * class — the scanner reads source text, so `bg-[${ACCENT}]` generates no rule
+ * and fails silently. Write `bg-[#E60023]` out in full there; scripts/classnames.ts
+ * asserts it.
+ */
 export const ACCENT = "#E60023";
 
 // FR-PACE: session size per pace. Round = ROUND_GAMES × SESSION_SIZE_BY_PACE[pace].

@@ -85,7 +85,7 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: P
               btnCls = "bg-emerald-500 text-white border-emerald-500 cursor-default";
               circleStyle = "border-white bg-white/30";
             } else if (o.answer === sel) {
-              btnCls = `text-white border-[${ACCENT}] cursor-default`;
+              btnCls = "text-white border-[#E60023] cursor-default";
               circleStyle = "border-white bg-white/30";
             } else {
               btnCls = "bg-gray-50 text-gray-500 border-[#E9E9E9] cursor-default";

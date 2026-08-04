@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { LiItem } from "../../types";
 import { pickFail, pickOK, shuffle } from "../../utils/shuffle";
-import { ACCENT, FAIL, OK } from "../../constants";
+import { FAIL, OK } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
@@ -107,9 +107,7 @@ export function LiEngine({ data, onComplete, onItemAnswer, prompt, example }: Pr
                     : ""
                 }
                   ${
-                  sel === i && i !== q.liPosition
-                    ? `bg-[${ACCENT}] text-white border-[${ACCENT}]`
-                    : ""
+                  sel === i && i !== q.liPosition ? "bg-[#E60023] text-white border-[#E60023]" : ""
                 }
                   ${
                   sel !== null && sel !== i && i === q.liPosition

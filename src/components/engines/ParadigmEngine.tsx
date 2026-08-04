@@ -7,6 +7,7 @@ import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { StickyQuestion } from "../ui/StickyQuestion";
+import { StickyPool } from "../ui/StickyPool";
 
 interface Props {
   data: () => ParadigmItem[];
@@ -130,9 +131,16 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
                 {p}
               </span>
               <button
+                // Keyed by the form it holds, so one arriving mounts a new node
+                // and the landing animation plays. The worked-example row keeps a
+                // constant key: it is filled before the learner does anything, so
+                // animating it would announce a placement that never happened.
+                key={given ? "given" : (val ?? "empty")}
                 onClick={() => val && unsetSlot(i)}
                 disabled={given}
-                className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls}`}
+                className={`flex-1 min-w-0 px-4 py-3 min-h-[3rem] border-2 rounded-[14px] font-bold text-base text-left leading-tight break-words transition-all ${cls} ${
+                  val && !given ? "slot-drop" : ""
+                }`}
               >
                 {val ?? "___"}
                 {given && (
@@ -156,17 +164,24 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
           {L(item.rule)}
         </div>
       )}
-      <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
-        {pool.map((f, i) => (
-          <button
-            key={f + i}
-            onClick={() => fillNext(f, i)}
-            className="px-4 py-3 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-base hover:border-[#111111] cursor-pointer transition-all"
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+      {
+        /* FR-QUESTION-PINNED, bottom end: the forms stay under the thumb while the
+          rows they fill — the worked-example row first among them — stay in view.
+          Must remain the last child; see StickyPool. */
+      }
+      <StickyPool>
+        <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
+          {pool.map((f, i) => (
+            <button
+              key={f + i}
+              onClick={() => fillNext(f, i)}
+              className="px-3 py-2 bg-white border-2 border-[#E9E9E9] text-[#111111] rounded-[14px] font-bold text-sm hover:border-[#111111] cursor-pointer transition-all"
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </StickyPool>
     </div>
   );
 }
