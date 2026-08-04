@@ -9,6 +9,7 @@ import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
 import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
 
@@ -60,11 +61,18 @@ export function PickEngine(
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent={accent} />
-      <div className="flex-1 flex flex-col items-center justify-center mb-8">
-        <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-7xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">
+      {
+        /* Slack above as well as below: on a screen that fits, the question group
+          stays centred; when it overflows both spacers collapse to nothing. */
+      }
+      <div className="flex-1" />
+      <TaskPrompt text={prompt} example={example} />
+      <StickyQuestion>
+        <h1 className="text-7xl font-black text-gray-900 tracking-tighter text-center break-words max-w-full">
           {Lq(item.q)}
         </h1>
+      </StickyQuestion>
+      <div className="flex-1 flex flex-col items-center justify-center mb-8">
         {sel !== null && (
           <div className="text-center mt-6">
             <div className="text-3xl font-black text-gray-900 break-words">{shownAnswer}</div>

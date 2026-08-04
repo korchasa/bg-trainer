@@ -7,6 +7,7 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
 import { ErrorDialog } from "../ui/ErrorDialog";
 
 function makeNegDecoys(corr: string): string[] {
@@ -60,13 +61,19 @@ export function NegEngine({ data, onComplete, onItemAnswer, prompt, example }: P
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} accent />
-      <div className="flex-1 flex flex-col items-center justify-center mb-6 text-center">
-        <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight break-words max-w-full">
+      {
+        /* Slack above as well as below: on a screen that fits, the question group
+          stays centred; when it overflows both spacers collapse to nothing. */
+      }
+      <div className="flex-1" />
+      <TaskPrompt text={prompt} example={example} />
+      <StickyQuestion>
+        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight break-words max-w-full text-center">
           {Lq(item.q)}
         </h1>
-        <p className="text-base font-medium text-gray-600">({L(item.hint)})</p>
-      </div>
+        <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
+      </StickyQuestion>
+      <div className="flex-1 mb-6" />
       <Reaction text={reaction} ok={reactionOk} />
       <div className="w-full flex flex-col gap-3 mb-4">
         {options.map((o, j) => {

@@ -107,11 +107,11 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - Wrong: error count++, no points
 
 ## Key Decisions
-- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation, FR-TASK-MODEL worked examples, FR-FRAME lexicon) and over the engines (FR-HINT-MODAL, FR-STIMULUS-NEAR-BANK, FR-FEEDBACK-CENTRED), which is where this app's bugs actually live.
+- **No unit-test suite** — no test runner is configured, so the TDD flow below is aspirational until a framework is added. What `deno task test` does run are invariants over the lesson data (FR-BUILD punctuation, FR-TASK-MODEL worked examples, FR-FRAME lexicon) and over the engines (FR-HINT-MODAL, FR-QUESTION-PINNED, FR-FEEDBACK-CENTRED), which is where this app's bugs actually live.
 - **Styling:** Tailwind utility classes throughout; no CSS modules; no external UI component library — all UI is custom.
 - **Design system:** Accent `#E60023`, dark background `#111111`. Mobile-first, max-width `md`, centered.
 - **Persistence:** Browser `localStorage` only, keyed `bg-trainer-v3`, capped at 200 sessions.
-- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `deno task check` — the task-script tooling, `tsc` plus the Vite bundle, a comment scan, and the data invariants (FR-BUILD punctuation, FR-TASK-MODEL examples, FR-HINT-MODAL, FR-STIMULUS-NEAR-BANK and FR-FEEDBACK-CENTRED engines, FR-FRAME lexicon). There is still no unit-test suite. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
+- **Checks:** every pull request and every push to `main` → `check.yml`: `npm ci` then `deno task check` — the task-script tooling, `tsc` plus the Vite bundle, a comment scan, and the data invariants (FR-BUILD punctuation, FR-TASK-MODEL examples, FR-HINT-MODAL, FR-QUESTION-PINNED and FR-FEEDBACK-CENTRED engines, FR-FRAME lexicon). There is still no unit-test suite. Feature branches get the same build through `preview.yml`, so `check.yml` deliberately skips them.
 - **Deployment:**
   - `web-v*` tag push or manual `workflow_dispatch` → `deploy.yml`: builds app (`VITE_BASE_PATH=/`, `VITE_OUT_DIR=dist`) → publishes `dist/` to `gh-pages` with `keep_files: true`. Result: the app owns the root of `app.bgtrainer.korchasa.dev`. Merging to `main` publishes nothing. Only `web-v*` publishes; dispatch accepts any branch or tag, so an untagged emergency publish stays possible
   - Feature branches → preview at `/preview/{branch-name}/` via `preview.yml` (built at that base; survives deploys thanks to `keep_files`)
@@ -314,7 +314,7 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
 - `npm ci` — install the Node dependencies the tasks call (`tsc`, `vite`, `cap`)
 - `deno task check` — the gate: task-script tooling (`deno fmt --check`, `deno lint`, `deno check`) + `tsc` + Vite bundle + comment scan + data invariants
-- `deno task test` — the automated assertions: build-mode punctuation over every `words[]` array in `src/data` (FR-BUILD), a worked example on every mode (FR-TASK-MODEL), the hint living in the header modal rather than in an engine (FR-HINT-MODAL), the per-question sentence sitting between the answer area and the word bank (FR-STIMULUS-NEAR-BANK), the answer verdict centred over the visible game area (FR-FEEDBACK-CENTRED), and every frame word coming from its lesson's cumulative lexicon (FR-FRAME). No unit-test suite exists yet
+- `deno task test` — the automated assertions: build-mode punctuation over every `words[]` array in `src/data` (FR-BUILD), a worked example on every mode (FR-TASK-MODEL), the hint living in the header modal rather than in an engine (FR-HINT-MODAL), the question pinned to the top of the play area (FR-QUESTION-PINNED), the answer verdict centred over the visible game area (FR-FEEDBACK-CENTRED), and every frame word coming from its lesson's cumulative lexicon (FR-FRAME). No unit-test suite exists yet
 - `deno task dev` — Vite dev server at http://localhost:5173/
 - `deno task prod` — build, then serve that build locally
 - `deno task build` / `deno task build:ios` — `tsc` + Vite bundle, web or iOS flavour (the iOS one forces a relative base path)
@@ -324,7 +324,7 @@ block: npm installs the Vite/Capacitor toolchain, the tasks drive it.
 
 ### Command Scripts
 - `deno.json` — the task table; it is the only place a verb is declared. Every task is `deno run -A scripts/<verb>.ts`.
-- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts`, `scripts/examples.ts`, `scripts/hint.ts`, `scripts/stimulus.ts`, `scripts/feedback.ts` and `scripts/lexicon.ts` — the FR-BUILD, FR-TASK-MODEL, FR-HINT-MODAL, FR-STIMULUS-NEAR-BANK, FR-FEEDBACK-CENTRED and FR-FRAME invariants, all run by `test`.
+- `scripts/lib.ts` — process runner, file walker and the source scanner the gate uses instead of `grep -RInE` (the platform grep is not always GNU grep, and dialect differences change what the gate catches). `scripts/node.ts` — resolves `node_modules/.bin/<tool>` and turns a missing install into one clear message instead of an npm error page. `scripts/punct.ts`, `scripts/examples.ts`, `scripts/hint.ts`, `scripts/sticky.ts`, `scripts/feedback.ts` and `scripts/lexicon.ts` — the FR-BUILD, FR-TASK-MODEL, FR-HINT-MODAL, FR-QUESTION-PINNED, FR-FEEDBACK-CENTRED and FR-FRAME invariants, all run by `test`.
 - The scripts import nothing from JSR or npm; `check` type-checks and lints them before it does anything else.
 
 **A new invariant belongs in a script, and the script belongs in `check`.** With no test runner, these scripts are the only thing standing between a bad data edit and production — and one that runs only when an agent remembers it guards nothing. Add it to `scripts/`, wire it into `scripts/test.ts`, and `check` picks it up.

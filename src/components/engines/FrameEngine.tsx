@@ -7,6 +7,8 @@ import { useI18n } from "../../i18n/context";
 import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
+import { PIN_ANSWER_AREA } from "../../utils/pinVariant";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
 
@@ -181,22 +183,11 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
 
   const canCheck = !checked && (typing ? typed.trim().length > 0 : filled.length > 0);
 
-  return (
-    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
-      <Progress cur={answered} total={qsTotal} score={score} />
-      <TaskPrompt text={prompt} example={example} />
-      {
-        /* FR-STIMULUS-NEAR-BANK: at steps 1–3 the sentence to produce renders
-          down by the bank, not here — see the paragraph before the bank below.
-          Step 4 has no bank: the learner types, so the stimulus belongs above
-          the input, where the keyboard cannot cover it. */
-      }
-      {typing && (
-        <p className="text-lg font-bold text-gray-900 mb-1 text-center leading-snug">
-          {L(item.translation)}
-        </p>
-      )}
-
+  // Rendered either in the flow or inside the pinned block, depending on the
+  // pinning variant. Step 4 is excluded: it has no bank, and its input belongs
+  // above the keyboard rather than under a pinned header.
+  const answerArea = (
+    <>
       {step === 1 && (
         // Step 1: one labelled row per word. The label names the job the word
         // does, so the learner recalls the word, not the structure.
@@ -259,6 +250,26 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
           </div>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+      <Progress cur={answered} total={qsTotal} score={score} />
+      <TaskPrompt text={prompt} example={example} />
+      <StickyQuestion>
+        {
+          /* FR-QUESTION-PINNED: the sentence to produce is what changes per
+            question, so it is what has to survive the scroll down to the bank —
+            which in this engine can be 940px tall. */
+        }
+        <p className="text-lg font-bold text-gray-900 text-center leading-snug">
+          {L(item.translation)}
+        </p>
+        {PIN_ANSWER_AREA && !typing && <div className="w-full mt-3">{answerArea}</div>}
+      </StickyQuestion>
+
+      {!PIN_ANSWER_AREA && answerArea}
 
       {typing && (
         // Step 4: nothing but the translation and a field.
@@ -298,9 +309,6 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
 
       {!typing && (
         <div className="w-full mt-2">
-          <p className="text-lg font-bold text-gray-900 mb-3 text-center leading-snug">
-            {L(item.translation)}
-          </p>
           <p className="text-xs font-bold uppercase tracking-wide text-gray-600 mb-2">
             {t("frameBank")}
           </p>

@@ -8,6 +8,7 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
 
@@ -67,14 +68,21 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: 
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
-      <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
-        <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-6xl font-black text-gray-900 mb-2 tracking-tighter text-center break-words max-w-full">
+      {
+        /* Slack above as well as below: on a screen that fits, the question group
+          stays centred; when it overflows both spacers collapse to nothing. */
+      }
+      <div className="flex-1" />
+      <TaskPrompt text={prompt} example={example} />
+      <StickyQuestion>
+        <h1 className="text-6xl font-black text-gray-900 tracking-tighter text-center break-words max-w-full">
           {Lq(item.q)}
         </h1>
         {item.label && (
-          <div className="text-sm font-semibold text-gray-600 mb-1">{L(item.label)}</div>
+          <div className="mt-1 text-sm font-semibold text-gray-600">{L(item.label)}</div>
         )}
+      </StickyQuestion>
+      <div className="flex-1 flex flex-col items-center justify-center mb-6 w-full">
         <form onSubmit={submit} className="w-full max-w-xs">
           <input
             ref={inputRef}

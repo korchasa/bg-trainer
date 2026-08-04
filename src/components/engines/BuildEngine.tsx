@@ -8,6 +8,8 @@ import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
+import { PIN_ANSWER_AREA } from "../../utils/pinVariant";
 
 interface Props {
   data: () => BuildItem[];
@@ -91,6 +93,54 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
     setPlaced(placed.filter((_, j) => j !== index));
   };
 
+  // Rendered in one of two places depending on the pinning variant, so it lives
+  // in a variable rather than being duplicated.
+  const template = (
+    <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center">
+      {groups.map(({ slot, marks }, g) => {
+        const word = slot === -1 ? undefined : placed[slot];
+        return (
+          <div key={g} className="flex items-end">
+            {slot !== -1 && (word === undefined
+              ? (
+                <span
+                  aria-hidden
+                  className="w-12 h-10 rounded-[14px] border-2 border-dashed border-gray-300"
+                />
+              )
+              : (
+                <button
+                  onClick={() => removeWord(word, slot)}
+                  className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${
+                    done
+                      ? (word === target[slot]
+                        ? "bg-emerald-500 text-white"
+                        : "bg-[#E60023] text-white")
+                      : "bg-[#111111] text-white hover:bg-gray-800"
+                  }`}
+                >
+                  {word}
+                </button>
+              ))}
+            {
+              /* Punctuation: template furniture. gray-600 is 7.56:1 (FR-A11Y-CONTRAST).
+                Sits on the tiles' baseline — vertically centred, a "." would read as
+                a separator dot rather than a full stop. */
+            }
+            {marks.map((mark, j) => (
+              <span
+                key={j}
+                className="pb-1 pl-0.5 text-gray-600 font-bold text-xl leading-none select-none"
+              >
+                {mark}
+              </span>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <div className="flex justify-between w-full text-xs font-bold text-gray-500 mb-3">
@@ -103,67 +153,31 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
           style={{ width: `${(cur / qs.length) * 100}%` }}
         />
       </div>
+      {
+        /* Slack above as well as below: on a screen that fits, the question group
+          stays centred; when it overflows both spacers collapse to nothing. */
+      }
+      <div className="flex-1" />
+      <TaskPrompt text={prompt} example={example} />
+      <StickyQuestion>
+        {
+          /* FR-QUESTION-PINNED: the sentence to produce is the one thing on this
+            screen that changes per question, so it is what stays on screen while
+            the learner scrolls down to the word bank. */
+        }
+        <p className="text-base font-semibold text-gray-600 text-center leading-snug">
+          {L(item.translation)}
+        </p>
+        {PIN_ANSWER_AREA && <div className="w-full mt-3">{template}</div>}
+      </StickyQuestion>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
-        <TaskPrompt text={prompt} example={example} />
-        <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center mb-3">
-          {groups.map(({ slot, marks }, g) => {
-            const word = slot === -1 ? undefined : placed[slot];
-            return (
-              <div key={g} className="flex items-end">
-                {slot !== -1 && (word === undefined
-                  ? (
-                    <span
-                      aria-hidden
-                      className="w-12 h-10 rounded-[14px] border-2 border-dashed border-gray-300"
-                    />
-                  )
-                  : (
-                    <button
-                      onClick={() => removeWord(word, slot)}
-                      className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${
-                        done
-                          ? (word === target[slot]
-                            ? "bg-emerald-500 text-white"
-                            : "bg-[#E60023] text-white")
-                          : "bg-[#111111] text-white hover:bg-gray-800"
-                      }`}
-                    >
-                      {word}
-                    </button>
-                  ))}
-                {
-                  /* Punctuation: template furniture. gray-600 is 7.56:1 (FR-A11Y-CONTRAST).
-                    Sits on the tiles' baseline — vertically centred, a "." would read as
-                    a separator dot rather than a full stop. */
-                }
-                {marks.map((mark, j) => (
-                  <span
-                    key={j}
-                    className="pb-1 pl-0.5 text-gray-600 font-bold text-xl leading-none select-none"
-                  >
-                    {mark}
-                  </span>
-                ))}
-              </div>
-            );
-          })}
-        </div>
+        {!PIN_ANSWER_AREA && <div className="w-full mb-3">{template}</div>}
         <Correction
           show={done && placed.join(" ") !== target.join(" ")}
           text={joinTokens(item.words)}
         />
       </div>
       <Reaction text={reaction} ok={reactionOk} />
-      {
-        /* FR-STIMULUS-NEAR-BANK: the sentence to produce is the one thing on this
-          screen that changes per question, so it sits against the bank the
-          learner taps — outside the centred block above, whose slack would
-          otherwise open a gap between them. Above the template it scrolls out of
-          sight at large text sizes exactly when the bank comes into view. */
-      }
-      <p className="text-base font-semibold text-gray-600 mb-3 text-center leading-snug">
-        {L(item.translation)}
-      </p>
       <div className="flex flex-wrap gap-2 justify-center w-full min-h-[56px] items-start">
         {pool.map((word, i) => (
           <button

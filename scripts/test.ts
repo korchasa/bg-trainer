@@ -11,7 +11,7 @@ import { section } from "./lib.ts";
 import { checkPunctuation } from "./punct.ts";
 import { checkExamples } from "./examples.ts";
 import { checkHints } from "./hint.ts";
-import { checkStimulus } from "./stimulus.ts";
+import { checkSticky } from "./sticky.ts";
 import { checkFeedback } from "./feedback.ts";
 import { checkLexicon } from "./lexicon.ts";
 
@@ -25,8 +25,8 @@ export async function test(): Promise<void> {
   section("UI invariants: hint in the header modal (FR-HINT-MODAL)");
   await checkHints();
 
-  section("UI invariants: changing text next to the bank (FR-STIMULUS-NEAR-BANK)");
-  await checkStimulus();
+  section("UI invariants: question pinned to the top (FR-QUESTION-PINNED)");
+  await checkSticky();
 
   section("UI invariants: verdict centred on screen (FR-FEEDBACK-CENTRED)");
   await checkFeedback();

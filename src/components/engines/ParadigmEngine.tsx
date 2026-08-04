@@ -6,6 +6,7 @@ import { useI18n } from "../../i18n/context";
 import { itemKey } from "../../utils/itemKey";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
 
 interface Props {
   data: () => ParadigmItem[];
@@ -102,10 +103,13 @@ export function ParadigmEngine({ data, onComplete, onItemAnswer, prompt }: Props
         />
       </div>
       <TaskPrompt text={prompt} />
-      <h1 className="text-4xl font-black text-gray-900 mb-1 tracking-tight break-words max-w-full text-center">
-        {item.verb}
-      </h1>
-      <p className="text-base font-medium text-gray-600 mb-4 text-center">({L(item.hint)})</p>
+      <StickyQuestion>
+        <h1 className="text-4xl font-black text-gray-900 mb-1 tracking-tight break-words max-w-full text-center">
+          {item.verb}
+        </h1>
+        <p className="text-base font-medium text-gray-600 text-center">({L(item.hint)})</p>
+      </StickyQuestion>
+      <div className="h-4" />
       <div className="w-full flex flex-col gap-2 mb-5">
         {item.pronouns.map((p, i) => {
           const val = slots[i];

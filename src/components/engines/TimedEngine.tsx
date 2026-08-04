@@ -10,6 +10,7 @@ import { Reaction } from "../ui/Reaction";
 import { AnswerBtn } from "../ui/AnswerBtn";
 import { AnswerGrid } from "../ui/AnswerGrid";
 import { TaskPrompt } from "../ui/TaskPrompt";
+import { StickyQuestion } from "../ui/StickyQuestion";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
 import { itemKey } from "../../utils/itemKey";
@@ -113,10 +114,13 @@ export function TimedEngine(
             </div>
           )}
         <TaskPrompt text={prompt} example={example} />
-        <h1 className="text-5xl font-black text-gray-900 mb-2 tracking-tight text-center break-words max-w-full">
+      </div>
+      <StickyQuestion>
+        <h1 className="text-5xl font-black text-gray-900 tracking-tight text-center break-words max-w-full">
           {Lq(item.q)} ___
         </h1>
-      </div>
+      </StickyQuestion>
+      <div className="flex-1 mb-6" />
       <Reaction text={reaction} ok={reactionOk} />
       <AnswerGrid options={item.options.map((o) => o.answer)}>
         {item.options.map((o, j) => (
