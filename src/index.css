@@ -42,21 +42,28 @@ body {
 /* A word landing in a slot. Tap and result are far apart on the screen — the
    bank is at the foot, the sentence is pinned at the top — so without a moment
    of motion the tile just silently changes text and the eye has nothing to
-   follow. Short enough not to delay the next tap: the engine submits on the
-   last slot and the animation is still running when it does. */
+   follow. The word drops in from half size and overshoots past its resting size
+   before settling: a small, fast scale reads as a rendering hiccup rather than
+   as movement, which is what a 0.82-to-1.0 fade over 160ms turned out to be.
+   Still short enough not to hold up the next tap — the engine submits the
+   moment the last slot fills and this is still playing when it does. */
 @keyframes slot-drop {
-  from {
-    transform: scale(0.82) translateY(-0.25rem);
+  0% {
+    transform: scale(0.5) translateY(-0.9rem);
     opacity: 0;
   }
-  to {
+  60% {
+    transform: scale(1.16) translateY(0);
+    opacity: 1;
+  }
+  100% {
     transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
 
 .slot-drop {
-  animation: slot-drop 160ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  animation: slot-drop 300ms ease-out;
 }
 
 /* FR-IOS-UX: Reduce Motion is a request, not a preference to weigh. */
