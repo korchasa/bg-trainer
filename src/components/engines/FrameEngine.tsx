@@ -206,9 +206,17 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
           {filled.length === 0 && (
             <span className="text-sm font-medium text-gray-500">{t("frameLineEmpty")}</span>
           )}
+          {
+            /* Keyed by content, so a word arriving in a slot mounts a new node and
+              the landing animation plays; marking a slot green or red leaves the
+              content alone and so does not replay it. Where the line has no fixed
+              length, removing a word shifts every index after it — keying on the
+              word itself keeps those tiles put, and a word cannot repeat within
+              one sentence (one bank tile per word, asserted by lexicon.ts). */
+          }
           {filled.map((val, i) => (
             <button
-              key={i}
+              key={fixed ? `${i}:${val ?? ""}` : val!}
               onClick={() => removeAt(i)}
               disabled={checked || val === null}
               className={`px-3 py-2 border-2 rounded-[14px] min-w-[3rem] transition-all ${
@@ -216,7 +224,7 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
               } ${
                 val === null
                   ? "text-xs font-bold uppercase tracking-wide text-gray-600 leading-tight"
-                  : "font-bold text-base"
+                  : "font-bold text-base slot-drop"
               }`}
             >
               {val === null

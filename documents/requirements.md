@@ -168,6 +168,7 @@
   - [x] Session completes and writes one `HistoryEntry`. Evidence: observed `{mode:"l1_frame", lessonId:"l1", errors:5, time:49996}` after a full 5-question session
   - [x] Slots reset before the next sentence paints — the reset happens during render, not in an effect. Evidence: `src/components/engines/FrameEngine.tsx` (`filledFor` guard)
   - [x] Two taps inside one React batch fill two different slots. Evidence: `src/components/engines/FrameEngine.tsx` (`filledRef`)
+  - [x] A word landing in a slot animates in over 160 ms (`.slot-drop`). The tap and its result are at opposite ends of the screen — the bank at the foot, the sentence pinned at the top — so without motion the tile changes text with nothing for the eye to follow. Verified live: the tile's animation interpolates through scale 1.02 at 70 ms of 160 ms and ends at rest. Evidence: `src/index.css`, `src/components/engines/FrameEngine.tsx` (tile `key`)
   - [x] `frameBank` and `frameLineEmpty` strings defined for `ru` and `uk`. Evidence: `src/i18n/strings.ts:49-50,112-113`
   - [x] An equally correct word order listed in `alt` counts as correct. Evidence: `src/components/engines/FrameEngine.tsx` (`accepted` set); observed at L5 — "Ще пиша утре" scored against canonical "аз ще пиша утре"
 - **Status:** [x]
@@ -371,7 +372,7 @@
   - [x] `@capacitor/haptics` — Light impact on first-attempt correct, Medium impact on first-attempt wrong, Success notification on round completion. Evidence: `package.json:17`, `src/utils/nativeUx.ts:34-46`, `src/hooks/useGame.ts:5-6,118-122`, `src/App.tsx:4,108`
   - [x] No runtime web-font fetch — UI uses system fonts (`-apple-system`, `system-ui`), guaranteed available offline on iOS/Android/web. Self-hosting Inter would only inflate the bundle without removing any external dependency, so it is not done. Evidence: `src/index.css:11`
   - [x] Back-swipe gesture: Capacitor 8 sets `allowsBackForwardNavigationGestures=false` by default for WKWebView, which is the correct behavior for this single-page app. No override needed; will revisit if device testing surfaces an edge case.
-  - [x] `prefers-reduced-motion` honored — `useGame` shortcuts the celebratory advance delay to 0ms when the OS-level Reduce Motion accessibility setting is on. Evidence: `src/utils/motion.ts`, `src/hooks/useGame.ts:7,118`
+  - [x] `prefers-reduced-motion` honored — `useGame` shortcuts the celebratory advance delay to 0ms when the OS-level Reduce Motion accessibility setting is on, and the `.slot-drop` landing animation is switched off by a media query. Evidence: `src/utils/motion.ts`, `src/hooks/useGame.ts:7,118`, `src/index.css` (`@media (prefers-reduced-motion: reduce)`)
 - **Status:** [x]
 
 ### 3.21 FR-IOS-STORAGE

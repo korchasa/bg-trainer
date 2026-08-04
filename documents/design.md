@@ -165,6 +165,7 @@
 - **Evaluating the data:** unlike the other invariants this one runs `mode.data()`, so it imports the app's sources instead of scanning them. `deno.json` enables `sloppy-imports`, which is what lets a script resolve the app's extensionless imports.
 
 ### 3.21 Frame scaffolding ladder (FR-FRAME-LADDER)
+- **Landing animation:** a tile is keyed by the word it holds, so placing one mounts a new node and the `.slot-drop` keyframes play; re-colouring a slot green or red at the end of the question leaves the content alone and does not replay them. `build` does the same. Where the line has no fixed length the key is the word rather than the index, so removing a word does not make everything after it re-animate.
 - **Steps:** all of 1–3 render the same template line; 1 names every empty slot → 2 drops the names → 3 starts the line empty → 4 typing, no line and no bank. Lessons L1–L2 / L3–L4 / L5–L6 / L7–L8.
 - **State shape:** steps 1–2 keep `filled` as a fixed-length `(string|null)[]` with holes and auto-submit when full; steps 3–4 grow (`filled` appends, or `typed` holds the text) and need an explicit "Проверить". One `fixed = step <= 2` flag drives both the state shape and the render branch.
 - **Error marking:** per slot at steps 1–2, where a slot maps to a known word; whole-line at steps 3–4, where lengths may differ and no such mapping exists.

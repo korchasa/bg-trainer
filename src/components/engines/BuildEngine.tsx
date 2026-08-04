@@ -109,9 +109,13 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
                 />
               )
               : (
+                // Keyed by the word, so placing one mounts a new node and the
+                // landing animation plays; marking it when the question is
+                // answered leaves the content alone and does not replay it.
                 <button
+                  key={word}
                   onClick={() => removeWord(word, slot)}
-                  className={`px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${
+                  className={`slot-drop px-3 py-2 rounded-[14px] font-bold text-base transition-all cursor-pointer shadow-sm ${
                     done
                       ? (word === target[slot]
                         ? "bg-emerald-500 text-white"

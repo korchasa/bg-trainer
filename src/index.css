@@ -12,7 +12,9 @@ html {
   font-size: calc(16px * var(--fs-scale));
 }
 
-html, body, #root {
+html,
+body,
+#root {
   overflow: hidden;
   height: 100%;
 }
@@ -29,6 +31,37 @@ body {
   box-sizing: border-box;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* A word landing in a slot. Tap and result are far apart on the screen — the
+   bank is at the foot, the sentence is pinned at the top — so without a moment
+   of motion the tile just silently changes text and the eye has nothing to
+   follow. Short enough not to delay the next tap: the engine submits on the
+   last slot and the animation is still running when it does. */
+@keyframes slot-drop {
+  from {
+    transform: scale(0.82) translateY(-0.25rem);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.slot-drop {
+  animation: slot-drop 160ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+/* FR-IOS-UX: Reduce Motion is a request, not a preference to weigh. */
+@media (prefers-reduced-motion: reduce) {
+  .slot-drop {
+    animation: none;
+  }
+}
