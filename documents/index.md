@@ -10,7 +10,7 @@
 - [FR-BUILD](requirements.md#344-fr-build) — Sentence-construction engine: punctuation is a fixed render-time template, never a learner tile — implemented
 - [FR-ENGINES](requirements.md#34-fr-engines) — 12 engine types implementing distinct interaction patterns — implemented
 - [FR-FRAME](requirements.md#345-fr-frame) — Sentence-production drill, one per lesson, on that lesson's cumulative lexicon — implemented
-- [FR-FRAME-LADDER](requirements.md#346-fr-frame-ladder) — Scaffolding fades across lessons: labelled roles → bare slots → empty line → typing — implemented
+- [FR-FRAME-LADDER](requirements.md#346-fr-frame-ladder) — Scaffolding fades across lessons: named slots → bare slots → empty line → typing — implemented
 - [FR-QUESTION-PINNED](requirements.md#336-fr-question-pinned) — The question is pinned to the top of the play area, so scrolling to the answers cannot take it out of view — implemented
 - [FR-FEEDBACK-CENTRED](requirements.md#337-fr-feedback-centred) — The verdict on an answer is shown over the middle of the visible game area, not in the document flow — implemented
 - [FR-IOS-APPSTORE](requirements.md#319-fr-ios-appstore) — App Store submission assets and metadata — implemented (version 1.0 `READY_FOR_SALE`; signing and store upload happen outside this repo)

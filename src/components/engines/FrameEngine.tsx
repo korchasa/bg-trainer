@@ -187,68 +187,45 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   // belongs above the keyboard rather than under a pinned header.
   const answerArea = (
     <>
-      {step === 1 && (
-        // Step 1: one labelled row per word. The label names the job the word
-        // does, so the learner recalls the word, not the structure.
-        <div className="w-full flex flex-col gap-2 mb-4">
-          {item.slots.map((slot, i) => {
-            const val = filled[i];
-            return (
-              <div
-                key={i}
-                className={`flex items-center gap-3 px-3 py-2 border-2 rounded-[16px] transition-all ${
-                  tileCls(i, val)
-                }`}
-              >
-                <span className="w-24 xs:w-28 shrink-0 text-xs font-bold uppercase tracking-wide text-gray-600 leading-tight">
-                  {L(slot.role)}
-                </span>
-                <button
-                  onClick={() => removeAt(i)}
-                  disabled={checked || val === null}
-                  className={`flex-1 min-w-0 text-left text-base font-bold min-h-[2.25rem] break-words ${
-                    val === null
-                      ? "text-gray-500 border-b-2 border-dashed border-gray-300"
-                      : "text-[#111111]"
-                  }`}
-                >
-                  {val === null ? " " : (i === 0 ? cap(val) : val)}
-                </button>
-                {checked && val !== slot.word && (
-                  <span className="shrink-0 text-sm font-bold text-[#E60023]">
-                    {i === 0 ? cap(slot.word) : slot.word}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {
+        /* Steps 1-3 are one template line, not a table. Step 1 names the job of
+           every slot the learner has not filled yet — «кто», «отрицание» — so
+           the frame is still given, but it reads as the sentence being built
+           rather than as a form to fill in; steps 2-3 drop the names, which is
+           the ladder (FR-FRAME-LADDER). A row per word also cost the screen it
+           stood on: the worst item ran 506px of the 594px play area at scale
+           1.3 and left one row of the bank, against 269px as a line.
 
-      {(step === 2 || step === 3) && (
-        // Steps 2–3: the sentence as a line of tiles. Step 2 still shows one
-        // blank per word; step 3 starts empty, so length and order are decided
-        // by the learner.
-        <div className="w-full mb-4">
-          <div className="flex flex-wrap gap-2 items-center justify-center min-h-[3.25rem] px-2 py-2 border-2 border-dashed border-gray-300 rounded-[16px]">
-            {filled.length === 0 && (
-              <span className="text-sm font-medium text-gray-500">{t("frameLineEmpty")}</span>
-            )}
-            {filled.map((val, i) => (
-              <button
-                key={i}
-                onClick={() => removeAt(i)}
-                disabled={checked || val === null}
-                className={`px-3 py-2 border-2 rounded-[14px] font-bold text-base min-w-[3rem] transition-all ${
-                  tileCls(i, val)
-                }`}
-              >
-                {val === null ? " " : (i === 0 ? cap(val) : val)}
-              </button>
-            ))}
-          </div>
+           Marking is all a wrong slot gets. The correct word is not shown
+           beside it because it could never be read: `useGame` raises the error
+           dialog over this line in the same commit, and dismissing it clears
+           the slots. */
+      }
+      <div className="w-full">
+        <div className="flex flex-wrap gap-2 items-center justify-center min-h-[3.25rem] px-2 py-2 border-2 border-dashed border-gray-300 rounded-[16px]">
+          {filled.length === 0 && (
+            <span className="text-sm font-medium text-gray-500">{t("frameLineEmpty")}</span>
+          )}
+          {filled.map((val, i) => (
+            <button
+              key={i}
+              onClick={() => removeAt(i)}
+              disabled={checked || val === null}
+              className={`px-3 py-2 border-2 rounded-[14px] min-w-[3rem] transition-all ${
+                tileCls(i, val)
+              } ${
+                val === null
+                  ? "text-xs font-bold uppercase tracking-wide text-gray-600 leading-tight"
+                  : "font-bold text-base"
+              }`}
+            >
+              {val === null
+                ? (step === 1 ? L(item.slots[i].role) : " ")
+                : (i === 0 ? cap(val) : val)}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </>
   );
 

@@ -65,9 +65,11 @@ export interface FrameItem {
 
 /**
  * FR-FRAME-LADDER: how much of the sentence the drill hands over.
- *   1 — labelled roles, one slot per word: the frame is given, the words are recalled.
- *   2 — slots without labels: the length is given, the grammar is not.
- *   3 — an empty line: order and length are the learner's, words come from the bank.
+ *   1 — a template line whose empty slots name the job they want: the frame is
+ *       given, the words are recalled.
+ *   2 — the same line without the names: the length is given, the grammar is not.
+ *   3 — the line starts empty: order and length are the learner's, words come
+ *       from the bank.
  *   4 — typing: no bank, no line, nothing but the translation.
  * The step is a property of the lesson, so support fades as the course advances.
  */
@@ -108,9 +110,18 @@ export interface ParadigmItem {
 }
 
 export type EngineType =
-  | "pick" | "timed" | "pickOpt" | "pickFrom"
-  | "negation" | "build" | "li" | "type"
-  | "match" | "odd" | "paradigm" | "frame";
+  | "pick"
+  | "timed"
+  | "pickOpt"
+  | "pickFrom"
+  | "negation"
+  | "build"
+  | "li"
+  | "type"
+  | "match"
+  | "odd"
+  | "paradigm"
+  | "frame";
 
 export interface PickOptData {
   items: DataItem[];
@@ -131,7 +142,15 @@ export interface Mode {
    */
   example?: Localized<string>;
   type: EngineType;
-  data: () => DataItem[] | PickOptData | BuildItem[] | LiItem[] | MatchItem[] | OddItem[] | ParadigmItem[] | FrameData;
+  data: () =>
+    | DataItem[]
+    | PickOptData
+    | BuildItem[]
+    | LiItem[]
+    | MatchItem[]
+    | OddItem[]
+    | ParadigmItem[]
+    | FrameData;
 }
 
 export interface Category {
