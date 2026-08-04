@@ -14,6 +14,7 @@ import { checkHints } from "./hint.ts";
 import { checkSticky } from "./sticky.ts";
 import { checkFeedback } from "./feedback.ts";
 import { checkClassNames } from "./classnames.ts";
+import { checkBank } from "./bank.ts";
 import { checkLexicon } from "./lexicon.ts";
 
 export async function test(): Promise<void> {
@@ -34,6 +35,9 @@ export async function test(): Promise<void> {
 
   section("UI invariants: no Tailwind class built from a variable");
   await checkClassNames();
+
+  section("UI invariants: bank sorted in frame, pools shuffled elsewhere (FR-FRAME)");
+  await checkBank();
 
   section("Data invariants: frame lexicon and ladder (FR-FRAME, FR-FRAME-LADDER)");
   checkLexicon();

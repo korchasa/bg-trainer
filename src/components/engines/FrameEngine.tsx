@@ -52,9 +52,25 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   const reactions = { ok: L(OK) };
   const { step, items, bank } = data();
   const [qs] = useState<FrameItem[]>(() => shuffle(items));
-  // Shuffled once per session: a stable order would let the learner memorise
-  // positions instead of words.
-  const shuffledBank = useMemo(() => shuffle(bank), [bank]);
+  /**
+   * Sorted, not shuffled — unlike `build` and `paradigm`, whose pool holds the
+   * item's own words and where the arrangement is the answer.
+   *
+   * This bank belongs to the mode: 29–39 words, the same on every question. The
+   * learner recalls the word and only then looks for it among tiles spread over
+   * 940px, so the search practises nothing and takes the attention the recall
+   * needs. The order was already stable within a session (it was shuffled once,
+   * not per question), so positions were already learnable — sorting gives up
+   * nothing and removes the reason to learn them.
+   *
+   * `localeCompare` rather than a plain sort: uppercase Cyrillic sorts below
+   * lowercase by code point, so `[...bank].sort()` would file every proper noun
+   * (България, Иван, Мария) in a block at the front.
+   */
+  const sortedBank = useMemo(
+    () => [...bank].sort((a, b) => a.localeCompare(b, "bg")),
+    [bank],
+  );
 
   // Steps 1–2 give the number of words away, so the sentence under construction
   // is a fixed-length array with holes. From step 3 it grows as the learner taps.
@@ -131,7 +147,7 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   // bans duplicates), so a sentence may not use the same word twice — it would
   // be unfillable, with no way to submit. The checker asserts that too.
   const usedCount = (word: string) => filled.filter((v) => v === word).length;
-  const availableCount = (word: string) => shuffledBank.filter((w) => w === word).length;
+  const availableCount = (word: string) => sortedBank.filter((w) => w === word).length;
   const exhausted = (w: string) => usedCount(w) >= availableCount(w);
 
   const place = (word: string) => {
@@ -295,7 +311,7 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
             {t("frameBank")}
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
-            {shuffledBank.map((w, i) => (
+            {sortedBank.map((w, i) => (
               <button
                 key={w + i}
                 onClick={() => place(w)}
