@@ -35,6 +35,14 @@ interface EngineSpec {
   file: string;
   /** What the pinned block must contain — the text that changes per question. */
   question: string;
+  /**
+   * Set where the answer area is pinned too. Only the two sentence-building
+   * engines do this: the learner drops words into slots from a bank far below,
+   * so a pinned question without the slots would show the task and hide the
+   * work. Everywhere else the answers are the tappable options themselves and
+   * pinning them would leave nothing to scroll.
+   */
+  answerArea?: string;
 }
 
 /**
@@ -44,8 +52,8 @@ interface EngineSpec {
  * gaps), so there is nothing to pin above it.
  */
 const ENGINES: EngineSpec[] = [
-  { file: "BuildEngine.tsx", question: "L(item.translation)" },
-  { file: "FrameEngine.tsx", question: "L(item.translation)" },
+  { file: "BuildEngine.tsx", question: "L(item.translation)", answerArea: "{template}" },
+  { file: "FrameEngine.tsx", question: "L(item.translation)", answerArea: "{answerArea}" },
   { file: "NegEngine.tsx", question: "Lq(item.q)" },
   { file: "OddOneOutEngine.tsx", question: "L(item.hint)" },
   { file: "ParadigmEngine.tsx", question: "item.verb" },
@@ -108,6 +116,12 @@ export async function checkSticky(): Promise<void> {
       failures.push(
         `${path} — the pinned block does not render \`${spec.question}\`, so what stays on ` +
           `screen is not the question`,
+      );
+    }
+    if (spec.answerArea && !block.includes(spec.answerArea)) {
+      failures.push(
+        `${path} — the pinned block does not render \`${spec.answerArea}\`; in a bank engine ` +
+          `that leaves the learner watching the task while the slots they are filling scroll away`,
       );
     }
   }

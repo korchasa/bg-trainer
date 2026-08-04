@@ -9,7 +9,6 @@ import { Reaction } from "../ui/Reaction";
 import { Correction } from "../ui/Correction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { StickyQuestion } from "../ui/StickyQuestion";
-import { PIN_ANSWER_AREA } from "../../utils/pinVariant";
 
 interface Props {
   data: () => BuildItem[];
@@ -93,8 +92,9 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
     setPlaced(placed.filter((_, j) => j !== index));
   };
 
-  // Rendered in one of two places depending on the pinning variant, so it lives
-  // in a variable rather than being duplicated.
+  // The slots the learner fills. Pinned with the sentence (FR-QUESTION-PINNED),
+  // so it stays in a variable rather than being inlined into an already deep
+  // block of markup.
   const template = (
     <div className="flex flex-wrap gap-2 min-h-[60px] p-4 bg-gray-50 rounded-[20px] border-2 border-dashed border-gray-200 w-full justify-center items-center">
       {groups.map(({ slot, marks }, g) => {
@@ -168,10 +168,9 @@ export function BuildEngine({ data, onComplete, onItemAnswer, prompt, example }:
         <p className="text-base font-semibold text-gray-600 text-center leading-snug">
           {L(item.translation)}
         </p>
-        {PIN_ANSWER_AREA && <div className="w-full mt-3">{template}</div>}
+        <div className="w-full mt-3">{template}</div>
       </StickyQuestion>
       <div className="flex-1 flex flex-col items-center justify-center w-full mb-4">
-        {!PIN_ANSWER_AREA && <div className="w-full mb-3">{template}</div>}
         <Correction
           show={done && placed.join(" ") !== target.join(" ")}
           text={joinTokens(item.words)}

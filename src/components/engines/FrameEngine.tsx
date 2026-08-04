@@ -8,7 +8,6 @@ import { Progress } from "../ui/Progress";
 import { Reaction } from "../ui/Reaction";
 import { TaskPrompt } from "../ui/TaskPrompt";
 import { StickyQuestion } from "../ui/StickyQuestion";
-import { PIN_ANSWER_AREA } from "../../utils/pinVariant";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
 
@@ -183,9 +182,9 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
 
   const canCheck = !checked && (typing ? typed.trim().length > 0 : filled.length > 0);
 
-  // Rendered either in the flow or inside the pinned block, depending on the
-  // pinning variant. Step 4 is excluded: it has no bank, and its input belongs
-  // above the keyboard rather than under a pinned header.
+  // The sentence under construction. Pinned with the stimulus
+  // (FR-QUESTION-PINNED); steps 1-3 only, since step 4 has no bank and its input
+  // belongs above the keyboard rather than under a pinned header.
   const answerArea = (
     <>
       {step === 1 && (
@@ -266,10 +265,8 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
         <p className="text-lg font-bold text-gray-900 text-center leading-snug">
           {L(item.translation)}
         </p>
-        {PIN_ANSWER_AREA && !typing && <div className="w-full mt-3">{answerArea}</div>}
+        {!typing && <div className="w-full mt-3">{answerArea}</div>}
       </StickyQuestion>
-
-      {!PIN_ANSWER_AREA && answerArea}
 
       {typing && (
         // Step 4: nothing but the translation and a field.
