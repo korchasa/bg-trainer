@@ -66,7 +66,8 @@ export function AnalyticsScreen({ history, onBack, onClearHistory, onClearMaster
   // session stored before `qsTotal` existed used to be assumed eight answers
   // long, which quietly turned a 35-answer session with 12 errors into 12 errors
   // out of 8 and clamped it to 0%. An entry without the count contributes to
-  // neither side of the fraction, and the label says how many were counted.
+  // neither side of the fraction; once none are left, the distinction disappears
+  // on its own, which is why nothing on screen explains it.
   const measured = history.filter(h => typeof h.qsTotal === "number");
   const totalQs = measured.reduce((s, h) => s + h.qsTotal!, 0);
   const measuredErrors = measured.reduce((s, h) => s + (h.errors || 0), 0);

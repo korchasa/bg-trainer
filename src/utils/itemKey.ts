@@ -16,10 +16,22 @@ export function paradigmFormKey(item: ParadigmItem, formIndex: number): string {
   return `${itemKey(item)}#${formIndex}`;
 }
 
-/** True for the `paradigm` data shape — an array of `{ pronouns, forms }`. */
+/**
+ * True for the `paradigm` item shape — `{ pronouns, forms }`.
+ *
+ * Exported and used by `mastery.ts` for both its live-key walk and its
+ * migration. Three places have to recognise a paradigm, and when the shape is
+ * the only thing telling them apart, three hand-written copies of the test mean
+ * a change to `ParadigmItem` gets noticed in one of them.
+ */
+export function isParadigmItem(item: unknown): item is ParadigmItem {
+  const o = item as Record<string, unknown> | null | undefined;
+  return !!o && Array.isArray(o.pronouns) && Array.isArray(o.forms);
+}
+
+/** True for a list of paradigm items. The data of one mode is homogeneous. */
 function isParadigm(list: unknown[]): list is ParadigmItem[] {
-  const first = list[0] as Record<string, unknown> | undefined;
-  return !!first && Array.isArray(first.pronouns) && Array.isArray(first.forms);
+  return isParadigmItem(list[0]);
 }
 
 export function itemKey(item: unknown): string {

@@ -1,5 +1,5 @@
 import type { MasteryStore, ModeMastery, PickOptData, Lesson, Mode } from "../types";
-import { itemCount, itemKey, paradigmFormKey } from "./itemKey";
+import { isParadigmItem, itemCount, itemKey, paradigmFormKey } from "./itemKey";
 import { shuffle } from "./shuffle";
 import { getRaw, removeRaw, setRaw } from "./storage";
 
@@ -44,10 +44,9 @@ function modeItemKeys(mode: Mode): Set<string> {
     try {
       // A paradigm item is answered once per form and stored once per form, so
       // its live keys are the form keys — the bare verb is not one of them.
-      const o = it as { pronouns?: unknown; forms?: unknown[] };
-      if (Array.isArray(o.pronouns) && Array.isArray(o.forms)) {
-        o.forms.forEach((_, i) => {
-          if (i !== PARADIGM_GIVEN) keys.add(paradigmFormKey(it as never, i));
+      if (isParadigmItem(it)) {
+        it.forms.forEach((_, i) => {
+          if (i !== PARADIGM_GIVEN) keys.add(paradigmFormKey(it, i));
         });
         continue;
       }
@@ -101,10 +100,7 @@ export function migrateParadigmKeys(
     } catch {
       continue;
     }
-    const paradigms = items.filter((it) => {
-      const o = it as { pronouns?: unknown; forms?: unknown[] };
-      return Array.isArray(o.pronouns) && Array.isArray(o.forms);
-    }) as { forms: string[] }[];
+    const paradigms = items.filter(isParadigmItem);
     if (paradigms.length === 0) continue;
 
     const migrated: ModeMastery = {};
@@ -117,7 +113,7 @@ export function migrateParadigmKeys(
       changed = true;
       item.forms.forEach((_, i) => {
         if (i === PARADIGM_GIVEN) return;
-        const k = paradigmFormKey(item as never, i);
+        const k = paradigmFormKey(item, i);
         // A form already answered under the new scheme wins: it is the more
         // recent measurement of that exact form.
         if (!migrated[k]) migrated[k] = { ...legacy };
