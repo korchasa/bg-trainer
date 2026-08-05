@@ -270,6 +270,7 @@ implements:
 ## TDD Flow
 
 1. **RED**: Write a failing test (`test <id>`) for new or changed logic.
+1a. **PROVE THE RED**: with no test runner, every check here is a hand-written text scan, and a broken pattern is indistinguishable from a finding. Before trusting a red, break exactly one thing the scan is supposed to catch — `cp` the file first, restore from that copy, never `git checkout --` — and confirm the failure names that one thing and nothing else. A scan that reports every call site as malformed is a bad pattern, not a bad codebase: `/onComplete\([^()]*,[^()]*,[^()]*,[^()]*\)/` flags every real call, because each one contains `Date.now()` and the character class excludes brackets. A rename that keeps the searched substring (`<Foo` → `<FooXX`) proves nothing at all — it stays green either way.
 2. **GREEN**: Write minimal code to pass the test.
 3. **REFACTOR**: Improve code and tests without changing behavior. Re-run `test <id>`.
 4. **CHECK**: Run `fmt`, `lint`, and full test suite. You are NOT done after GREEN — skipping CHECK leaves formatting errors and regressions undetected. This step is mandatory.
@@ -334,6 +335,8 @@ Most invariants scan `src/` as text. `scripts/lexicon.ts` cannot: it has to call
 
 One wall, found the hard way: anything reaching `src/utils/platform.ts` reads `import.meta.env`, which does not exist outside Vite, and throws `Cannot read properties of undefined (reading 'VITE_PLATFORM')`. That rules out `utils/storage.ts`, `utils/mastery.ts`, `utils/nativeUx.ts` and `hooks/useGame.ts` — and so `sliceData.ts`, which imports `mastery`. Safe today: everything under `src/data/`, `utils/itemKey.ts`, `utils/punct.ts`, `utils/shuffle.ts`. Confirm with `grep -rln "import\.meta" src/` before assuming.
 
+Needing to *test* one of those modules is not a dead end. Copy it beside the original (`src/utils/<name>.pure.tmp.ts` — a relative import will not resolve from `/tmp`), replace **only** the storage import with three stubs, and leave every pure function byte-identical; assert the anchor line is present so the patch fails loudly if that import ever moves. Delete the copy in the same command that creates it. Used to measure the mastery model against real lesson data, and later to prove a refactor left `migrateParadigmKeys` behaviour untouched — both in one command each, where the alternative was replaying sessions by hand in the browser.
+
 ### Worktrees
 `.claude/worktrees/*` contains an **empty** `node_modules`; dependency resolution walks up to `/Users/korchasa/www/business/bg-trainer/node_modules`, which is why builds work there at all. A worktree created outside the repository tree (say under `/tmp`, to build a parent revision for comparison) resolves nothing and fails with hundreds of `Cannot find module 'react'`. Symlink its `node_modules` at the **main repo** path, never at the current worktree's.
 
@@ -346,7 +349,9 @@ One wall, found the hard way: anything reaching `src/utils/platform.ts` reads `i
 
 **Prototypes go into the app, not into a scratch file.** A standalone HTML mockup outside the project cannot be shown to anyone: `file://` renders as a static snapshot with no JS, and an ad-hoc local server is blocked by policy. Build the prototype as a real screen behind the dev server (`preview_start` → `bg-trainer-dev`) — it renders with the project's own styles, it is clickable, and a screenshot of it is evidence.
 
-**A `computer` click that reports success may still have done nothing.** Clicking a mode card by `ref` returned `left_click at (188, 741)` and only scrolled; a second click at the settled coordinates changed nothing at all, while `javascript_tool` clicking the same button by text worked immediately. So: after a click that should change state, read the state back. If it did not move, do not repeat the click — switch to `javascript_tool`. Note that a click handler fired that way runs before React re-renders, so a follow-up button that only just became enabled is still disabled at that instant — check `disabled` and click it in a separate call.
+**A `computer` click that reports success may still have done nothing.** Clicking a mode card by `ref` returned `left_click at (188, 741)` and only scrolled; a second click at the settled coordinates changed nothing at all, while `javascript_tool` clicking the same button by text worked immediately. So: after a click that should change state, read the state back. If it did not move, do not repeat the click — switch to `javascript_tool`. Note that a click handler fired that way runs before React re-renders, so a follow-up button that only just became enabled is still disabled at that instant — check `disabled` and click it in a separate call. The same boundary makes a burst of clicks in one call misleading: send six taps at a drill and the first few land, the rest run against the pre-render closure and are silently dropped, which reads on screen as a frozen engine. It is the probe, not the app — cost several turns and a nearly-reported false bug in the frame drill on 2026-08-05.
+
+The way out is not one click per tool call. Define helpers in the page once — `__tap(words, gap = 350)` schedules the clicks with `setTimeout` so React commits between them, `__cycle()` walks a whole question (wrong answer, read the correct one out of the dialog, dismiss, answer it) — then call the helper and read the result in the next call. A five-question session drops from ~40 tool calls to ~8.
 
 ## Code Documentation
 
@@ -355,3 +360,5 @@ One wall, found the hard way: anything reaching `src/utils/platform.ts` reads `i
 - **Requirement traceability**: when code implements a requirement from SRS (`documents/requirements.md`), add a `// FR-<ID>` (TS/JS/Go/Rust) or `# FR-<ID>` (YAML/shell/Python) comment next to the implementing logic. Code references requirements, not the reverse — SRS must not contain file paths. Exceptions: requirements verified by benchmarks or proven by file existence need no comment.
 
 > **Before you start:** read `documents/requirements.md` (SRS) and `documents/design.md` (SDS) if you haven't in this session. They contain project requirements and architecture that inform every task.
+>
+> If the task touches the invariant scripts or drives the app in a browser, read **"Scripts that evaluate the app's data"** and **"Browser Automation Access"** above as well. Both record walls that cost hours when rediscovered — which module a script may not import, and why a burst of clicks looks like a frozen engine — and both name the exact modules and timings involved. Grepping this file for the term you are working on will not surface them.
