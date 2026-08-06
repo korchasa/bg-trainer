@@ -22,7 +22,7 @@
 - Marketing site + policies: https://bgtrainer.korchasa.dev/ (maintained outside this repository, Cloudflare Pages)
 
 ## Project Vision
-Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (21 categories, 251 modes, 12 engine types) with persistent progress and analytics.
+Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (21 categories, 250 modes, 12 engine types) with persistent progress and analytics.
 
 ## Project tooling Stack
 - **Runtime/UI:** React 18, TypeScript 5
@@ -95,7 +95,7 @@ maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`
 - `Screen` — `"menu" | "game" | "results" | "analytics"`
 
 ### Game Data
-Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts` plus `src/data/frames.ts` (sentence-production drills), and the lesson→mode mapping in `src/data/lessons.ts`. Currently 21 categories and 251 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
+Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts` plus `src/data/frames.ts` (sentence-production drills), and the lesson→mode mapping in `src/data/lessons.ts`. Currently 21 categories and 250 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
 
 Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
 
@@ -122,7 +122,7 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Adding a new mode:**
   1. Add `DataItem[]` / `BuildItem[]` / `LiItem[]` to `src/data/index.ts`
   2. Add `Mode` entry to the relevant `Category` (or create new `Category`), including `example` — the worked model shown under the task on every question (FR-TASK-MODEL). Write it `stimulus → answer` (`↔` for `match`, finished sentence for `build`), in prose spacing, and take the textbook's own «Примерен образец» when the lesson prints one. `paradigm` modes take no `example` — `ParadigmEngine` pre-fills the 1sg row as the model. `deno task test` asserts all of this
-  3. Add the mode id to that lesson's `modeIds` in `src/data/lessons.ts`. The UI reaches modes only through lessons — no screen ever reads `CATEGORIES` — so a mode missing here is invisible to the learner while every invariant stays green. Three modes sit in exactly that state today: `iskam_pick`, `poss_pick`, `q_build`
+  3. Add the mode id to that lesson's `modeIds` in `src/data/lessons.ts`. The UI reaches modes only through lessons — no screen ever reads `CATEGORIES` — so a mode missing here is invisible to the learner while every invariant stays green. `scripts/lessons.ts` asserts this, so a forgotten id now fails `check` instead of going unnoticed
   4. If engine exists: no engine code changes
   5. If new interaction pattern: add engine in `src/components/engines/` and register in `App.tsx` dispatch
 

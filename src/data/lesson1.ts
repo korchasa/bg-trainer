@@ -280,27 +280,6 @@ export const DATA_PRONOUN_SHORT: DataItem[] = [
   { q: "те", label: LABEL_DAT, answer: "им", hint: { ru: "им", uk: "їм" } },
 ];
 
-const LABEL_M_FULL: Localized<string> = { ru: "мужской род, полная форма", uk: "чоловічий рід, повна форма" };
-const LABEL_F_FULL: Localized<string> = { ru: "женский род, полная форма", uk: "жіночий рід, повна форма" };
-const LABEL_SHORT: Localized<string> = { ru: "краткая форма", uk: "коротка форма" };
-export const DATA_POSSESS: DataItem[] = [
-  { q: "мой", label: LABEL_M_FULL, answer: "моят / мой", hint: { ru: "мой (полн.)", uk: "мій (повн.)" } },
-  { q: "моя", label: LABEL_F_FULL, answer: "моята / моя", hint: { ru: "моя (полн.)", uk: "моя (повн.)" } },
-  { q: "мой", label: LABEL_SHORT, answer: "ми", hint: { ru: "мой (кратк.)", uk: "мій (корот.)" } },
-  { q: "твой", label: LABEL_M_FULL, answer: "твоят / твой", hint: { ru: "твой (полн.)", uk: "твій (повн.)" } },
-  { q: "твоя", label: LABEL_F_FULL, answer: "твоята / твоя", hint: { ru: "твоя (полн.)", uk: "твоя (повн.)" } },
-  { q: "твой", label: LABEL_SHORT, answer: "ти", hint: { ru: "твой (кратк.)", uk: "твій (корот.)" } },
-  { q: "негов", label: LABEL_M_FULL, answer: "неговият", hint: { ru: "его (полн.)", uk: "його (повн.)" } },
-  { q: "негов", label: LABEL_SHORT, answer: "му", hint: { ru: "его (кратк.)", uk: "його (корот.)" } },
-  { q: "неин", label: LABEL_F_FULL, answer: "нейният", hint: { ru: "её (полн.)", uk: "її (повн.)" } },
-  { q: "неин", label: LABEL_SHORT, answer: "ѝ", hint: { ru: "её (кратк.)", uk: "її (корот.)" } },
-  { q: "наш", label: LABEL_M_FULL, answer: "нашият / наш", hint: { ru: "наш (полн.)", uk: "наш (повн.)" } },
-  { q: "наш", label: LABEL_SHORT, answer: "ни", hint: { ru: "наш (кратк.)", uk: "наш (корот.)" } },
-  { q: "ваш", label: LABEL_M_FULL, answer: "вашият / ваш", hint: { ru: "ваш (полн.)", uk: "ваш (повн.)" } },
-  { q: "ваш", label: LABEL_SHORT, answer: "ви", hint: { ru: "ваш (кратк.)", uk: "ваш (корот.)" } },
-  { q: "техен", label: LABEL_SHORT, answer: "им", hint: { ru: "их (кратк.)", uk: "їх (корот.)" } },
-];
-
 export const DATA_NEGATION: DataItem[] = [
   { q: "аз съм студент", answer: "аз не съм студент", hint: { ru: "я студент", uk: "я студент" } },
   { q: "тя има куче", answer: "тя няма куче", hint: { ru: "у неё есть собака", uk: "у неї є собака" } },

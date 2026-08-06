@@ -2,7 +2,7 @@ import type { Category } from "../types";
 import {
   DATA_SYM, DATA_IMAM, DATA_NYAMAM, DATA_ISKAM,
   DATA_ARTICLE, ARTICLE_OPTIONS, DATA_ART_GENDER, ART_GENDER_OPTIONS,
-  DATA_PLURAL, DATA_POSSESS, DATA_NEGATION, DATA_BUILD,
+  DATA_PLURAL, DATA_NEGATION, DATA_BUILD,
   DATA_KAZVAM, DATA_GOVORYA, DATA_COUNTRY_LANG, DATA_NATIONALITY,
   DATA_PROFESSION, DATA_GREETING, GREETING_OPTIONS,
   DATA_NALI, NALI_OPTIONS, DATA_NITO_I, NITO_I_OPTIONS,
@@ -180,7 +180,6 @@ export const CATEGORIES: Category[] = [
     id: "possess",
     name: { ru: "Притяжательные", uk: "Присвійні" },
     modes: [
-      { id: "poss_pick", icon: "🔑", label: { ru: "Чей? Чья?", uk: "Чий? Чия?" }, desc: { ru: "Выбери болгарскую притяжательную форму по указанному роду/числу", uk: "Обери болгарську присвійну форму за вказаним родом/числом" }, example: { ru: "наш (ж.р., полн.) → нашата", uk: "наш (ж.р., повн.) → нашата" }, type: "pickFrom", data: () => DATA_POSSESS },
     ],
   },
   {

@@ -17,6 +17,7 @@ import { checkClassNames } from "./classnames.ts";
 import { checkBank } from "./bank.ts";
 import { checkAccuracy } from "./accuracy.ts";
 import { checkLexicon } from "./lexicon.ts";
+import { checkLessons } from "./lessons.ts";
 
 export async function test(): Promise<void> {
   section("Data invariants: build-mode punctuation (FR-BUILD)");
@@ -45,6 +46,9 @@ export async function test(): Promise<void> {
 
   section("Data invariants: frame lexicon and ladder (FR-FRAME, FR-FRAME-LADDER)");
   checkLexicon();
+
+  section("Data invariants: every mode reachable through a lesson (FR-LESSONS)");
+  checkLessons();
 }
 
 if (import.meta.main) await test();
