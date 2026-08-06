@@ -299,19 +299,15 @@ const PF_CUT_RULE: Localized<string> = {
 };
 const HINT_PF_CUT: Localized<string> = { ru: "убери -ва-", uk: "прибери -ва-" };
 export const DATA_L6_PF_CUT: DataItem[] = [
-  { q: "получавам → ?", answer: "получа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["получавам", "получна", "получея"] },
-  { q: "купувам → ?", answer: "купя", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["купувам", "купна", "купея"] },
+  { q: "получавам → ?", answer: "получа", hint: { ru: "получать · убери -ва-", uk: "отримувати · прибери -ва-" }, rule: PF_CUT_RULE, decoys: ["получавам", "получна", "получея"] },
+  { q: "купувам → ?", answer: "купя", hint: { ru: "покупать · убери -ва-", uk: "купувати · прибери -ва-" }, rule: PF_CUT_RULE, decoys: ["купувам", "купна", "купея"] },
   { q: "обувам се → ?", answer: "обуя се", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["обувам се", "обуна се", "обуча се"] },
   { q: "събувам се → ?", answer: "събуя се", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["събувам се", "събуна се", "събуча се"] },
   { q: "казвам → ?", answer: "кажа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["казвам", "казя", "казна"] },
-  { q: "показвам → ?", answer: "покажа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["показвам", "показя", "показна"] },
   { q: "закусвам → ?", answer: "закуся", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["закусвам", "закусна", "закуша"] },
   { q: "свършвам → ?", answer: "свърша", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["свършвам", "свършна", "свърся"] },
   { q: "сресвам се → ?", answer: "среша се", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["сресвам се", "сресна се", "среся се"] },
-  { q: "опитвам → ?", answer: "опитам", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["опитвам", "опитна", "опитя"] },
-  { q: "поръчвам → ?", answer: "поръчам", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["поръчвам", "поръча се", "поръчна"] },
-  { q: "разбърквам → ?", answer: "разбъркам", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["разбърквам", "разбъркна", "разбърча"] },
-  { q: "нарязвам → ?", answer: "нарежа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["нарязвам", "нарязна", "наряза се"] },
+  { q: "харесвам → ?", answer: "хареса", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["харесвам", "харесна", "харесям"] },
   { q: "закъснявам → ?", answer: "закъснея", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["закъснявам", "закъсня", "закъсна"] },
 ];
 
@@ -326,8 +322,7 @@ export const DATA_L6_PF_NA: DataItem[] = [
   { q: "тръгвам → ?", answer: "тръгна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["тръгвам", "тръгя", "тръга"] },
   { q: "връщам се → ?", answer: "върна се", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["връщам се", "върша се", "връщна се"] },
   { q: "започвам → ?", answer: "започна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["започвам", "започя", "започа"] },
-  { q: "помагам → ?", answer: "помогна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["помагам", "помажа", "помога се"] },
-  { q: "срещам → ?", answer: "срещна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["срещам", "среща", "срешна"] },
+  { q: "срещам → ?", answer: "срещна", hint: { ru: "встречать · суффикс -на", uk: "зустрічати · суфікс -на" }, rule: PF_NA_RULE, decoys: ["срещам", "среща", "срешна"] },
   { q: "стигам → ?", answer: "стигна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["стигам", "стижа", "стигя"] },
 ];
 
@@ -349,9 +344,9 @@ export const DATA_L6_PF_PREFIX: DataItem[] = [
   { q: "къпя се → ?", answer: "изкъпя се", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["накъпя се", "покъпя се", "прекъпя се"] },
   { q: "бръсна се → ?", answer: "избръсна се", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["набръсна се", "побръсна се", "забръсна се"] },
   { q: "чакам → ?", answer: "изчакам", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["начакам", "прочакам", "зачакам"] },
-  { q: "готвя → ?", answer: "сготвя", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изготвя", "наготвя", "приготвям"] },
-  { q: "варя → ?", answer: "сваря", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изваря", "наваря", "поваря"] },
-  { q: "пържа → ?", answer: "изпържа", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["напържа", "попържа", "спържа"] },
+  { q: "питам → ?", answer: "попитам", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изпитам", "напитам", "препитам"] },
+  { q: "пея → ?", answer: "изпея", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["напея", "препея", "спея"] },
+  { q: "спя → ?", answer: "поспя", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изспя", "наспя", "спна"] },
 ];
 
 // --- Perfective formation: the stem itself changes ---
@@ -361,18 +356,16 @@ const PF_STEM_RULE: Localized<string> = {
 };
 const HINT_PF_STEM: Localized<string> = { ru: "основа меняется", uk: "основа змінюється" };
 export const DATA_L6_PF_STEM: DataItem[] = [
-  { q: "виждам → ?", answer: "видя", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["виждам", "виждна", "видям"] },
+  { q: "виждам → ?", answer: "видя", hint: { ru: "видеть · основа меняется", uk: "бачити · основа змінюється" }, rule: PF_STEM_RULE, decoys: ["виждам", "виждна", "видям"] },
   { q: "обличам се → ?", answer: "облека се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["обличам се", "обличя се", "обличкам се"] },
   { q: "събличам се → ?", answer: "съблека се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["събличам се", "събличя се", "съблича се"] },
-  { q: "плащам → ?", answer: "платя", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["плащам", "плащна", "плаща се"] },
-  { q: "давам → ?", answer: "дам", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["давам", "давна", "дая"] },
+  { q: "плащам → ?", answer: "платя", hint: { ru: "платить · основа меняется", uk: "платити · основа змінюється" }, rule: PF_STEM_RULE, decoys: ["плащам", "плащна", "плаща се"] },
+  { q: "давам → ?", answer: "дам", hint: { ru: "давать · основа меняется", uk: "давати · основа змінюється" }, rule: PF_STEM_RULE, decoys: ["давам", "давна", "дая"] },
   { q: "вземам → ?", answer: "взема", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["вземам", "вземна", "вземя"] },
   { q: "разбирам → ?", answer: "разбера", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["разбирам", "разбирна", "разбиря"] },
-  { q: "избирам → ?", answer: "избера", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["избирам", "избирна", "избиря"] },
   { q: "спирам → ?", answer: "спра", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["спирам", "спирна", "спиря"] },
   { q: "събуждам се → ?", answer: "събудя се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["събуждам се", "събуждна се", "събужда се"] },
-  { q: "предлагам → ?", answer: "предложа", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["предлагам", "предлагна", "предлажа"] },
-  { q: "разглеждам → ?", answer: "разгледам", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["разглеждам", "разгледна", "разгледя"] },
+  { q: "разхождам се → ?", answer: "разходя се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["разхождам се", "разходна се", "разхождя се"] },
 ];
 
 // --- Perfective form (type) ---
