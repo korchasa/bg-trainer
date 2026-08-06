@@ -87,49 +87,6 @@ export const DATA_L4_YAM: DataItem[] = [
   { q: "Те", answer: "ядат", hint: { ru: "они едят", uk: "вони їдять" }, rule: YAM_RULE },
 ];
 
-// --- Conjugation type recognition ---
-const CONJ_TYPE_RULE: Localized<string> = {
-  ru: "Тип спряжения определяется по тематич. гласной 3л.ед.ч.: -е- → I, -и- → II, -а/я- → III.",
-  uk: "Тип дієвідміни визначається тематичним голосним 3ос.одн.: -е- → I, -и- → II, -а/я- → III.",
-};
-const HINT_CONJ_I: Localized<string> = { ru: "тематич. -е-", uk: "тематичн. -е-" };
-const HINT_CONJ_II: Localized<string> = { ru: "тематич. -и-", uk: "тематичн. -и-" };
-const HINT_CONJ_III: Localized<string> = { ru: "тематич. -а/я-", uk: "тематичн. -а/я-" };
-export const DATA_L4_CONJ_TYPE: DataItem[] = [
-  { q: "чета → чете", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "живея → живее", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "пиша → пише", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "бръсна → бръсне", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "пия → пие", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "пея → пее", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "къпя → къпе", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "мия → мие", answer: "I", hint: HINT_CONJ_I, rule: CONJ_TYPE_RULE },
-  { q: "уча → учи", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "говоря → говори", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "правя → прави", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "ходя → ходи", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "спя → спи", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "мълча → мълчи", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "държа → държи", answer: "II", hint: HINT_CONJ_II, rule: CONJ_TYPE_RULE },
-  { q: "бързам → бърза", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "казвам → казва", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "оправям → оправя", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "искам → иска", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "имам → има", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "отивам → отива", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "обличам → облича", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "връщам → връща", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "закусвам → закусва", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "обядвам → обядва", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "вечерям → вечеря", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "разхождам → разхожда", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "ставам → става", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "обувам → обува", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "забавлявам → забавлява", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-  { q: "закъснявам → закъснява", answer: "III", hint: HINT_CONJ_III, rule: CONJ_TYPE_RULE },
-];
-export const L4_CONJ_TYPE_OPTIONS = ["I", "II", "III"];
-
 // --- Reflexive verb «мия се» ---
 const MIYA_SE_RULE: Localized<string> = {
   ru: "Возвратный глагол «мия се» (умываться): клитика «се» стоит после формы. Парадигма: мия се/миеш се/мие се · мием се/миете се/мият се.",
@@ -155,6 +112,7 @@ export const DATA_L4_REFL_VOCAB: DataItem[] = [
   { q: "одеваться / одягатися", answer: "обличам се", hint: HINT_ROUTINE, decoys: ["обувам се", "събуждам се", "връщам се"] },
   { q: "обуваться / взуватися", answer: "обувам се", hint: HINT_ROUTINE, decoys: ["обличам се", "бръсна се", "събуждам се"] },
   { q: "причёсываться / зачісуватися", answer: "сресвам се", hint: HINT_ROUTINE, decoys: ["бръсна се", "мия се", "оправям"] },
+  { q: "вытираться / витиратися", answer: "бърша се", hint: HINT_ROUTINE, decoys: ["мия се", "къпя се", "сресвам се"] },
   { q: "выходить / виходити", answer: "излизам", hint: HINT_ROUTINE, decoys: ["влизам", "връщам се", "отивам"] },
   { q: "входить / заходити", answer: "влизам", hint: HINT_ROUTINE, decoys: ["излизам", "връщам се", "отивам"] },
   { q: "возвращаться / повертатися", answer: "връщам се", hint: HINT_ROUTINE, decoys: ["излизам", "отивам", "лягам си"] },

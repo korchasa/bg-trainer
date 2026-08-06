@@ -22,7 +22,7 @@
 - Marketing site + policies: https://bgtrainer.korchasa.dev/ (maintained outside this repository, Cloudflare Pages)
 
 ## Project Vision
-Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (21 categories, 240 modes, 12 engine types) with persistent progress and analytics.
+Interactive Bulgarian language trainer for A0-level learners. UI in Russian or Ukrainian (user-selectable), targeting East-Slavic speakers learning Bulgarian. Single-page React app deployed to GitHub Pages. Delivers gamified grammar drills (21 categories, 251 modes, 12 engine types) with persistent progress and analytics.
 
 ## Project tooling Stack
 - **Runtime/UI:** React 18, TypeScript 5
@@ -95,7 +95,7 @@ maintained outside it and deploy to Cloudflare Pages at `bgtrainer.korchasa.dev`
 - `Screen` — `"menu" | "game" | "results" | "analytics"`
 
 ### Game Data
-Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts` plus `src/data/frames.ts` (sentence-production drills), and the lesson→mode mapping in `src/data/lessons.ts`. Currently 21 categories and 240 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
+Mode and category definitions live in `src/data/index.ts`; the exercises themselves in `src/data/lesson1.ts` … `lesson8.ts` plus `src/data/frames.ts` (sentence-production drills), and the lesson→mode mapping in `src/data/lessons.ts`. Currently 21 categories and 251 modes over 8 lessons — count them with `CATEGORIES.length` / `ALL_MODES.length` rather than trusting a number written here.
 
 Each mode has a `data()` returning its exercise array. A session draws `pace` questions from that mode (3 / 5 / 8), picked by the scheduler in `utils/mastery.ts`, not at random.
 

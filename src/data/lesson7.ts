@@ -172,6 +172,7 @@ export const DATA_L7_SHOP_VERBS: DataItem[] = [
   { q: "выбирать / обирати", answer: "избирам", hint: HINT_SHOP_VERB, decoys: ["купувам", "вземам", "разглеждам"] },
   { q: "ходить за покупками / ходити за покупками", answer: "пазарувам", hint: HINT_SHOP_VERB, decoys: ["купувам", "продавам", "разглеждам"] },
   { q: "возвращать / повертати", answer: "връщам", hint: HINT_SHOP_VERB, decoys: ["давам", "вземам", "плащам"] },
+  { q: "получать / отримувати", answer: "получавам", hint: HINT_SHOP_VERB, decoys: ["давам", "вземам", "плащам"] },
   { q: "стоить / коштувати", answer: "струва", hint: HINT_SHOP_VERB, decoys: ["плаща", "дава", "купува"] },
   { q: "должен (быть должен) / винен", answer: "дължа", hint: HINT_SHOP_VERB, decoys: ["трябва", "имам", "плащам"] },
   { q: "взвешивать / зважувати", answer: "тегля", hint: HINT_SHOP_VERB, decoys: ["броя", "плащам", "избирам"] },
@@ -570,6 +571,71 @@ export const DATA_L7_PARADIGM: ParadigmItem[] = [
     hint: { ru: "платить (III спряж.)", uk: "платити (III дієвідм.)" }, rule: PLASCHTAM_RULE },
   { verb: "пазарувам", pronouns: L7_PRONOUNS, forms: ["пазарувам", "пазаруваш", "пазарува", "пазаруваме", "пазарувате", "пазаруват"],
     hint: { ru: "ходить за покупками (III спряж.)", uk: "ходити за покупками (III дієвідм.)" }, rule: PAZARUVAM_RULE },
+];
+
+// --- Aspect pairs of the shopping verbs ---
+const PF_PAIR_RULE: Localized<string> = {
+  ru: "Глаголы покупки в свършен виде: купувам → купя, плащам → платя, давам → дам, вземам → взема, получавам → получа. Свършен вид сам по себе в наст. вр. не употребляется — только после «ще», «да», «трябва да».",
+  uk: "Дієслова покупки у свършен виді: купувам → купя, плащам → платя, давам → дам, вземам → взема, получавам → получа. Свършен вид сам по собі в теп. ч. не вживається — лише після «ще», «да», «трябва да».",
+};
+const HINT_PF_PAIR: Localized<string> = { ru: "свършен (однократный) вид", uk: "свършен (одноразовий) вид" };
+export const DATA_L7_PF_PAIR: DataItem[] = [
+  { q: "купувам → ?", answer: "купя", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["купувам", "купна", "купея"] },
+  { q: "продавам → ?", answer: "продам", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["продавам", "продая", "продна"] },
+  { q: "плащам → ?", answer: "платя", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["плащам", "плащна", "заплащам"] },
+  { q: "давам → ?", answer: "дам", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["давам", "дая", "давна"] },
+  { q: "вземам → ?", answer: "взема", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["вземам", "вземна", "взимам"] },
+  { q: "връщам → ?", answer: "върна", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["връщам", "връщна", "върша"] },
+  { q: "получавам → ?", answer: "получа", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["получавам", "получна", "получея"] },
+  { q: "избирам → ?", answer: "избера", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["избирам", "избирна", "избиря"] },
+  { q: "показвам → ?", answer: "покажа", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["показвам", "показя", "показна"] },
+  { q: "поръчвам → ?", answer: "поръчам", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["поръчвам", "поръчна", "поръчя"] },
+  { q: "разглеждам → ?", answer: "разгледам", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["разглеждам", "разгледна", "разгледя"] },
+  { q: "помагам → ?", answer: "помогна", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["помагам", "помажа", "помагна"] },
+  { q: "предлагам → ?", answer: "предложа", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["предлагам", "предлагна", "предлажа"] },
+  { q: "опитвам → ?", answer: "опитам", hint: HINT_PF_PAIR, rule: PF_PAIR_RULE, decoys: ["опитвам", "опитна", "опитя"] },
+];
+
+// --- Future paradigms of the perfective shopping verbs ---
+const PF_FUTURE_SHOP_RULE: Localized<string> = {
+  ru: "«Ще» + свършен вид называет одну покупку целиком: ще купя, ще платя, ще взема. Отрицание — «няма да» + та же форма: няма да купя.",
+  uk: "«Ще» + свършен вид називає одну покупку цілком: ще купя, ще платя, ще взема. Заперечення — «няма да» + та сама форма: няма да купя.",
+};
+export const DATA_L7_PF_FUTURE_PARADIGM: ParadigmItem[] = [
+  { verb: "ще купя", pronouns: L7_PRONOUNS, forms: ["ще купя", "ще купиш", "ще купи", "ще купим", "ще купите", "ще купят"],
+    hint: { ru: "будущее «купить» (II)", uk: "майбутнє «купити» (II)" }, rule: PF_FUTURE_SHOP_RULE },
+  { verb: "ще платя", pronouns: L7_PRONOUNS, forms: ["ще платя", "ще платиш", "ще плати", "ще платим", "ще платите", "ще платят"],
+    hint: { ru: "будущее «заплатить» (II)", uk: "майбутнє «заплатити» (II)" }, rule: PF_FUTURE_SHOP_RULE },
+  { verb: "ще получа", pronouns: L7_PRONOUNS, forms: ["ще получа", "ще получиш", "ще получи", "ще получим", "ще получите", "ще получат"],
+    hint: { ru: "будущее «получить» (II)", uk: "майбутнє «отримати» (II)" }, rule: PF_FUTURE_SHOP_RULE },
+  { verb: "ще взема", pronouns: L7_PRONOUNS, forms: ["ще взема", "ще вземеш", "ще вземе", "ще вземем", "ще вземете", "ще вземат"],
+    hint: { ru: "будущее «взять» (I)", uk: "майбутнє «взяти» (I)" }, rule: PF_FUTURE_SHOP_RULE },
+  { verb: "ще дам", pronouns: L7_PRONOUNS, forms: ["ще дам", "ще дадеш", "ще даде", "ще дадем", "ще дадете", "ще дадат"],
+    hint: { ru: "будущее «дать» (неправ.)", uk: "майбутнє «дати» (неправ.)" }, rule: PF_FUTURE_SHOP_RULE },
+  { verb: "ще продам", pronouns: L7_PRONOUNS, forms: ["ще продам", "ще продадеш", "ще продаде", "ще продадем", "ще продадете", "ще продадат"],
+    hint: { ru: "будущее «продать» (неправ.)", uk: "майбутнє «продати» (неправ.)" }, rule: PF_FUTURE_SHOP_RULE },
+];
+
+// --- Aspect inside the future: a habit vs one purchase ---
+const ASPECT_FUTURE_RULE: Localized<string> = {
+  ru: "После «ще» стоят оба вида, и вид решает смысл: «ще купувам» — буду покупать (регулярно, долго), «ще купя» — куплю один раз. Маркер повторения (всеки петък, отсега нататък, цяла сутрин) требует несвършен вид.",
+  uk: "Після «ще» стоять обидва види, і вид вирішує зміст: «ще купувам» — купуватиму (регулярно, довго), «ще купя» — куплю один раз. Маркер повторення (всеки петък, отсега нататък, цяла сутрин) вимагає несвършен вид.",
+};
+const HINT_FUT_IMPF: Localized<string> = { ru: "повторяется → несвършен вид", uk: "повторюється → несвършен вид" };
+const HINT_FUT_PF: Localized<string> = { ru: "один раз → свършен вид", uk: "один раз → свършен вид" };
+export const DATA_L7_ASPECT_FUTURE: DataItem[] = [
+  { q: "Всеки петък ще ___ плодове от пазара", answer: "купувам", hint: HINT_FUT_IMPF, rule: ASPECT_FUTURE_RULE, decoys: ["купя", "купувам се", "купим"] },
+  { q: "Утре ще ___ един килограм ябълки", answer: "купя", hint: HINT_FUT_PF, rule: ASPECT_FUTURE_RULE, decoys: ["купувам", "купуват", "купим"] },
+  { q: "Отсега нататък ще ___ само с карта", answer: "плащам", hint: HINT_FUT_IMPF, rule: ASPECT_FUTURE_RULE, decoys: ["платя", "плащат", "платим"] },
+  { q: "Сега ще ___ сметката и си тръгваме", answer: "платя", hint: HINT_FUT_PF, rule: ASPECT_FUTURE_RULE, decoys: ["плащам", "плащат", "платим"] },
+  { q: "Цяла сутрин ще ___ витрините", answer: "разглеждам", hint: HINT_FUT_IMPF, rule: ASPECT_FUTURE_RULE, decoys: ["разгледам", "разглеждат", "разгледаме"] },
+  { q: "Ще ___ тази рокля отблизо и ще реша", answer: "разгледам", hint: HINT_FUT_PF, rule: ASPECT_FUTURE_RULE, decoys: ["разглеждам", "разглеждат", "разгледаме"] },
+  { q: "Всеки месец ще ___ заплата на пето число", answer: "получавам", hint: HINT_FUT_IMPF, rule: ASPECT_FUTURE_RULE, decoys: ["получа", "получат", "получим"] },
+  { q: "На касата ще ___ рестото си", answer: "получа", hint: HINT_FUT_PF, rule: ASPECT_FUTURE_RULE, decoys: ["получавам", "получават", "получим"] },
+  { q: "Всеки ден ще ти ___ по един урок", answer: "давам", hint: HINT_FUT_IMPF, rule: ASPECT_FUTURE_RULE, decoys: ["дам", "дават", "дадем"] },
+  { q: "Утре ще ти ___ книгата", answer: "дам", hint: HINT_FUT_PF, rule: ASPECT_FUTURE_RULE, decoys: ["давам", "дават", "дадем"] },
+  { q: "Дълго ще ___ подарък за Ани", answer: "избирам", hint: HINT_FUT_IMPF, rule: ASPECT_FUTURE_RULE, decoys: ["избера", "избират", "изберем"] },
+  { q: "Ще ___ най-евтиния модел", answer: "избера", hint: HINT_FUT_PF, rule: ASPECT_FUTURE_RULE, decoys: ["избирам", "избират", "изберем"] },
 ];
 
 // --- Build sentences ---

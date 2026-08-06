@@ -292,6 +292,189 @@ export const DATA_L6_MATCH_ASPECT: MatchItem[] = [
   { left: "качвам се", right: "кача се", hint: HINT_ASPECT_MATCH },
 ];
 
+// --- Perfective formation: drop the -ва-/-ава-/-ява- suffix ---
+const PF_CUT_RULE: Localized<string> = {
+  ru: "Тип 1: свършен вид получается отбрасыванием -ва-/-ава-/-ява-: получа-вам → получа, купу-вам → купя, обу-вам се → обуя се. Основа может чередоваться: казвам → кажа (з→ж).",
+  uk: "Тип 1: свършен вид утворюється відкиданням -ва-/-ава-/-ява-: получа-вам → получа, купу-вам → купя, обу-вам се → обуя се. Основа може чергуватися: казвам → кажа (з→ж).",
+};
+const HINT_PF_CUT: Localized<string> = { ru: "убери -ва-", uk: "прибери -ва-" };
+export const DATA_L6_PF_CUT: DataItem[] = [
+  { q: "получавам → ?", answer: "получа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["получавам", "получна", "получея"] },
+  { q: "купувам → ?", answer: "купя", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["купувам", "купна", "купея"] },
+  { q: "обувам се → ?", answer: "обуя се", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["обувам се", "обуна се", "обуча се"] },
+  { q: "събувам се → ?", answer: "събуя се", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["събувам се", "събуна се", "събуча се"] },
+  { q: "казвам → ?", answer: "кажа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["казвам", "казя", "казна"] },
+  { q: "показвам → ?", answer: "покажа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["показвам", "показя", "показна"] },
+  { q: "закусвам → ?", answer: "закуся", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["закусвам", "закусна", "закуша"] },
+  { q: "свършвам → ?", answer: "свърша", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["свършвам", "свършна", "свърся"] },
+  { q: "сресвам се → ?", answer: "среша се", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["сресвам се", "сресна се", "среся се"] },
+  { q: "опитвам → ?", answer: "опитам", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["опитвам", "опитна", "опитя"] },
+  { q: "поръчвам → ?", answer: "поръчам", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["поръчвам", "поръча се", "поръчна"] },
+  { q: "разбърквам → ?", answer: "разбъркам", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["разбърквам", "разбъркна", "разбърча"] },
+  { q: "нарязвам → ?", answer: "нарежа", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["нарязвам", "нарязна", "наряза се"] },
+  { q: "закъснявам → ?", answer: "закъснея", hint: HINT_PF_CUT, rule: PF_CUT_RULE, decoys: ["закъснявам", "закъсня", "закъсна"] },
+];
+
+// --- Perfective formation: the -на suffix (one single act) ---
+const PF_NA_RULE: Localized<string> = {
+  ru: "Тип 2: суффикс -на называет одно однократное действие: ставам → стана, тръгвам → тръгна, връщам се → върна се. Все такие формы I спряжения: стана/станеш/стане.",
+  uk: "Тип 2: суфікс -на називає одну одноразову дію: ставам → стана, тръгвам → тръгна, връщам се → върна се. Усі такі форми I дієвідміни: стана/станеш/стане.",
+};
+const HINT_PF_NA: Localized<string> = { ru: "суффикс -на", uk: "суфікс -на" };
+export const DATA_L6_PF_NA: DataItem[] = [
+  { q: "ставам → ?", answer: "стана", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["ставам", "ставя", "стая"] },
+  { q: "тръгвам → ?", answer: "тръгна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["тръгвам", "тръгя", "тръга"] },
+  { q: "връщам се → ?", answer: "върна се", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["връщам се", "върша се", "връщна се"] },
+  { q: "започвам → ?", answer: "започна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["започвам", "започя", "започа"] },
+  { q: "помагам → ?", answer: "помогна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["помагам", "помажа", "помога се"] },
+  { q: "срещам → ?", answer: "срещна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["срещам", "среща", "срешна"] },
+  { q: "стигам → ?", answer: "стигна", hint: HINT_PF_NA, rule: PF_NA_RULE, decoys: ["стигам", "стижа", "стигя"] },
+];
+
+// --- Perfective formation: a prefix on a simple verb ---
+const PF_PREFIX_RULE: Localized<string> = {
+  ru: "Тип 3: у простого глагола свършен вид даёт приставка: мия се → измия се, пиша → напиша, чета → прочета. Спряжение при этом не меняется.",
+  uk: "Тип 3: у простого дієслова свършен вид дає префікс: мия се → измия се, пиша → напиша, чета → прочета. Дієвідміна при цьому не змінюється.",
+};
+const HINT_PF_PREFIX: Localized<string> = { ru: "добавь приставку", uk: "додай префікс" };
+export const DATA_L6_PF_PREFIX: DataItem[] = [
+  { q: "мия се → ?", answer: "измия се", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["намия се", "помия се", "смия се"] },
+  { q: "бърша се → ?", answer: "избърша се", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["набърша се", "побърша се", "забърша се"] },
+  { q: "пиша → ?", answer: "напиша", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изпиша", "попиша", "препиша"] },
+  { q: "чета → ?", answer: "прочета", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["начета", "изчета", "почета"] },
+  { q: "правя → ?", answer: "направя", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изправя", "поправя", "справя"] },
+  { q: "уча → ?", answer: "науча", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изуча", "поуча", "разуча"] },
+  { q: "ям → ?", answer: "изям", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["наям", "поям", "проям"] },
+  { q: "пия → ?", answer: "изпия", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["напия", "попия", "препия"] },
+  { q: "къпя се → ?", answer: "изкъпя се", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["накъпя се", "покъпя се", "прекъпя се"] },
+  { q: "бръсна се → ?", answer: "избръсна се", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["набръсна се", "побръсна се", "забръсна се"] },
+  { q: "чакам → ?", answer: "изчакам", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["начакам", "прочакам", "зачакам"] },
+  { q: "готвя → ?", answer: "сготвя", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изготвя", "наготвя", "приготвям"] },
+  { q: "варя → ?", answer: "сваря", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["изваря", "наваря", "поваря"] },
+  { q: "пържа → ?", answer: "изпържа", hint: HINT_PF_PREFIX, rule: PF_PREFIX_RULE, decoys: ["напържа", "попържа", "спържа"] },
+];
+
+// --- Perfective formation: the stem itself changes ---
+const PF_STEM_RULE: Localized<string> = {
+  ru: "Тип 4: основа меняется целиком: виждам → видя (жд→д), обличам се → облека се (ч→к), плащам → платя (щ→т), давам → дам, вземам → взема. Такие пары учат наизусть.",
+  uk: "Тип 4: основа змінюється цілком: виждам → видя (жд→д), обличам се → облека се (ч→к), плащам → платя (щ→т), давам → дам, вземам → взема. Такі пари вчать напам'ять.",
+};
+const HINT_PF_STEM: Localized<string> = { ru: "основа меняется", uk: "основа змінюється" };
+export const DATA_L6_PF_STEM: DataItem[] = [
+  { q: "виждам → ?", answer: "видя", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["виждам", "виждна", "видям"] },
+  { q: "обличам се → ?", answer: "облека се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["обличам се", "обличя се", "обличкам се"] },
+  { q: "събличам се → ?", answer: "съблека се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["събличам се", "събличя се", "съблича се"] },
+  { q: "плащам → ?", answer: "платя", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["плащам", "плащна", "плаща се"] },
+  { q: "давам → ?", answer: "дам", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["давам", "давна", "дая"] },
+  { q: "вземам → ?", answer: "взема", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["вземам", "вземна", "вземя"] },
+  { q: "разбирам → ?", answer: "разбера", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["разбирам", "разбирна", "разбиря"] },
+  { q: "избирам → ?", answer: "избера", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["избирам", "избирна", "избиря"] },
+  { q: "спирам → ?", answer: "спра", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["спирам", "спирна", "спиря"] },
+  { q: "събуждам се → ?", answer: "събудя се", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["събуждам се", "събуждна се", "събужда се"] },
+  { q: "предлагам → ?", answer: "предложа", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["предлагам", "предлагна", "предлажа"] },
+  { q: "разглеждам → ?", answer: "разгледам", hint: HINT_PF_STEM, rule: PF_STEM_RULE, decoys: ["разглеждам", "разгледна", "разгледя"] },
+];
+
+// --- Perfective form (type) ---
+const HINT_PF_TYPE: Localized<string> = { ru: "впиши свършен вид", uk: "впиши свършен вид" };
+export const DATA_L6_PF_TYPE: DataItem[] = [
+  { q: "получавам → ?", answer: "получа", hint: HINT_PF_TYPE, rule: PF_CUT_RULE },
+  { q: "купувам → ?", answer: "купя", hint: HINT_PF_TYPE, rule: PF_CUT_RULE },
+  { q: "казвам → ?", answer: "кажа", hint: HINT_PF_TYPE, rule: PF_CUT_RULE },
+  { q: "закусвам → ?", answer: "закуся", hint: HINT_PF_TYPE, rule: PF_CUT_RULE },
+  { q: "ставам → ?", answer: "стана", hint: HINT_PF_TYPE, rule: PF_NA_RULE },
+  { q: "тръгвам → ?", answer: "тръгна", hint: HINT_PF_TYPE, rule: PF_NA_RULE },
+  { q: "започвам → ?", answer: "започна", hint: HINT_PF_TYPE, rule: PF_NA_RULE },
+  { q: "пиша → ?", answer: "напиша", hint: HINT_PF_TYPE, rule: PF_PREFIX_RULE },
+  { q: "чета → ?", answer: "прочета", hint: HINT_PF_TYPE, rule: PF_PREFIX_RULE },
+  { q: "правя → ?", answer: "направя", hint: HINT_PF_TYPE, rule: PF_PREFIX_RULE },
+  { q: "виждам → ?", answer: "видя", hint: HINT_PF_TYPE, rule: PF_STEM_RULE },
+  { q: "плащам → ?", answer: "платя", hint: HINT_PF_TYPE, rule: PF_STEM_RULE },
+  { q: "вземам → ?", answer: "взема", hint: HINT_PF_TYPE, rule: PF_STEM_RULE },
+  { q: "давам → ?", answer: "дам", hint: HINT_PF_TYPE, rule: PF_STEM_RULE },
+];
+
+// --- Match: aspect pairs of the daily routine ---
+const HINT_MATCH_PF: Localized<string> = { ru: "соедини несвършен ↔ свършен вид", uk: "з'єднай несвършен ↔ свършен вид" };
+export const DATA_L6_MATCH_PF: MatchItem[] = [
+  { left: "ставам", right: "стана", hint: HINT_MATCH_PF },
+  { left: "обличам се", right: "облека се", hint: HINT_MATCH_PF },
+  { left: "обувам се", right: "обуя се", hint: HINT_MATCH_PF },
+  { left: "мия се", right: "измия се", hint: HINT_MATCH_PF },
+  { left: "закусвам", right: "закуся", hint: HINT_MATCH_PF },
+  { left: "купувам", right: "купя", hint: HINT_MATCH_PF },
+  { left: "виждам", right: "видя", hint: HINT_MATCH_PF },
+  { left: "вземам", right: "взема", hint: HINT_MATCH_PF },
+  { left: "плащам", right: "платя", hint: HINT_MATCH_PF },
+  { left: "казвам", right: "кажа", hint: HINT_MATCH_PF },
+];
+
+// --- Aspect by the time marker: habit vs one single act ---
+const ASPECT_CHOICE_RULE: Localized<string> = {
+  ru: "Маркер повторения (винаги, всеки ден, често, обикновено) требует несвършен вид в наст. вр. Маркер однократности (утре, довечера, сега, веднъж) — «ще» + свършен вид.",
+  uk: "Маркер повторення (винаги, всеки ден, често, обикновено) вимагає несвършен вид у теп. ч. Маркер одноразовості (утре, довечера, сега, веднъж) — «ще» + свършен вид.",
+};
+const HINT_ASPECT_HABIT: Localized<string> = { ru: "повторяется → несвършен, наст. вр.", uk: "повторюється → несвършен, теп. ч." };
+const HINT_ASPECT_ONCE: Localized<string> = { ru: "один раз → ще + свършен", uk: "один раз → ще + свършен" };
+export const DATA_L6_ASPECT_CHOICE: DataItem[] = [
+  { q: "Всеки ден ___ в седем часа", answer: "ставам", hint: HINT_ASPECT_HABIT, rule: ASPECT_CHOICE_RULE, decoys: ["стана", "ще стана", "ще ставам"] },
+  { q: "Утре ___ в седем часа", answer: "ще стана", hint: HINT_ASPECT_ONCE, rule: ASPECT_CHOICE_RULE, decoys: ["ставам", "стана", "ще ставам"] },
+  { q: "Обикновено ___ вкъщи в шест", answer: "се връщам", hint: HINT_ASPECT_HABIT, rule: ASPECT_CHOICE_RULE, decoys: ["се върна", "ще се върна", "ще се връщам"] },
+  { q: "Днес ___ по-рано от работа", answer: "ще се върна", hint: HINT_ASPECT_ONCE, rule: ASPECT_CHOICE_RULE, decoys: ["се връщам", "се върна", "ще се връщам"] },
+  { q: "Винаги ___ хляб от тази хлебарница", answer: "купувам", hint: HINT_ASPECT_HABIT, rule: ASPECT_CHOICE_RULE, decoys: ["купя", "ще купя", "ще купувам"] },
+  { q: "Утре ___ хляб оттам", answer: "ще купя", hint: HINT_ASPECT_ONCE, rule: ASPECT_CHOICE_RULE, decoys: ["купувам", "купя", "ще купувам"] },
+  { q: "Всяка сутрин ___ бързо", answer: "се обличам", hint: HINT_ASPECT_HABIT, rule: ASPECT_CHOICE_RULE, decoys: ["се облека", "ще се облека", "ще се обличам"] },
+  { q: "Довечера ___ елегантно", answer: "ще се облека", hint: HINT_ASPECT_ONCE, rule: ASPECT_CHOICE_RULE, decoys: ["се обличам", "се облека", "ще се обличам"] },
+  { q: "Често ___ приятели в парка", answer: "срещам", hint: HINT_ASPECT_HABIT, rule: ASPECT_CHOICE_RULE, decoys: ["срещна", "ще срещна", "ще срещам"] },
+  { q: "Довечера ___ Ани пред киното", answer: "ще срещна", hint: HINT_ASPECT_ONCE, rule: ASPECT_CHOICE_RULE, decoys: ["срещам", "срещна", "ще срещам"] },
+  { q: "Всеки ден ___ вестник", answer: "чета", hint: HINT_ASPECT_HABIT, rule: ASPECT_CHOICE_RULE, decoys: ["прочета", "ще прочета", "ще чета"] },
+  { q: "Тази вечер ___ цялата книга", answer: "ще прочета", hint: HINT_ASPECT_ONCE, rule: ASPECT_CHOICE_RULE, decoys: ["чета", "прочета", "ще чета"] },
+];
+
+// --- Textbook model (Ex. 10): habit now → one act tomorrow ---
+const MODEL_FUTURE_RULE: Localized<string> = {
+  ru: "Модель учебника: «Всеки ден ходя на работа и утре ще отида». Привычка — несвършен вид, завтрашнее однократное действие — «ще» + свършен вид того же глагола.",
+  uk: "Модель підручника: «Всеки ден ходя на работа и утре ще отида». Звичка — несвършен вид, завтрашня одноразова дія — «ще» + свършен вид того самого дієслова.",
+};
+const HINT_MODEL_FUTURE: Localized<string> = { ru: "свършен вид после «ще»", uk: "свършен вид після «ще»" };
+export const DATA_L6_MODEL_FUTURE: DataItem[] = [
+  { q: "Всеки ден идвам тук и утре ще ___", answer: "дойда", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["идвам", "отида", "идя"] },
+  { q: "Винаги минавам по тази улица и сега ще ___ по нея", answer: "мина", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["минавам", "минея", "минна"] },
+  { q: "Обикновено се връщам в шест и днес ще ___ в шест", answer: "се върна", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["се връщам", "се вържа", "се върнем"] },
+  { q: "Обикновено слизам на тази спирка и сега ще ___ тук", answer: "сляза", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["слизам", "слезна", "слизя"] },
+  { q: "Рядко ходя пеша и днес ще ___ с колата", answer: "отида", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["ходя", "дойда", "отивам"] },
+  { q: "Често влизам в този магазин и сега ще ___ в него", answer: "вляза", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["влизам", "влезна", "влизна"] },
+  { q: "Всеки ден ставам в седем и утре ще ___ в седем", answer: "стана", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["ставам", "ставя", "станвам"] },
+  { q: "Всяка сутрин се обличам бързо и утре ще ___ бързо", answer: "се облека", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["се обличам", "се обличя", "се облеча"] },
+  { q: "Всеки ден вземам душ и утре ще ___ душ", answer: "взема", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["вземам", "вземна", "взимам"] },
+  { q: "Обикновено закусвам вкъщи и утре ще ___ вкъщи", answer: "закуся", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["закусвам", "закусна", "закуша"] },
+  { q: "Всеки ден правя гимнастика и утре ще ___ гимнастика", answer: "направя", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["правя", "поправя", "изправя"] },
+  { q: "Винаги плащам с карта и сега ще ___ с карта", answer: "платя", hint: HINT_MODEL_FUTURE, rule: MODEL_FUTURE_RULE, decoys: ["плащам", "плащна", "заплащам"] },
+];
+
+// --- Future paradigms of the perfective aspect (with the "се" clitic) ---
+const PF_FUTURE_RULE: Localized<string> = {
+  ru: "«Ще» + свършен вид: частица «ще» неизменна, спрягается сам глагол. У возвратных «се» стоит между «ще» и глаголом: ще се обуя, ще се обуеш, ще се обуе.",
+  uk: "«Ще» + свършен вид: частка «ще» незмінна, відмінюється саме дієслово. У зворотних «се» стоїть між «ще» і дієсловом: ще се обуя, ще се обуеш, ще се обуе.",
+};
+const L6_PF_PRONOUNS = ["Аз", "Ти", "Той", "Ние", "Вие", "Те"];
+export const DATA_L6_PF_FUTURE_PARADIGM: ParadigmItem[] = [
+  { verb: "ще стана", pronouns: L6_PF_PRONOUNS, forms: ["ще стана", "ще станеш", "ще стане", "ще станем", "ще станете", "ще станат"],
+    hint: { ru: "будущее «встать» (I)", uk: "майбутнє «встати» (I)" }, rule: PF_FUTURE_RULE },
+  { verb: "ще се обуя", pronouns: L6_PF_PRONOUNS, forms: ["ще се обуя", "ще се обуеш", "ще се обуе", "ще се обуем", "ще се обуете", "ще се обуят"],
+    hint: { ru: "будущее «обуться» (I)", uk: "майбутнє «взутися» (I)" }, rule: PF_FUTURE_RULE },
+  { verb: "ще се облека", pronouns: L6_PF_PRONOUNS, forms: ["ще се облека", "ще се облечеш", "ще се облече", "ще се облечем", "ще се облечете", "ще се облекат"],
+    hint: { ru: "будущее «одеться» (I, к↔ч)", uk: "майбутнє «одягнутися» (I, к↔ч)" }, rule: PF_FUTURE_RULE },
+  { verb: "ще се измия", pronouns: L6_PF_PRONOUNS, forms: ["ще се измия", "ще се измиеш", "ще се измие", "ще се измием", "ще се измиете", "ще се измият"],
+    hint: { ru: "будущее «умыться» (I)", uk: "майбутнє «умитися» (I)" }, rule: PF_FUTURE_RULE },
+  { verb: "ще се върна", pronouns: L6_PF_PRONOUNS, forms: ["ще се върна", "ще се върнеш", "ще се върне", "ще се върнем", "ще се върнете", "ще се върнат"],
+    hint: { ru: "будущее «вернуться» (I)", uk: "майбутнє «повернутися» (I)" }, rule: PF_FUTURE_RULE },
+  { verb: "ще взема", pronouns: L6_PF_PRONOUNS, forms: ["ще взема", "ще вземеш", "ще вземе", "ще вземем", "ще вземете", "ще вземат"],
+    hint: { ru: "будущее «взять» (I)", uk: "майбутнє «взяти» (I)" }, rule: PF_FUTURE_RULE },
+  { verb: "ще видя", pronouns: L6_PF_PRONOUNS, forms: ["ще видя", "ще видиш", "ще види", "ще видим", "ще видите", "ще видят"],
+    hint: { ru: "будущее «увидеть» (II)", uk: "майбутнє «побачити» (II)" }, rule: PF_FUTURE_RULE },
+];
+
 // --- Imperative singular (positive) ---
 const IMP_SG_RULE: Localized<string> = {
   ru: "Положит. императив ед.ч.: после согласной — корень + и (чет-а→чет-и); после гласной — корень + й (изми-я→изми-й; пит-а-м→пит-ай).",

@@ -289,7 +289,7 @@
 - **Simplified:**
   - No test suite (not configured).
   - No linter (ESLint not installed).
-  - i18n covers only `ru` and `uk`. Bulgarian content shared. `DATA_GENDER` answers/options remain Russian (`мужской`/`женский`/`средний`) for v1 — Ukrainian users see Russian gender labels there.
+  - i18n covers only `ru` and `uk`. Bulgarian content shared: every mode's answers are Bulgarian forms, so no answer set needs translating.
   - Accessibility covered for type size and contrast (FR-A11Y-TEXT, FR-A11Y-CONTRAST); no formal audit, no VoiceOver rotor walkthrough on device.
   - Text scale capped at 1.4x. Beyond that the fixed-height controls (`min-h-[3.5rem]`, `h-14`, `w-12 h-12`) would need a reflow pass.
   - Column count uses character length, not measured text width — a proxy that holds for Cyrillic at the current ramp but would drift if the font or ramp changed.

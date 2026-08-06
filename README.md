@@ -25,7 +25,7 @@ Entry screen lists 8 lessons. Tapping an available lesson opens a pace selector 
 | Verb "съм" (to be) | Pick correct form, Timed quiz, Type the form |
 | "Имам" / "Нямам" / "Искам" (have / haven't / want) | Pick correct form |
 | Articles | Select the correct suffix (-ът, -та, -то, -те, -а) |
-| Gender | Identify noun gender (masculine / feminine / neuter) |
+| Gender | Derive the gender from the ending and pick the article (-ът / -та / -то) |
 | Plurals | Form plural nouns with decoys |
 | Possessives | Full and short possessive forms |
 | Negation | Construct correct negation from shuffled words |

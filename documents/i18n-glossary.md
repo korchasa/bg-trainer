@@ -409,6 +409,5 @@ Terminology mapping for grammar/UI strings. Use these consistently across `src/d
 ## Notes
 
 - Bulgarian content (`q`, `answer`, `decoys`, `result`, `words`) is shared — never translated.
-- `GENDER_OPTIONS` (`мужской/женский/средний`) and answers in `DATA_GENDER` remain Russian by design (v1 simplification — Ukrainian users see Russian gender labels for that mode only).
 - Some `q` strings in `DATA_OBJECTS` carry both RU and UK labels separated by `/` to keep the data file flat (no `Localized<q>`).
 - Parenthetical situation hints in `DATA_NALI` use Bulgarian `(да)` / `(не)`.
