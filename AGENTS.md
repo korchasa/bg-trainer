@@ -122,8 +122,9 @@ Each mode has a `data()` returning its exercise array. A session draws `pace` qu
 - **Adding a new mode:**
   1. Add `DataItem[]` / `BuildItem[]` / `LiItem[]` to `src/data/index.ts`
   2. Add `Mode` entry to the relevant `Category` (or create new `Category`), including `example` — the worked model shown under the task on every question (FR-TASK-MODEL). Write it `stimulus → answer` (`↔` for `match`, finished sentence for `build`), in prose spacing, and take the textbook's own «Примерен образец» when the lesson prints one. `paradigm` modes take no `example` — `ParadigmEngine` pre-fills the 1sg row as the model. `deno task test` asserts all of this
-  3. If engine exists: no engine code changes
-  4. If new interaction pattern: add engine in `src/components/engines/` and register in `App.tsx` dispatch
+  3. Add the mode id to that lesson's `modeIds` in `src/data/lessons.ts`. The UI reaches modes only through lessons — no screen ever reads `CATEGORIES` — so a mode missing here is invisible to the learner while every invariant stays green. Three modes sit in exactly that state today: `iskam_pick`, `poss_pick`, `q_build`
+  4. If engine exists: no engine code changes
+  5. If new interaction pattern: add engine in `src/components/engines/` and register in `App.tsx` dispatch
 
 ## Documentation Hierarchy
 1. **`AGENTS.md`**: Project vision, constraints, mandatory rules. READ-ONLY reference.
@@ -335,10 +336,12 @@ Most invariants scan `src/` as text. `scripts/lexicon.ts` cannot: it has to call
 
 One wall, found the hard way: anything reaching `src/utils/platform.ts` reads `import.meta.env`, which does not exist outside Vite, and throws `Cannot read properties of undefined (reading 'VITE_PLATFORM')`. That rules out `utils/storage.ts`, `utils/mastery.ts`, `utils/nativeUx.ts` and `hooks/useGame.ts` — and so `sliceData.ts`, which imports `mastery`. Safe today: everything under `src/data/`, `utils/itemKey.ts`, `utils/punct.ts`, `utils/shuffle.ts`. Confirm with `grep -rln "import\.meta" src/` before assuming.
 
+Claiming a word is absent from the course is a negative claim about eight lesson files at once — never make it from one file, and never by analogy with a neighbouring word that was checked. Scan all eight, and scan `git show HEAD:src/data/lessonN.ts` when the point is whether the word predates the current change. Cost a wrong statement about `срещам` on 2026-08-06: it was called course-external in a review while `Те се срещат` sat in `lesson4.ts` and `ще се срещне` in `lesson5.ts`, both older than the diff under review.
+
 Needing to *test* one of those modules is not a dead end. Copy it beside the original (`src/utils/<name>.pure.tmp.ts` — a relative import will not resolve from `/tmp`), replace **only** the storage import with three stubs, and leave every pure function byte-identical; assert the anchor line is present so the patch fails loudly if that import ever moves. Delete the copy in the same command that creates it. Used to measure the mastery model against real lesson data, and later to prove a refactor left `migrateParadigmKeys` behaviour untouched — both in one command each, where the alternative was replaying sessions by hand in the browser.
 
 ### Worktrees
-`.claude/worktrees/*` contains an **empty** `node_modules`; dependency resolution walks up to `/Users/korchasa/www/business/bg-trainer/node_modules`, which is why builds work there at all. A worktree created outside the repository tree (say under `/tmp`, to build a parent revision for comparison) resolves nothing and fails with hundreds of `Cannot find module 'react'`. Symlink its `node_modules` at the **main repo** path, never at the current worktree's.
+`.claude/worktrees/*` contains an **empty** `node_modules`; dependency resolution walks up to `/Users/korchasa/www/business/bg-trainer/node_modules`, which is why builds work there at all. A worktree created outside the repository tree (say under `/tmp`, to build a parent revision for comparison) resolves nothing. The failure text depends on how far the run gets: a build reports hundreds of `Cannot find module 'react'`, while `deno task check` stops earlier, in `scripts/node.ts`, at `error: node_modules/.bin/tsc is missing — run \`npm ci\` first`. Both say the same thing — the worktree resolves no dependencies — and a red baseline there is not a broken parent revision. Symlink its `node_modules` at the **main repo** path, never at the current worktree's, and never `npm ci` into the worktree.
 
 ### Browser Automation Access
 - `foxcode-run-project-profile` (skill) launches a Firefox profile bridged via `mcp__plugin_foxcode_foxcode__evalInBrowser` (ws://localhost:8795).
