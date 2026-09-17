@@ -80,7 +80,7 @@ export async function checkPunctuation(): Promise<void> {
   }
 
   // Census: what the template will render, per data constant. Useful when
-  // authoring a new mode (see the "Adding a new mode" checklist in CLAUDE.md).
+  // authoring a new mode.
   const census = new Map<string, number>();
   for (const { constant, tokens } of arrays) {
     for (const tok of tokens.filter(isPunct)) {
