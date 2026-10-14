@@ -357,7 +357,7 @@
   - [x] iOS Xcode project generated at `ios/App/`. Evidence: `ios/App/App.xcodeproj/project.pbxproj`
   - [x] UIScene lifecycle adopted (eliminates ~20s cold-start stall on iOS 17+). Evidence: `ios/App/App/SceneDelegate.swift`, `ios/App/App/AppDelegate.swift:48-52`, `ios/App/App/Info.plist:29-46`
   - [x] Safe-area insets respected via `env(safe-area-inset-*)` + `contentInset: 'never'`. Evidence: `src/index.css:10-21`, `capacitor.config.ts:7-10`
-  - [x] Container sized via `height: 100%` chain (no `100vh`). Evidence: `src/index.css:5-8`, `src/App.tsx:194,218,226`
+  - [x] Container sized via `height: 100%` chain (no `100vh`); on iOS `<html>` takes the visual viewport height instead, so the keyboard shrinks the shell rather than panning it (FR-IOS-UX). Evidence: `src/index.css:5-8`, `src/App.tsx:194,218,226`, `src/utils/keyboardViewport.ts`
   - [x] Inline splash in HTML shown until React mounts. Evidence: `index.html:11-22`, `src/main.tsx:15-17`
   - [x] Analytics screen code-split via `React.lazy` (main bundle 360 KB / gzip 94 KB). Evidence: `src/App.tsx:1,14,309-315`
 - **Status:** [x]
@@ -386,6 +386,7 @@
   - [x] `@capacitor/haptics` — Light impact on first-attempt correct, Medium impact on first-attempt wrong, Success notification on round completion. Evidence: `package.json:17`, `src/utils/nativeUx.ts:34-46`, `src/hooks/useGame.ts:5-6,118-122`, `src/App.tsx:4,108`
   - [x] No runtime web-font fetch — UI uses system fonts (`-apple-system`, `system-ui`), guaranteed available offline on iOS/Android/web. Self-hosting Inter would only inflate the bundle without removing any external dependency, so it is not done. Evidence: `src/index.css:11`
   - [x] Back-swipe gesture: Capacitor 8 sets `allowsBackForwardNavigationGestures=false` by default for WKWebView, which is the correct behavior for this single-page app. No override needed; will revisit if device testing surfaces an edge case.
+  - [x] Keyboard does not move the nav header: on iOS the shell follows the visual viewport, any keyboard pan is reset, and typing drills scroll their play area so field and check button sit above the keyboard. Evidence: `src/utils/keyboardViewport.ts`, `src/hooks/useScrollToEndOnKeyboard.ts`, `src/index.css` (`html.keyboard-open`); manual — agent — Release simulator walk 2026-10-14 (iPhone 17 / 17 Pro Max, iOS 26.5, default and accessibility-extra-large text): header top stays at the safe-area inset with the keyboard open.
   - [x] `prefers-reduced-motion` honored — `useGame` shortcuts the celebratory advance delay to 0ms when the OS-level Reduce Motion accessibility setting is on, and the `.slot-drop` landing animation is switched off by a media query. Evidence: `src/utils/motion.ts`, `src/hooks/useGame.ts:7,118`, `src/index.css` (`@media (prefers-reduced-motion: reduce)`)
 - **Status:** [x]
 

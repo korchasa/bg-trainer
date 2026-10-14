@@ -11,6 +11,7 @@ import { TaskPrompt } from "../ui/TaskPrompt";
 import { StickyQuestion } from "../ui/StickyQuestion";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
+import { useScrollToEndOnKeyboard } from "../../hooks/useScrollToEndOnKeyboard";
 
 // FR-TYPE: keyboard-input engine.
 // Whitelist normalization ONLY: trim, lowercase, collapse internal whitespace.
@@ -34,6 +35,8 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: 
   const [input, setInput] = useState("");
   const hintCh = useHintChannel();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useScrollToEndOnKeyboard(rootRef);
   const {
     cur,
     sel,
@@ -66,7 +69,7 @@ export function TypeEngine({ data, onComplete, onItemAnswer, prompt, example }: 
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+    <div ref={rootRef} className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       {
         /* Slack above as well as below: on a screen that fits, the question group

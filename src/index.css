@@ -31,6 +31,12 @@ body {
   box-sizing: border-box;
 }
 
+/* FR-IOS-UX: the keyboard covers the home indicator, so its inset is dead
+   space while it is up. Toggled by src/utils/keyboardViewport.ts. */
+html.keyboard-open body {
+  padding-bottom: 0;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

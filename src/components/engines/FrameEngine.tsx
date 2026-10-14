@@ -10,6 +10,7 @@ import { TaskPrompt } from "../ui/TaskPrompt";
 import { StickyQuestion } from "../ui/StickyQuestion";
 import { ErrorDialog } from "../ui/ErrorDialog";
 import { useHintChannel } from "../../hooks/useHintChannel";
+import { useScrollToEndOnKeyboard } from "../../hooks/useScrollToEndOnKeyboard";
 
 interface Props {
   data: () => FrameData;
@@ -77,6 +78,8 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   const fixed = step <= 2;
   const typing = step === 4;
 
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useScrollToEndOnKeyboard(rootRef);
   const [filled, setFilled] = useState<(string | null)[]>([]);
   // Two taps inside one React batch would both read the same stale `filled` and
   // target the same slot. The ref is the authority for what is placed; state
@@ -254,7 +257,7 @@ export function FrameEngine({ data, onComplete, onItemAnswer, prompt, example }:
   );
 
   return (
-    <div className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
+    <div ref={rootRef} className="flex-1 flex flex-col p-4 xs:p-6 items-center overflow-y-auto no-scrollbar">
       <Progress cur={answered} total={qsTotal} score={score} />
       <TaskPrompt text={prompt} example={example} />
       <StickyQuestion>

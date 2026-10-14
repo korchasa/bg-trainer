@@ -29,9 +29,10 @@
   ```
 - **Subsystems:**
   - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence. No gating: every `available` lesson opens on every platform (FR-PAID).
-  - **Platform flag (`utils/platform.ts`):** `PLATFORM: "web" | "ios" | "android"` from the `VITE_PLATFORM` build flag (default `"web"`), plus `IS_WEB` / `IS_IOS` / `IS_ANDROID` / `IS_NATIVE`. Only the storage adapter and the native UX adapter branch on it; content and navigation are the same everywhere.
+  - **Platform flag (`utils/platform.ts`):** `PLATFORM: "web" | "ios" | "android"` from the `VITE_PLATFORM` build flag (default `"web"`), plus `IS_WEB` / `IS_IOS` / `IS_ANDROID` / `IS_NATIVE`. Only the storage adapter, the native UX adapter and the keyboard viewport branch on it; content and navigation are the same everywhere.
   - **Storage adapter (`utils/storage.ts`, FR-IOS-STORAGE):** one synchronous `getRaw` / `setRaw` / `removeRaw` API for every persisted key — `localStorage` on web, Capacitor Preferences behind an in-memory cache on native (§3.12).
   - **Native UX adapter (`utils/nativeUx.ts`, FR-IOS-UX):** haptics, native splash and status-bar style; every call is a no-op on web (§3.13).
+  - **Keyboard viewport (`utils/keyboardViewport.ts`, FR-IOS-UX):** on iOS the shell follows the visual viewport so the keyboard cannot pan the nav header off screen (§3.13a).
   - **Engines (`components/engines/*`):** one React component per `EngineType`. Consumes `useGame`.
   - **State hooks (`hooks/*`):** `useGame` (scoring, advance, reaction), `useTimer` (countdown for timed mode).
   - **Data layer (`data/index.ts` + `data/lesson1.ts` + `data/lesson2.ts` + `data/lesson3.ts` + `data/lesson4.ts` + `data/lesson5.ts` + `data/lesson6.ts` + `data/lesson7.ts` + `data/lesson8.ts`):** exercises split per-lesson; `index.ts` is composition root — imports datasets from lesson files, re-exports via `export *`, defines `CATEGORIES` + `ALL_MODES`. Shared labels (`LABEL_M/F/N/PL`) live in `lesson1.ts` and are imported by later lessons. L10n fields stored as `Localized<string>`. Translation pairs inside `DataItem.q` use convention `"<ru> / <uk>"` — engines render via `Lq` helper which splits on " / " and picks side by current locale.
@@ -222,6 +223,13 @@
 - **Interfaces:** `hideNativeSplash()` and `applyStatusBarStyle()` (called from `main.tsx`), `hapticCorrect()` / `hapticWrong()` (first attempt only, from `useGame`), `hapticRoundFinished()` (from `App.tsx`).
 - **Status bar:** dark glyphs to match the white app shell; an Android-only branch also paints the bar white.
 - **Deps:** `@capacitor/haptics`, `@capacitor/splash-screen`, `@capacitor/status-bar`, `utils/platform`.
+
+### 3.13a Keyboard viewport (`utils/keyboardViewport.ts`, FR-IOS-UX)
+- **Purpose:** keep the nav header on screen while the keyboard is up. iOS shrinks the visual viewport for the keyboard and pans it until the focused field is clear — a pan, not a document scroll, so `overflow: hidden` does not stop it. Measured in a typing drill on iPhone 17 / iOS 26.5: visual viewport 874 → 498px, offset 374px, header 312px above the screen top.
+- **Mechanism:** `pinShellToVisualViewport()` (iOS only, from `main.tsx`) listens to `visualViewport` `resize`/`scroll`; at zoom 1 it sets `<html>` height to the visual viewport height, toggles `html.keyboard-open` (CSS drops the bottom safe-area padding, which the keyboard covers) and resets any pan with `scrollTo(0, 0)`. While pinch-zoomed (FR-A11Y-TEXT) it restores `100%` and leaves panning alone.
+- **Engines:** `onKeyboardOpen(cb)` fires after each shrink; `hooks/useScrollToEndOnKeyboard` uses it in `TypeEngine` and `FrameEngine` to scroll the play area to its end, so the field and the check button sit above the keyboard while the question stays pinned (FR-QUESTION-PINNED).
+- **Rejected:** `ios.scrollEnabled: false` (no effect — the pan is not a scroll-view scroll); `@capacitor/keyboard` resize modes (a new dependency, not needed).
+- **Deps:** `utils/platform`.
 
 ## 4. Data
 - **Entities:**

@@ -7,6 +7,7 @@ import { HintProvider } from './hooks/useHintChannel'
 import { initStorage } from './utils/storage'
 import { applyTextScale, loadTextScale } from './utils/textScale'
 import { applyStatusBarStyle, hideNativeSplash } from './utils/nativeUx'
+import { pinShellToVisualViewport } from './utils/keyboardViewport'
 
 // FR-IOS-STORAGE: hydrate native Preferences cache before mount, so the first
 // render sees real persisted state. On web this resolves synchronously.
@@ -29,6 +30,8 @@ initStorage().then(() => {
   // light app background; native splash is dismissed after the first React
   // paint so the WebView never shows an empty frame.
   void applyStatusBarStyle()
+  // FR-IOS-UX: the keyboard must not pan the nav header off the screen.
+  pinShellToVisualViewport()
   requestAnimationFrame(() => {
     document.getElementById('splash')?.classList.add('hidden')
     void hideNativeSplash()
