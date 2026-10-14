@@ -6,7 +6,7 @@
 
 ## FR
 
-- [FR-PAID](requirements.md#324-fr-paid) — Paid one-time download ($1.99 USD ≈ €2.49 EUR), all 8 lessons included, no IAP/paywall/tier — implemented (code-side: no IAP/tier/paywall; ASC Pricing form pending)
+- [FR-PAID](requirements.md#324-fr-paid) — Free download (was $1.99 until 2026-08-16), all 8 lessons included, no IAP/paywall/tier — implemented
 - [FR-BUILD](requirements.md#344-fr-build) — Sentence-construction engine: punctuation is a fixed render-time template, never a learner tile — implemented
 - [FR-ENGINES](requirements.md#34-fr-engines) — 12 engine types implementing distinct interaction patterns — implemented
 - [FR-FRAME](requirements.md#345-fr-frame) — Sentence-production drill, one per lesson, on that lesson's cumulative lexicon — implemented

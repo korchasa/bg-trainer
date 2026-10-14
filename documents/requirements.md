@@ -1,17 +1,17 @@
 # SRS
 
 ## 1. Intro
-- **Desc:** bg-trainer — gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single React/TS codebase shipped as 2 surfaces: web (GitHub Pages, free) and iOS (Capacitor WKWebView shell, paid one-time download at App Store tier $1.99 USD ≈ €2.49 EUR). All 8 lessons unlocked for everyone on every surface; no IAP, no paywall.
+- **Desc:** bg-trainer — gamified grammar trainer for Bulgarian A0 learners. UI in Russian or Ukrainian (user-selectable). Single React/TS codebase shipped as 2 surfaces: web (GitHub Pages, free) and iOS (Capacitor WKWebView shell, free in the App Store since 2026-08-16). All 8 lessons unlocked for everyone on every surface; no IAP, no paywall.
 - **Def/Abbr:** SPA = Single Page App. Engine = interaction component for one quiz type. Mode = one drill config (data + engine). Category = group of related modes. Session = one playthrough of N questions (N = `SESSION_SIZE_BY_PACE[pace]`). Lesson = textbook unit grouping a curated list of modes. Pace = user-selected session length (`quick`/`standard`/`deep`). Round = 3 consecutive N-question games from one lesson (N = pace size).
 
 ## 2. General
-- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages, free) and native iOS (Capacitor WKWebView shell, paid one-time download). All content included on every surface — no gating, no IAP.
+- **Context:** Self-study tool for East-Slavic speakers (RU/UK) at A0. No accounts, no backend. All state is client-side. Shipped as web (GitHub Pages, free) and native iOS (Capacitor WKWebView shell, free download). All content included on every surface — no gating, no IAP.
 - **Assumptions/Constraints:**
   - Modern evergreen browser with `localStorage` and ES2020+.
   - Mobile-first, max-width `md`, portrait-friendly.
   - Static hosting on GitHub Pages: web app at the root of `app.bgtrainer.korchasa.dev` (base `/`); marketing site + policies are a separate repo on Cloudflare Pages at `bgtrainer.korchasa.dev`. iOS/Android builds use relative base `./`.
   - iOS deployment target 15.0+, Bundle ID `dev.korchasa.bgtrainer`, Capacitor 8.
-  - Paid app: single App Store price tier $1.99 USD. No IAP, no subscriptions, no in-app unlock.
+  - Free app: App Store price Free since 2026-08-16 (was $1.99 USD). No IAP, no subscriptions, no in-app unlock.
   - No server, no analytics backend, no auth.
   - i18n: 2 locales (`ru`, `uk`), client-side only, no external i18n library.
 
@@ -368,7 +368,7 @@
   - [x] Orientation locked to `UIInterfaceOrientationPortrait` only; landscape variants and `~ipad` block removed. Evidence: `ios/App/App/Info.plist:53-55`
   - [x] Publicly hosted Privacy Policy (localStorage-only, no data transmission) — bilingual (EN+RU), live at `https://bgtrainer.korchasa.dev/privacy` (`/privacy.html` 308-redirects there). Hosted outside this repo, on Cloudflare Pages. Evidence: HTTP 200 verified 2026-08-02; `/terms` likewise.
   - [x] Apple Developer account active; Bundle ID `dev.korchasa.bgtrainer` registered. Evidence: ASC app `6766068069` (manual — outside repo).
-  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Privacy Policy URL, App Privacy questionnaire ("Data Not Collected", published) and the $1.99 price are all set; version 1.0 is `READY_FOR_SALE` and available in 175 territories.
+  - [x] App Store Connect listing — partial: app registered, primary category=Education, content rights=no third-party content, age rating=4+. Localized Name/Subtitle filled for English (U.S.), Russian, Ukrainian. App Store version 1.0 metadata filled in all three locales: promotional text, description, keywords, support URL (`github.com/korchasa/bg-trainer/issues`), marketing URL (`bgtrainer.korchasa.dev`), copyright. Evidence: ASC distribution dashboard for app `6766068069` (manual). Privacy Policy URL, App Privacy questionnaire ("Data Not Collected", published) and the $1.99 price (Free since 2026-08-16, see FR-PAID) are all set; version 1.0 is `READY_FOR_SALE` and available in 175 territories.
   - [x] Code signing configured — this repo archives unsigned (`CODE_SIGNING_ALLOWED=NO`); the certificate, App Store profile and signed export are produced outside it. Evidence: repo side `scripts/dist.ts` (`CODE_SIGNING_ALLOWED=NO`); signed builds 2–4 on ASC app `6766068069` (manual — outside repo).
   - [x] Screenshots for iPhone 6.7" (1290×2796) uploaded for all three locales (ru/uk plus the uk artwork in the en-US slot — the app has no English UI). Captured from the web build via headless Chrome at viewport 430×932, `deviceScaleFactor: 3`. Evidence: ASC app `6766068069`; artwork stored outside this repo.
   - [x] TestFlight build uploaded via `xcodebuild archive` + `xcodebuild -exportArchive` — run outside this repo, not by its CI. Evidence: builds 2–4 on ASC app `6766068069`.
@@ -427,12 +427,12 @@
 - **Status:** [x]
 
 ### 3.24 FR-PAID
-- **Desc:** iOS app is a paid one-time download at App Store price tier $1.99 USD (≈ €2.49 EUR). No IAP, no subscription, no in-app unlock, no Pro entitlement, no lesson tier. Every buyer gets all 8 lessons. Web build stays free on GitHub Pages. Single codebase; no platform-conditional content gating. Supersedes the removed FR-FREEMIUM / FR-IAP / FR-PAYWALL.
-- **Scenario:** User buys the app once on the App Store → installs → all 8 lessons open immediately. Web user opens `bgtrainer.korchasa.dev` → all 8 lessons open, free.
+- **Desc:** iOS app is a free download in the App Store (price Free since 2026-08-16; it was a paid one-time download at $1.99 USD before, and the ID keeps that history). The project is educational, so it is free by design. No IAP, no subscription, no in-app unlock, no Pro entitlement, no lesson tier. Every user gets all 8 lessons. Web build stays free on GitHub Pages. Single codebase; no platform-conditional content gating. Supersedes the removed FR-FREEMIUM / FR-IAP / FR-PAYWALL.
+- **Scenario:** User downloads the app from the App Store for free → installs → all 8 lessons open immediately. Web user opens `bgtrainer.korchasa.dev` → all 8 lessons open, free.
 - **Acceptance:**
   - [x] No tier/entitlement field on `Lesson`; all `available` lessons open directly. Evidence: `src/types.ts:14-20`, `src/components/screens/LessonsScreen.tsx`
   - [x] No IAP code: `src/services/iap.ts` and `src/components/screens/PaywallScreen.tsx` absent; no RevenueCat dependency. Evidence: `! ls src/services/iap.ts src/components/screens/PaywallScreen.tsx`; `! grep -rn "revenuecat\|proUnlocked\|purchasePackage" src/`
-  - [x] ASC Pricing form set to paid tier $1.99 USD (manual — outside repo). Evidence: price schedule on ASC app `6766068069`.
+  - [x] App Store price set to Free (manual — outside repo). Evidence: `curl -s 'https://itunes.apple.com/lookup?id=6766068069&country=us' | jq '.results[0].price'` → `0`.
 - **Status:** [x]
 
 ### 3.27 FR-ANDROID-SHELL
@@ -473,7 +473,7 @@
 - **Status:** [ ]
 
 ### 3.30 FR-SYNC-PAID — REMOVED
-- **Status:** [x] Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the paid-app model. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
+- **Status:** [x] Removed. Was Pro-only iCloud KVS cross-device sync; there is no Pro tier in the app. Progress (history + mastery + pace + lang) stays local-only on device via Capacitor Preferences (see FR-IOS-STORAGE). No cloud sync.
 
 ### 3.31 FR-A11Y-TEXT
 - **Desc:** Legible type for low-vision users. Type ramp floored at 13px; instruction and error-rule text ≥15px; user-selectable text size with 4 steps, the default following iOS Dynamic Type; pinch-zoom available. Meaningless sentence-final periods absent from the exercise data (`?`, `!`, `…`, abbreviations and punctuation word-tiles preserved).
@@ -526,7 +526,7 @@
 - **Storage:** Browser `localStorage` JSON-serialized `HistoryEntry[]`. Key `bg-trainer-v3`. iOS: `@capacitor/preferences` (FR-IOS-STORAGE), local-only (no cloud sync).
 - **Deploy:**
   - **Web:** GitHub Pages, custom domain `app.bgtrainer.korchasa.dev` (CNAME in `public/`). App at the root (Vite base `/`); branch previews at `/preview/{branch}/`; `keep_files: true` keeps them across deploys. Published on a `web-v*` tag push or manual `workflow_dispatch` (any branch or tag); merging to `main` publishes nothing, and no other tag pattern publishes either. Marketing site and policies are maintained outside this repo, on Cloudflare Pages at `bgtrainer.korchasa.dev`. Free; all lessons included.
-  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. This repo builds only an unsigned archive (`deno task dist`); signing, `.ipa` export and upload to TestFlight / App Store happen outside it and are not automated here. Paid app ($1.99), all lessons included (FR-PAID).
+  - **iOS:** Capacitor-wrapped WKWebView. Xcode project at `ios/App/`. This repo builds only an unsigned archive (`deno task dist`); signing, `.ipa` export and upload to TestFlight / App Store happen outside it and are not automated here. Free app, all lessons included (FR-PAID).
 
 ## 6. Acceptance
 - **Criteria:**

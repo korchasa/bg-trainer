@@ -294,7 +294,7 @@
   - Text scale capped at 1.4x. Beyond that the fixed-height controls (`min-h-[3.5rem]`, `h-14`, `w-12 h-12`) would need a reflow pass.
   - Column count uses character length, not measured text width — a proxy that holds for Cyrillic at the current ramp but would drift if the font or ramp changed.
   - iOS deployment target 15.0+, portrait+landscape allowed (to be locked portrait for App Store — FR-IOS-APPSTORE).
-  - Web is fully free — no paywall, no IAP, no tier enforcement. Strategic choice: mobile premium positioning vs free web reach.
+  - Web and iOS are both free (iOS since 2026-08-16, FR-PAID) — no paywall, no IAP, no tier enforcement.
   - No cross-platform iOS↔Android sync — would require backend, ruled "complication" by product.
   - One-time IAP only, no subscriptions, no consumables.
   - No store-release CI in this repo (FR-IOS-CICD). Its workflows publish the web app only; signing, `.ipa` packaging and ASC upload run outside the repository, so no signing or App Store Connect credential is stored here.
