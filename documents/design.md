@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Purpose:** Describe the client-side architecture of bg-trainer: how screens, hooks, engines, and data combine to deliver quiz sessions and analytics.
-- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-MASTERY, FR-SCHED, FR-TYPE, FR-FEEDBACK-RULE, FR-IOS-SHELL, FR-FREEMIUM, FR-IAP, FR-PAYWALL, FR-ANDROID-SHELL, FR-SYNC-PAID.
+- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-RETRY, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-BUILD, FR-FRAME, FR-FRAME-LADDER, FR-TYPE, FR-FEEDBACK-RULE, FR-TASK-MODEL, FR-HINT-MODAL, FR-QUESTION-PINNED, FR-FEEDBACK-CENTRED, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-PACE, FR-MASTERY, FR-SCHED, FR-LANG, FR-A11Y-TEXT, FR-A11Y-CONTRAST, FR-RESPONSIVE-LAYOUT, FR-IOS-SHELL, FR-IOS-UX, FR-IOS-STORAGE, FR-PAID. FR-PAID is met by absence: the app has no purchase, entitlement or tier layer, so every lesson is open on every platform.
 
 ## 2. Arch
 - **Diagram:**
@@ -14,15 +14,12 @@
     App -->|screen=game| Engine[Engine*]
     App -->|screen=results| Results[ResultsScreen]
     App -->|screen=analytics| Analytics[AnalyticsScreen]
-    App -->|screen=paywall mobile only| Paywall[PaywallScreen]
     Engine --> useGame[(useGame hook)]
     Engine -.timed.-> useTimer[(useTimer hook)]
-    App --> Storage[(StorageAdapter\n localStorage / Capacitor.Preferences)]
+    App --> Storage[(utils/storage\n localStorage / Capacitor Preferences)]
     Storage --> History[(bg-trainer-v3)]
     Storage --> Mastery[(bg-trainer-mastery-v1)]
-    App --> IAP[(IapService\n RevenueCat / web stub)]
-    Paywall --> IAP
-    Storage -.pro only.-> Sync[(SyncAdapter\n iCloud KVS / Auto Backup)]
+    useGame -.native only.-> NativeUx[(utils/nativeUx\n haptics, splash, status bar)]
     Analytics --> History
     Lessons --> Mastery
     Lesson --> Mastery
@@ -31,21 +28,21 @@
     App --> Slice[(utils/sliceData)]
   ```
 - **Subsystems:**
-  - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence + tier-gating dispatch (paywall on locked-pro tap, mobile only).
-  - **Platform service (`services/platform.ts`):** `getPlatform()` returns `"web" | "ios" | "android"` from `VITE_PLATFORM` build flag (default `"web"`). All gating + IAP + sync paths branch on it.
-  - **IAP service (`services/iap.ts`):** abstracts RevenueCat. Native: `@revenuecat/purchases-capacitor`. Web: stub returning `proUnlocked=true`. Exposes `init()`, `getOfferings()`, `purchase()`, `restore()`, `isPro()`, plus an event emitter for entitlement changes. `proUnlocked` cached in storage (key `bg-trainer-pro-v1`) for offline tolerance.
-  - **Sync adapter (`services/sync.ts`):** Pro-only mirror of persistent state. iOS branch wraps `NSUbiquitousKeyValueStore` via Capacitor plugin; Android branch is a no-op (sync handled implicitly by Auto Backup configured in manifest). Reconcile-on-launch routine: max-`lastTs` per mastery item, dedupe history by `ts`.
+  - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence. No gating: every `available` lesson opens on every platform (FR-PAID).
+  - **Platform flag (`utils/platform.ts`):** `PLATFORM: "web" | "ios" | "android"` from the `VITE_PLATFORM` build flag (default `"web"`), plus `IS_WEB` / `IS_IOS` / `IS_ANDROID` / `IS_NATIVE`. Only the storage adapter and the native UX adapter branch on it; content and navigation are the same everywhere.
+  - **Storage adapter (`utils/storage.ts`, FR-IOS-STORAGE):** one synchronous `getRaw` / `setRaw` / `removeRaw` API for every persisted key — `localStorage` on web, Capacitor Preferences behind an in-memory cache on native (§3.12).
+  - **Native UX adapter (`utils/nativeUx.ts`, FR-IOS-UX):** haptics, native splash and status-bar style; every call is a no-op on web (§3.13).
   - **Engines (`components/engines/*`):** one React component per `EngineType`. Consumes `useGame`.
   - **State hooks (`hooks/*`):** `useGame` (scoring, advance, reaction), `useTimer` (countdown for timed mode).
   - **Data layer (`data/index.ts` + `data/lesson1.ts` + `data/lesson2.ts` + `data/lesson3.ts` + `data/lesson4.ts` + `data/lesson5.ts` + `data/lesson6.ts` + `data/lesson7.ts` + `data/lesson8.ts`):** exercises split per-lesson; `index.ts` is composition root — imports datasets from lesson files, re-exports via `export *`, defines `CATEGORIES` + `ALL_MODES`. Shared labels (`LABEL_M/F/N/PL`) live in `lesson1.ts` and are imported by later lessons. L10n fields stored as `Localized<string>`. Translation pairs inside `DataItem.q` use convention `"<ru> / <uk>"` — engines render via `Lq` helper which splits on " / " and picks side by current locale.
   - **Lessons layer (`data/lessons.ts`):** `LESSONS` array (8 textbook units, localized titles) + `LESSON_BY_ID`.
   - **Slicer (`utils/sliceData.ts`):** type-aware wrapper around `mode.data()` that shuffles+slices to round size while preserving `pickOpt.opts`.
-  - **Persistence (`utils/history.ts`):** thin wrapper over `localStorage` with size cap + error swallow.
-  - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate `localStorage` key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`); `paradigm` stores one record per form (`paradigmFormKey` → `<verb>#<i>`) and `itemCount` counts that mode in forms, so the level sum and the total it is divided by stay in the same unit. `migrateParadigmKeys` copies an old per-verb level onto each of its forms — both sides of the ratio grow by the same factor, so the displayed progress does not move.
+  - **Persistence (`utils/history.ts`):** thin wrapper over the storage adapter with a 200-entry cap; a parse error reads as empty history.
+  - **Mastery (`utils/mastery.ts`, `utils/itemKey.ts`):** per-item level store + stable item identity helper. Separate storage key `bg-trainer-mastery-v1`. `itemKey` uses Bulgarian-stable keys (`q` / `result` / `words.join("|")`); `paradigm` stores one record per form (`paradigmFormKey` → `<verb>#<i>`) and `itemCount` counts that mode in forms, so the level sum and the total it is divided by stay in the same unit. `migrateParadigmKeys` copies an old per-verb level onto each of its forms — both sides of the ratio grow by the same factor, so the displayed progress does not move.
   - **i18n (`src/i18n/*`):** `LocaleProvider` + `useI18n` hook expose `t` (plain UI strings), `f` (parametric strings), `L` (resolves `Localized<T>`), `Lq` (splits `"<ru> / <uk>"` convention in `DataItem.q`). `STRINGS`/`FORMATS` dictionaries enforce locale completeness via `Record<Locale, …>`. Locale persisted under `bg-trainer-lang-v1`; first-run detection from `navigator.language` (only literal `uk` prefix triggers UK).
   - **UI atoms (`components/ui/*`):** `AnswerBtn`, `Progress`, `Reaction`, `Correction`, `NavHeader`, `BackButton`, `TaskPrompt`, `InfoModal`.
   - **Hint channel (`hooks/useHintChannel.tsx`):** `HintProvider` context carrying the current question's hint from the engine to the header button (FR-HINT-MODAL).
-  - **Screens (`components/screens/*`):** `ResultsScreen`, `AnalyticsScreen`, `PaywallScreen` (mobile only).
+  - **Screens (`components/screens/*`):** `LessonsScreen`, `LessonScreen`, `ResultsScreen`, `AnalyticsScreen` (lazy-loaded).
 
 ## 3. Components
 
@@ -79,7 +76,7 @@
   - `MatchEngine` — single board with all pairs; session ends when matched count == pairs.length. Score = +10 per first-try correct pair; errors counted as unique wrong-left ids.
   - `ParadigmEngine` — one item = one 6-slot paradigm; +5 per correct slot; advances on full fill.
   - `OddOneOutEngine` — uses `useGame` with a `DataItem[]` cast over `OddItem[]` to inherit retry/scoring.
-  - `FrameEngine` (FR-FRAME, FR-FRAME-LADDER) — same `DataItem[]` cast over `FrameItem[]`. One item = one sentence the learner produces from an L1 translation; `data().step` decides the scaffolding (see §3.19). Load-bearing details: the next-empty slot is read from `filledRef`, not from state, so two taps in one React batch cannot target the same slot; `filled` is reset **during render** via a `filledFor` guard, because an effect commits one frame first and that frame paints the previous sentence's words into the new slots; the sentence-initial capital is applied by `cap()` at render, so the bank keeps one lower-case tile per word instead of a capitalised twin; and an accepted `alt` order is submitted to `useGame` **as the canonical string on both sides**, so variants work without teaching `useGame` about variants (`sel === canonical` then means "this attempt was right").
+  - `FrameEngine` (FR-FRAME, FR-FRAME-LADDER) — same `DataItem[]` cast over `FrameItem[]`. One item = one sentence the learner produces from an L1 translation; `data().step` decides the scaffolding (see §3.21). Load-bearing details: the next-empty slot is read from `filledRef`, not from state, so two taps in one React batch cannot target the same slot; `filled` is reset **during render** via a `filledFor` guard, because an effect commits one frame first and that frame paints the previous sentence's words into the new slots; the sentence-initial capital is applied by `cap()` at render, so the bank keeps one lower-case tile per word instead of a capitalised twin; and an accepted `alt` order is submitted to `useGame` **as the canonical string on both sides**, so variants work without teaching `useGame` about variants (`sel === canonical` then means "this attempt was right").
 - **Deps:** `useGame` (most), `useTimer` (timed only), UI atoms.
 - **List:** `PickEngine`, `TimedEngine`, `PickOptEngine`, `PickFromEngine`, `NegEngine`, `BuildEngine`, `LiEngine`, `TypeEngine`, `MatchEngine`, `OddOneOutEngine`, `ParadigmEngine`, `FrameEngine`.
 
@@ -112,7 +109,7 @@
 - **Scheduler:** `pickDueItems` scores each item by `(overdue + weakBonus if level<7)`, where `dueAt = lastTs + DAY_MS · 2^level`; unseen items get top priority. Top-K (K = 2n) is shuffled and sliced to n. When all scores are zero, fallback to `shuffle(items).slice(0, n)`.
 - **Key migration:** `migrateDottedKeys(store, modes)` re-points records stranded by the punctuation pass (§3.17), run once at load in `App.tsx`. A record moves only when its key matches no live item AND exactly one live key equals it with every period stripped from both; ambiguity is left alone, and legitimately dotted keys (`1 stot.`) match a live item so they never move. Colliding records keep the newer `lastTs`. Idempotent, and cost scales with the stored keys, not with the 232 modes.
 - **Why migrate rather than accept orphans:** `lessonStats` counts entries in the store against a total from `itemCount()`, so stale keys do not merely lose progress — they inflate `atSeven / total` past 1 and falsely mark a lesson mastered.
-- **Deps:** `types.ts`, `utils/itemKey`, `utils/shuffle`, `localStorage`.
+- **Deps:** `types.ts`, `utils/itemKey`, `utils/shuffle`, `utils/storage`.
 
 ### 3.10 utils/itemKey.ts
 - **Purpose:** Stable natural key for any engine item + mode item-count resolution. `itemKey(item)` → `q` / `translation`. `itemCount(mode)` handles 3 data shapes.
@@ -132,7 +129,7 @@
 - **Kept:** abbreviations (`ул.`, `бул.`, `ет.`, `ап.`, `1 stot.`, `м.р., ед.`, `На 29.08.1979 г.`), `?`, `!`, `…`, prose `translation`/`rule` text, and the `"."` word tiles in `DATA_L7_BUILD` / `DATA_PROFILE_BUILD` that the learner drags into place. 22 such strings remain.
 - **Why not a render-time helper:** a blanket strip cannot see any of the above. An earlier `stripFinalPeriod()` did exactly that and ate the period of 24 grammar hints (`ж.р.`, `мн.ч.`, `няма да + гл.`); it was removed once the data was cleaned.
 - **`NegEngine` dependency:** its decoys are word-order permutations of `answer`, so those answers must stay unpunctuated or the dot lands mid-sentence (`студент. Аз не съм`).
-- **Migration:** `migrateDottedKeys()` (§3.5) re-points mastery records whose key still carries a removed period.
+- **Migration:** `migrateDottedKeys()` (§3.9) re-points mastery records whose key still carries a removed period.
 
 ### 3.18 Worked examples (`Mode.example`, FR-TASK-MODEL)
 - **Rule:** every mode carries one model answer, shown under the instruction on every question. Exception: `paradigm` — `ParadigmEngine` pre-fills the 1sg row and labels it «пример», so that row is the model and the mode stores no `example`.
@@ -204,39 +201,22 @@
   - WKWebView `localStorage` path (simulator): `~/Library/Developer/CoreSimulator/Devices/<DEVICE>/data/Containers/Data/Application/<APP>/Library/WebKit/WebsiteData/LocalStorage/capacitor_localhost_0.localstorage`. Locate via `xcrun simctl get_app_container booted <bundle-id> data`.
   - `VITE_BASE_PATH=./` is mandatory for iOS build (relative paths for `capacitor://localhost`). Web build uses base `/` — the app owns the root of `app.bgtrainer.korchasa.dev`; the marketing site is a separate repo on Cloudflare Pages.
 
-### 3.12 PaywallScreen
-- **Purpose:** Mobile-only purchase gate. Reached via `screen="paywall"` set by App when free user taps a `tier="pro"` lesson, or via "Pro" affordance in analytics.
-- **Interfaces:** Props `{ onClose, iap }`. Renders Pro benefits, `iap.getOfferings().monthly.priceString`, "Купить", "Восстановить покупки", EULA + Privacy links.
-- **Deps:** `services/iap`, `useI18n`, UI atoms.
+### 3.12 Storage adapter (`utils/storage.ts`, FR-IOS-STORAGE)
+- **Purpose:** Keep progress out of WebKit storage on iOS, where "Offload Unused Apps" and cache eviction can wipe it, without making every caller asynchronous.
+- **Interfaces:** `initStorage(): Promise<void>`, `getRaw(key)`, `setRaw(key, value)`, `removeRaw(key)`. Callers: `utils/history.ts`, `utils/mastery.ts`, `utils/pace.ts`, `utils/textScale.ts`, `i18n/storage.ts`.
+- **Web:** straight `localStorage`; `initStorage()` resolves at once.
+- **Native:** `initStorage()` reads every key in `TRACKED_KEYS` from Capacitor Preferences into an in-memory cache. Reads hit the cache; writes update the cache and mirror to Preferences fire-and-forget.
+- **Migration:** the first native boot copies each legacy `localStorage` value into Preferences when Preferences has none, deletes the legacy key and sets a per-key `__migrated__:<key>` flag, so a rerun does nothing.
+- **Boot order:** `main.tsx` awaits `initStorage()` before mounting React, behind the HTML splash, so the first render sees persisted state.
+- **Fault tolerance:** every storage call is wrapped; a failed write keeps the value in the cache and the next boot rehydrates from disk.
+- **Hazard:** a new persisted key must be added to `TRACKED_KEYS`, or on native it is never loaded into the cache and reads as empty after a restart.
+- **Deps:** `@capacitor/preferences`, `utils/platform`.
 
-### 3.13 IapService (`services/iap.ts`)
-- **Purpose:** Single entry point for purchase state. Hides RevenueCat behind a stable interface; web build provides stub.
-- **Interfaces:** `init(): Promise<void>`, `getOfferings(): Promise<Package[]>`, `purchase(pkg): Promise<{ ok, error? }>`, `restore(): Promise<{ ok, error? }>`, `isPro(): boolean`, `onEntitlementChange(cb): () => void`.
-- **State:** In-memory `proUnlocked` mirrored to storage key `bg-trainer-pro-v1`. Source of truth on launch = local cache (instant); online RevenueCat fetch reconciles asynchronously and emits change event if differs.
-- **Web stub:** `init` no-op, `isPro()=true`, `purchase/restore` return `{ ok: true }`. No RevenueCat code shipped to web bundle (conditional import via `VITE_PLATFORM`).
-- **Deps:** `@revenuecat/purchases-capacitor` (mobile only), `services/storage`, `services/platform`.
-
-### 3.14 SyncAdapter (`services/sync.ts`)
-- **Purpose:** Pro-only cross-device mirror. Activates when `proUnlocked && platform != "web"`.
-- **iOS:** Wraps `NSUbiquitousKeyValueStore` via Capacitor plugin (community plugin or thin custom plugin). `mirror(key, value)` writes to KVS in addition to Preferences. Launch routine `reconcile()` reads KVS → merges into local: max-`lastTs` per mastery item, history dedupe by `ts`, pace/lang last-write-wins.
-- **Android:** No-op at runtime. Sync delivered transparently by Auto Backup (manifest `allowBackup=true` + `android/app/src/main/res/xml/backup_rules.xml` rules covering Capacitor SharedPrefs). `reconcile()` returns immediately.
-- **Free users:** All methods no-op.
-- **Conflict policy:** documented in `services/sync.ts`; tested via two-device manual scenario.
-- **Deps:** `services/storage`, `services/iap`, `services/platform`, iCloud Capacitor plugin (iOS).
-
-### 3.15 Android shell (Capacitor 8)
-- **Purpose:** Wrap the React SPA in a native Android app (WebView at `https://localhost`). Same JS bundle as web/iOS.
-- **Layout:** `capacitor.config.ts` (root, shared) + `android/` Gradle project. `cap sync android` copies `dist/` → `android/app/src/main/assets/public/` (gitignored).
-- **Lifecycle:** Single `MainActivity` extending `BridgeActivity`. Edge-to-edge layout via `WindowCompat.setDecorFitsSystemWindows(false)` + CSS `env(safe-area-inset-*)`.
-- **Hardware back:** Default `BridgeActivity` back-button handler invokes WebView `goBack()`; falls through to default activity finish when stack empty. App routes back-button events to `App.tsx` `onBack` listener via Capacitor `App.addListener('backButton', …)`.
-- **Backup:** `android:allowBackup="true"` + `fullBackupContent="@xml/backup_rules"` referencing SharedPrefs `Capacitor.Preferences`.
-- **Scripts:** `deno task build:android` (`VITE_BASE_PATH=./` + `VITE_PLATFORM=android`) → `android:sync` → `android:open`.
-- **Deps:** `@capacitor/android` v8, AGP 8.x, Gradle 8.x, JDK 17.
-- **Known gotchas:**
-  - Auto Backup excludes anything outside SharedPrefs/files dir by default — Capacitor `Preferences` plugin uses SharedPrefs file `CapacitorStorage`, must be explicitly included in `backup_rules.xml`.
-  - WebView third-party cookie behavior changed in API 33+; not relevant for `https://localhost` but watch for fetch failures on emulator.
-  - `versionCode` is a monotonic int — the release build outside this repo assigns it, never a git tag (tags can be re-cut).
-  - Google Play requires AAB (not APK) since 2021; `bundleRelease` is the canonical task.
+### 3.13 Native UX adapter (`utils/nativeUx.ts`, FR-IOS-UX)
+- **Purpose:** Native touches on top of the web UI; each function returns at once on web, and native failures are swallowed so a flaky plugin cannot block boot.
+- **Interfaces:** `hideNativeSplash()` and `applyStatusBarStyle()` (called from `main.tsx`), `hapticCorrect()` / `hapticWrong()` (first attempt only, from `useGame`), `hapticRoundFinished()` (from `App.tsx`).
+- **Status bar:** dark glyphs to match the white app shell; an Android-only branch also paints the bar white.
+- **Deps:** `@capacitor/haptics`, `@capacitor/splash-screen`, `@capacitor/status-bar`, `utils/platform`.
 
 ## 4. Data
 - **Entities:**
@@ -249,15 +229,14 @@
   - `Mode = { id, icon, label, desc, example, type: EngineType, data: () => Item[] }` — `example` is the required worked model (FR-TASK-MODEL), `stimulus → answer` (`↔` for match, finished sentence for build)
   - `SessionPace = "quick" | "standard" | "deep"` → `SESSION_SIZE_BY_PACE = {quick:3, standard:5, deep:8}`
   - `Category = { id, name, modes: Mode[] }`
-  - `Lesson = { id, num, title, modeIds: string[], available: boolean, tier: "free" | "pro" }`
-  - `Platform = "web" | "ios" | "android"`
-  - `ProState = { unlocked: boolean, lastChecked: ms }`
-  - `Screen = "lessons" | "lesson" | "game" | "results" | "analytics" | "paywall"`
+  - `Lesson = { id, num, title: Localized<string>, modeIds: string[], available: boolean }` — no tier or entitlement field (FR-PAID)
+  - `Platform = "web" | "ios" | "android"` (`utils/platform.ts`, build-time only)
+  - `Screen = "lessons" | "lesson" | "game" | "results" | "analytics"`
   - `HistoryEntry = { mode, score, time, errors, ts, lessonId?, round?, qsTotal? }`
   - `ItemMastery = { level: 0..10, lastTs: ms, attempts }`
   - `ModeMastery = Record<itemId, ItemMastery>`; `MasteryStore = Record<modeId, ModeMastery>`
 - **ERD:** None (no relational data). `Category 1—n Mode 1—n Item` in-memory.
-- **Migration:** Storage keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale) + `bg-trainer-pro-v1` (Pro entitlement cache, mobile only). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All schemas are independent. `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning). Pro-only KVS mirror (iOS) writes the same keys to `NSUbiquitousKeyValueStore`; reconcile routine merges on launch.
+- **Migration:** Storage keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale) + `bg-trainer-textscale-v1` (text size), all listed in `TRACKED_KEYS` (§3.12). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All schemas are independent. On native, legacy `localStorage` values move into Capacitor Preferences once per key (§3.12). `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning). Nothing leaves the device: there is no cloud mirror and no sync.
 
 ## 5. Logic
 - **Algos:**
@@ -280,33 +259,28 @@
   - `localStorage` failures caught and swallowed — app never throws due to storage.
 
 ## 6. Non-Functional
-- **Scale:** Single user, in-memory + `localStorage`. 200-entry cap prevents unbounded growth.
+- **Scale:** Single user, in-memory + storage adapter (`localStorage` on web, Capacitor Preferences on native). 200-entry cap prevents unbounded growth.
 - **Fault tolerance:** Storage errors → silent no-op. Parse errors → empty history.
 - **Sec:** No PII, no external requests, static deploy.
 - **Logs:** None — browser console only during dev.
 
 ## 7. Constraints
 - **Simplified:**
-  - No test suite (not configured).
-  - No linter (ESLint not installed).
+  - No unit-test framework. `deno task test` runs invariant scripts (`scripts/*.ts`) that scan or evaluate the app's sources; `deno task check` adds format, lint, type-check and bundle.
+  - `deno lint` covers `scripts/` only; `src/` has no linter (ESLint not installed).
   - i18n covers only `ru` and `uk`. Bulgarian content shared: every mode's answers are Bulgarian forms, so no answer set needs translating.
   - Accessibility covered for type size and contrast (FR-A11Y-TEXT, FR-A11Y-CONTRAST); no formal audit, no VoiceOver rotor walkthrough on device.
   - Text scale capped at 1.4x. Beyond that the fixed-height controls (`min-h-[3.5rem]`, `h-14`, `w-12 h-12`) would need a reflow pass.
   - Column count uses character length, not measured text width — a proxy that holds for Cyrillic at the current ramp but would drift if the font or ramp changed.
-  - iOS deployment target 15.0+, portrait+landscape allowed (to be locked portrait for App Store — FR-IOS-APPSTORE).
+  - iOS deployment target 15.0+, iPhone only, portrait only (FR-IOS-APPSTORE, FR-IOS-POLISH).
   - Web and iOS are both free (iOS since 2026-08-16, FR-PAID) — no paywall, no IAP, no tier enforcement.
-  - No cross-platform iOS↔Android sync — would require backend, ruled "complication" by product.
-  - One-time IAP only, no subscriptions, no consumables.
+  - No cloud sync of any kind: history, mastery, pace, locale and text size stay on the device (FR-IOS-STORAGE). Cross-device sync would need a backend and was ruled out by product.
   - No store-release CI in this repo (FR-IOS-CICD). Its workflows publish the web app only; signing, `.ipa` packaging and ASC upload run outside the repository, so no signing or App Store Connect credential is stored here.
 - **Deferred:**
   - Test harness (Vitest/Playwright) — to add when regressions appear.
   - ESLint + Prettier — for consistent code quality.
   - Mode-level settings (session length, difficulty).
   - Export/import history.
-  - iOS App Store submission assets (AppIcon, LaunchScreen, Privacy Manifest) — FR-IOS-APPSTORE.
-  - Native integrations (splash, haptics, status-bar) — FR-IOS-UX.
-  - Storage migration `localStorage` → `@capacitor/preferences` — FR-IOS-STORAGE.
-  - Android shell + Play Store assets — FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD.
-  - Freemium gating + paywall + RevenueCat integration — FR-FREEMIUM, FR-IAP, FR-PAYWALL.
-  - Pro-only cloud sync (iCloud KVS / Auto Backup) — FR-SYNC-PAID.
-  - Lessons L5–L8 implementation — separate track, not blocking mobile release.
+  - Crash reporting for production builds — FR-IOS-POLISH, pending `VITE_SENTRY_DSN`.
+  - On-device check that progress survives backgrounding, storage pressure and backup — FR-IOS-STORAGE.
+  - Android shell, Play Store assets and release build — FR-ANDROID-SHELL, FR-ANDROID-PLAYSTORE, FR-ANDROID-CICD. Nothing is built yet: no `android/` project, no `@capacitor/android` dependency, no Android build task. Only the build flag and the status-bar branch in `utils/nativeUx.ts` know about Android. When the shell is built, Auto Backup has to include the SharedPrefs file `CapacitorStorage` (Capacitor Preferences) in `backup_rules.xml` explicitly, or progress is not backed up.
