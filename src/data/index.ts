@@ -1,4 +1,5 @@
 import type { Category } from "../types";
+import { withoutExampleItem } from "../utils/exampleItem";
 import {
   DATA_SYM, DATA_IMAM, DATA_NYAMAM, DATA_ISKAM,
   DATA_ARTICLE, ARTICLE_OPTIONS, DATA_ART_GENDER, ART_GENDER_OPTIONS,
@@ -136,7 +137,7 @@ export * from "./lesson6";
 export * from "./lesson7";
 export * from "./lesson8";
 
-export const CATEGORIES: Category[] = [
+const AUTHORED_CATEGORIES: Category[] = [
   {
     id: "sym",
     name: { ru: "Глагол «съм»", uk: "Дієслово «съм»" },
@@ -516,5 +517,12 @@ export const CATEGORIES: Category[] = [
     ],
   },
 ];
+
+// FR-TASK-MODEL: every exported mode draws its questions without the item its
+// example works out — the example is printed above each question, answer included.
+export const CATEGORIES: Category[] = AUTHORED_CATEGORIES.map(c => ({
+  ...c,
+  modes: c.modes.map(withoutExampleItem),
+}));
 
 export const ALL_MODES = CATEGORIES.flatMap(c => c.modes);

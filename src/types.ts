@@ -141,6 +141,13 @@ export interface Mode {
    * `deno task test` enforces both halves of that rule.
    */
   example?: Localized<string>;
+  /**
+   * FR-TASK-MODEL: the authored list, still holding the item `example` works out.
+   * Set by `withoutExampleItem` on every mode `CATEGORIES` exports, whose `data`
+   * no longer holds that item. For display that asks nothing — the verb-form
+   * table — never for drawing questions.
+   */
+  authoredData?: Mode["data"];
   type: EngineType;
   data: () =>
     | DataItem[]

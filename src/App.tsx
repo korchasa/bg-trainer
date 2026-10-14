@@ -3,6 +3,7 @@ import { ALL_MODES } from "./data";
 import { LESSON_BY_ID } from "./data/lessons";
 import { loadHistory, saveHistory, clearHistory } from "./utils/history";
 import { loadMastery, saveMastery, clearMastery, applyAnswer, migrateDottedKeys, migrateParadigmKeys } from "./utils/mastery";
+import { dropExampleRecords } from "./utils/exampleItem";
 import { loadPace, savePace } from "./utils/pace";
 import { applyTextScale, loadTextScale, saveTextScale, DEFAULT_TEXT_SCALE, type TextScale } from "./utils/textScale";
 import { hapticRoundFinished } from "./utils/nativeUx";
@@ -60,8 +61,11 @@ export default function App() {
     // old verb key has stopped being.
     const spread = migrateParadigmKeys(loadMastery(), ALL_MODES);
     const migrated = migrateDottedKeys(spread.store, ALL_MODES);
-    if (spread.changed || migrated.changed) saveMastery(migrated.store);
-    setMastery(migrated.store);
+    // FR-TASK-MODEL: the example's own item left the question pools, so its
+    // records would count against totals that no longer include it.
+    const pruned = dropExampleRecords(migrated.store, ALL_MODES);
+    if (spread.changed || migrated.changed || pruned.changed) saveMastery(pruned.store);
+    setMastery(pruned.store);
     setPace(loadPace());
     setTextScale(loadTextScale());
     setLoading(false);
@@ -325,7 +329,8 @@ export default function App() {
             )}
 
             {showRef && currentMode && !round && (() => {
-              const verbData = currentMode.data() as Array<{ q: string; answer: string }>;
+              // The table lists every form, the example's row included (FR-TASK-MODEL).
+              const verbData = (currentMode.authoredData ?? currentMode.data)() as Array<{ q: string; answer: string }>;
               return (
                 <InfoModal title={t("refTitle")} closeLabel={t("gotIt")} onClose={() => setShowRef(false)}>
                   <div className="grid grid-cols-3 rounded-[20px] border border-gray-100 overflow-hidden">

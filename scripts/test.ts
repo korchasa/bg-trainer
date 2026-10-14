@@ -10,6 +10,7 @@
 import { section } from "./lib.ts";
 import { checkPunctuation } from "./punct.ts";
 import { checkExamples } from "./examples.ts";
+import { checkExampleItems } from "./exampleitem.ts";
 import { checkHints } from "./hint.ts";
 import { checkSticky } from "./sticky.ts";
 import { checkFeedback } from "./feedback.ts";
@@ -25,6 +26,9 @@ export async function test(): Promise<void> {
 
   section("Data invariants: worked examples per mode (FR-TASK-MODEL)");
   await checkExamples();
+
+  section("Data invariants: no session asks the example's own item (FR-TASK-MODEL)");
+  await checkExampleItems();
 
   section("UI invariants: hint in the header modal (FR-HINT-MODAL)");
   await checkHints();
