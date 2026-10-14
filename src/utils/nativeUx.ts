@@ -20,7 +20,9 @@ export async function applyStatusBarStyle(): Promise<void> {
   if (!IS_NATIVE) return;
   try {
     // App background is #ffffff → dark glyphs/text on light background.
-    await StatusBar.setStyle({ style: Style.Dark });
+    // Capacitor names the style after the background, not the glyphs:
+    // Style.Light is "dark text for light backgrounds".
+    await StatusBar.setStyle({ style: Style.Light });
   } catch {
     // ignore
   }
