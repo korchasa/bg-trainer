@@ -1,4 +1,5 @@
-// FR-FREEMIUM
+// FR-IOS-SHELL: build-time platform flag (`VITE_PLATFORM`, set by `scripts/build.ts`).
+// Read only by the storage (FR-IOS-STORAGE) and native UX (FR-IOS-UX) adapters.
 export type Platform = "web" | "ios" | "android";
 
 export const PLATFORM: Platform =
