@@ -1,0 +1,2 @@
+/* Bundle name shown under the app icon. The file also marks the app as localized for this language. */
+"CFBundleDisplayName" = "BG Trainer";
