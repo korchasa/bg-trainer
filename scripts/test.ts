@@ -19,6 +19,7 @@ import { checkBank } from "./bank.ts";
 import { checkAccuracy } from "./accuracy.ts";
 import { checkLexicon } from "./lexicon.ts";
 import { checkLessons } from "./lessons.ts";
+import { checkReviewPrompt } from "./review.ts";
 
 export async function test(): Promise<void> {
   section("Data invariants: build-mode punctuation (FR-BUILD)");
@@ -53,6 +54,9 @@ export async function test(): Promise<void> {
 
   section("Data invariants: every mode reachable through a lesson (FR-LESSONS)");
   checkLessons();
+
+  section("Logic: rating request after the 3rd finished session, once per version (FR-IOS-REVIEW)");
+  checkReviewPrompt();
 }
 
 if (import.meta.main) await test();

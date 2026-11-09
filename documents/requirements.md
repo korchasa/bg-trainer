@@ -421,6 +421,18 @@
   - [x] The repo-side iOS build stops at an unsigned archive. Evidence: `scripts/dist.ts` (`CODE_SIGNING_ALLOWED=NO`), `deno.json` task `dist`
 - **Status:** [x]
 
+### 3.38 FR-IOS-REVIEW
+- **Desc:** iOS app asks for an App Store rating through Apple's system sheet only — no custom "rate us" UI. Finished session = one reaching the results screen (single game or round, FR-GAME-SESSION / FR-ROUND); aborted ones do not count. Request after the 3rd finished session, once the results screen is on screen; never at launch, never mid-session. At most one request per app version (`CFBundleShortVersionString`); a later version needs 3 new finished sessions. Apple caps the sheet at 3/year and may skip it. Web build never asks. Owner approval 2026-11-09.
+- **Scenario:** Learner finishes sessions 1, 2 → nothing. Session 3 → results screen → ~1.2 s later the system rating sheet. More sessions in the same version → nothing. After an update → 3 more finished sessions → sheet again (Apple's cap permitting).
+- **Acceptance:**
+  - [x] Counter/threshold/once-per-version logic asserted by `deno task test` (`scripts/review.ts`). Evidence: `src/utils/reviewPrompt.ts`, `scripts/review.ts`, `scripts/test.ts:22,59`
+  - [x] Request only on iOS, only from the results screen, cancelled if the screen changes first. Evidence: `src/utils/storeReview.ts:34,48`, `src/App.tsx:26-27,90-104,183,199`
+  - [x] State persisted natively under `bg-trainer-review-v1`. Evidence: `src/utils/storage.ts:22`
+  - [x] Native side uses `AppStore.requestReview(in:)` (iOS 16+) / `SKStoreReviewController.requestReview(in:)` (iOS 15); no new package. Evidence: `ios/App/App/StoreReviewPlugin.swift:33,35`, `ios/App/App/BridgeViewController.swift:8`, `ios/App/App/Base.lproj/Main.storyboard:14`
+  - [x] Web bundle never reaches the bridge: a build with `VITE_PLATFORM=web` contains no `StoreReview` string. Evidence: manual — agent — 2026-11-09
+  - [x] Simulator walk: no sheet after sessions 1–2, sheet after session 3; stored state afterwards `{"finished":0,"askedVersion":"1.3"}`. Evidence: manual — agent — Release simulator walk 2026-11-09 (iPhone 17)
+- **Status:** [x]
+
 ### 3.9 FR-NAV
 - **Desc:** Screens: `lessons` (root), `lesson`, `game`, `results`, `analytics`. Flow: `lessons → lesson → game → results → lesson`. Back from `game` during a round opens an inline confirm bar.
 - **Acceptance:**

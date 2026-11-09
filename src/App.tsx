@@ -7,6 +7,7 @@ import { dropExampleRecords } from "./utils/exampleItem";
 import { loadPace, savePace } from "./utils/pace";
 import { applyTextScale, loadTextScale, saveTextScale, DEFAULT_TEXT_SCALE, type TextScale } from "./utils/textScale";
 import { hapticRoundFinished } from "./utils/nativeUx";
+import { countFinishedSession, requestStoreReview } from "./utils/storeReview";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
 import { SESSION_SIZE_BY_PACE, ROUND_GAMES, DEFAULT_PACE } from "./constants";
@@ -21,6 +22,9 @@ import { LessonScreen } from "./components/screens/LessonScreen";
 import { useI18n } from "./i18n/context";
 import { useHintChannel } from "./hooks/useHintChannel";
 import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent, SessionPace } from "./types";
+
+/** FR-IOS-REVIEW: the results screen is on screen this long before iOS is asked for a rating. */
+const REVIEW_DELAY_MS = 1200;
 
 interface RoundState {
   lessonId: string;
@@ -47,6 +51,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [showRef, setShowRef] = useState(false);
   const [showAbortBar, setShowAbortBar] = useState(false);
+  const [reviewDue, setReviewDue] = useState(false);
   const pendingRef = useRef<MasteryEvent[]>([]);
   const modeIdRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -81,6 +86,22 @@ export default function App() {
     document.addEventListener("visibilitychange", remeasure);
     return () => document.removeEventListener("visibilitychange", remeasure);
   }, [textScale]);
+
+  // FR-IOS-REVIEW: ask only while the results screen is showing. Leaving it first
+  // cancels the timer; the request stays due for the next finished session.
+  useEffect(() => {
+    if (screen !== "results" || !reviewDue) return;
+    const timer = setTimeout(() => {
+      setReviewDue(false);
+      void requestStoreReview();
+    }, REVIEW_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [screen, reviewDue]);
+
+  /** FR-IOS-REVIEW: every session that reaches the results screen counts. */
+  const noteFinishedSession = useCallback(() => {
+    void countFinishedSession().then(due => { if (due) setReviewDue(true); });
+  }, []);
 
   const changePace = useCallback((p: SessionPace) => {
     setPace(p);
@@ -159,6 +180,7 @@ export default function App() {
       setResultMode(roundMode);
       setRound(null);
       setScreen("results");
+      noteFinishedSession();
       return;
     }
     const mid = modeId!;
@@ -174,7 +196,8 @@ export default function App() {
     setResult({ score, time, errors, qsTotal });
     setResultMode(mid);
     setScreen("results");
-  }, [round, modeId, lessonId, appendHistory]);
+    noteFinishedSession();
+  }, [round, modeId, lessonId, appendHistory, noteFinishedSession]);
 
   const openLesson = (id: string) => {
     const lesson = LESSON_BY_ID[id];

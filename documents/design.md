@@ -2,7 +2,7 @@
 
 ## 1. Intro
 - **Purpose:** Describe the client-side architecture of bg-trainer: how screens, hooks, engines, and data combine to deliver quiz sessions and analytics.
-- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-RETRY, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-BUILD, FR-FRAME, FR-FRAME-LADDER, FR-TYPE, FR-FEEDBACK-RULE, FR-TASK-MODEL, FR-HINT-MODAL, FR-QUESTION-PINNED, FR-FEEDBACK-CENTRED, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-PACE, FR-MASTERY, FR-SCHED, FR-LANG, FR-A11Y-TEXT, FR-A11Y-CONTRAST, FR-RESPONSIVE-LAYOUT, FR-IOS-SHELL, FR-IOS-UX, FR-IOS-STORAGE, FR-PAID. FR-PAID is met by absence: the app has no purchase, entitlement or tier layer, so every lesson is open on every platform.
+- **Rel to SRS:** Implements FR-MENU, FR-GAME-SESSION, FR-RETRY, FR-SCORING, FR-ENGINES, FR-MATCH, FR-ODD, FR-PARADIGM, FR-BUILD, FR-FRAME, FR-FRAME-LADDER, FR-TYPE, FR-FEEDBACK-RULE, FR-TASK-MODEL, FR-HINT-MODAL, FR-QUESTION-PINNED, FR-FEEDBACK-CENTRED, FR-REACTION, FR-HISTORY, FR-ANALYTICS, FR-RESULTS, FR-NAV, FR-LESSONS, FR-ROUND, FR-PACE, FR-MASTERY, FR-SCHED, FR-LANG, FR-A11Y-TEXT, FR-A11Y-CONTRAST, FR-RESPONSIVE-LAYOUT, FR-IOS-SHELL, FR-IOS-UX, FR-IOS-STORAGE, FR-IOS-REVIEW, FR-PAID. FR-PAID is met by absence: the app has no purchase, entitlement or tier layer, so every lesson is open on every platform.
 
 ## 2. Arch
 - **Diagram:**
@@ -20,6 +20,8 @@
     Storage --> History[(bg-trainer-v3)]
     Storage --> Mastery[(bg-trainer-mastery-v1)]
     useGame -.native only.-> NativeUx[(utils/nativeUx\n haptics, splash, status bar)]
+    App -.iOS only.-> Review[(utils/storeReview\n rating request)]
+    Review --> Storage
     Analytics --> History
     Lessons --> Mastery
     Lesson --> Mastery
@@ -29,10 +31,11 @@
   ```
 - **Subsystems:**
   - **Shell (`App.tsx`):** screen router + session lifecycle + history persistence. No gating: every `available` lesson opens on every platform (FR-PAID).
-  - **Platform flag (`utils/platform.ts`):** `PLATFORM: "web" | "ios" | "android"` from the `VITE_PLATFORM` build flag (default `"web"`), plus `IS_WEB` / `IS_IOS` / `IS_ANDROID` / `IS_NATIVE`. Only the storage adapter, the native UX adapter and the keyboard viewport branch on it; content and navigation are the same everywhere.
+  - **Platform flag (`utils/platform.ts`):** `PLATFORM: "web" | "ios" | "android"` from the `VITE_PLATFORM` build flag (default `"web"`), plus `IS_WEB` / `IS_IOS` / `IS_ANDROID` / `IS_NATIVE`. Only the storage adapter, the native UX adapter, the keyboard viewport and the rating request branch on it; content and navigation are the same everywhere.
   - **Storage adapter (`utils/storage.ts`, FR-IOS-STORAGE):** one synchronous `getRaw` / `setRaw` / `removeRaw` API for every persisted key — `localStorage` on web, Capacitor Preferences behind an in-memory cache on native (§3.12).
   - **Native UX adapter (`utils/nativeUx.ts`, FR-IOS-UX):** haptics, native splash and status-bar style; every call is a no-op on web (§3.13).
   - **Keyboard viewport (`utils/keyboardViewport.ts`, FR-IOS-UX):** on iOS the shell follows the visual viewport so the keyboard cannot pan the nav header off screen (§3.13a).
+  - **Rating request (`utils/reviewPrompt.ts` + `utils/storeReview.ts` + local Swift plugin, FR-IOS-REVIEW):** counts finished sessions, asks iOS for the system rating sheet on the 3rd, once per app version (§3.13b).
   - **Engines (`components/engines/*`):** one React component per `EngineType`. Consumes `useGame`.
   - **State hooks (`hooks/*`):** `useGame` (scoring, advance, reaction), `useTimer` (countdown for timed mode).
   - **Data layer (`data/index.ts` + `data/lesson1.ts` + `data/lesson2.ts` + `data/lesson3.ts` + `data/lesson4.ts` + `data/lesson5.ts` + `data/lesson6.ts` + `data/lesson7.ts` + `data/lesson8.ts`):** exercises split per-lesson; `index.ts` is composition root — imports datasets from lesson files, re-exports via `export *`, defines `CATEGORIES` + `ALL_MODES`. Shared labels (`LABEL_M/F/N/PL`) live in `lesson1.ts` and are imported by later lessons. L10n fields stored as `Localized<string>`. Translation pairs inside `DataItem.q` use convention `"<ru> / <uk>"` — engines render via `Lq` helper which splits on " / " and picks side by current locale.
@@ -209,7 +212,7 @@
 
 ### 3.12 Storage adapter (`utils/storage.ts`, FR-IOS-STORAGE)
 - **Purpose:** Keep progress out of WebKit storage on iOS, where "Offload Unused Apps" and cache eviction can wipe it, without making every caller asynchronous.
-- **Interfaces:** `initStorage(): Promise<void>`, `getRaw(key)`, `setRaw(key, value)`, `removeRaw(key)`. Callers: `utils/history.ts`, `utils/mastery.ts`, `utils/pace.ts`, `utils/textScale.ts`, `i18n/storage.ts`.
+- **Interfaces:** `initStorage(): Promise<void>`, `getRaw(key)`, `setRaw(key, value)`, `removeRaw(key)`. Callers: `utils/history.ts`, `utils/mastery.ts`, `utils/pace.ts`, `utils/textScale.ts`, `utils/storeReview.ts`, `i18n/storage.ts`.
 - **Web:** straight `localStorage`; `initStorage()` resolves at once.
 - **Native:** `initStorage()` reads every key in `TRACKED_KEYS` from Capacitor Preferences into an in-memory cache. Reads hit the cache; writes update the cache and mirror to Preferences fire-and-forget.
 - **Migration:** the first native boot copies each legacy `localStorage` value into Preferences when Preferences has none, deletes the legacy key and sets a per-key `__migrated__:<key>` flag, so a rerun does nothing.
@@ -231,6 +234,16 @@
 - **Rejected:** `ios.scrollEnabled: false` (no effect — the pan is not a scroll-view scroll); `@capacitor/keyboard` resize modes (a new dependency, not needed).
 - **Deps:** `utils/platform`.
 
+### 3.13b Rating request (FR-IOS-REVIEW)
+- **Purpose:** ask for an App Store rating with Apple's system sheet after the learner got value; never on web, never mid-session.
+- **Pure rule (`utils/reviewPrompt.ts`, no platform/storage imports → tested by `scripts/review.ts`):** `ReviewState = { finished, askedVersion }`. `countFinished(s, v)`: `finished + 1`, unless `askedVersion === v` (already asked in this version → unchanged). `isReviewDue(s, v)`: `askedVersion !== v && finished >= REVIEW_AFTER_SESSIONS (3)`. `markRequested(s, v)` → `{ finished: 0, askedVersion: v }`, so a later version needs 3 new sessions. `parseReviewState`: `null` → fresh; malformed JSON/shape → throws. Empty version → throws.
+- **Adapter (`utils/storeReview.ts`):** `countFinishedSession(): Promise<boolean>` and `requestStoreReview(): Promise<void>`; both return at once unless `IS_IOS`. Plugin `StoreReview` registered lazily with `registerPlugin` (`@capacitor/core`); app version read once from it. State under `bg-trainer-review-v1` (in `TRACKED_KEYS`). Version marked only when the request is sent. Bridge or parse failure → `console.warn`, no request, UI unaffected.
+- **App wiring:** `handleComplete` calls `countFinishedSession()` on both results paths (single game, round); a `true` sets `reviewDue`. An effect on `screen === "results" && reviewDue` fires `requestStoreReview()` after `REVIEW_DELAY_MS` (1200), so the results screen shows first; leaving the screen clears the timer and the request stays due for the next finished session.
+- **Native (`ios/App/App/`):** `StoreReviewPlugin.swift` — `CAPBridgedPlugin`, jsName `StoreReview`, methods `appVersion` (`CFBundleShortVersionString`, rejects if absent) and `requestReview` (main thread; `AppStore.requestReview(in:)` iOS 16+, `SKStoreReviewController.requestReview(in:)` iOS 15; scene = bridge view controller's window scene, rejects without one). `BridgeViewController.swift` subclasses `CAPBridgeViewController` and registers the plugin in `capacitorDidLoad()`; `Main.storyboard` instantiates it (`customModule="App"`).
+- **Rejected:** community review plugin, `@capacitor/app` (new dependencies for two calls); raw `WKScriptMessageHandler` (no promise/error channel).
+- **Apple limits:** the sheet appears at most 3×/365 days per user and never in TestFlight; in development builds it always appears and the stars do not submit.
+- **Deps:** `@capacitor/core`, `utils/platform`, `utils/storage`.
+
 ## 4. Data
 - **Entities:**
   - `DataItem = { q, answer, hint, label?, decoys?, rule? }`
@@ -249,7 +262,7 @@
   - `ItemMastery = { level: 0..10, lastTs: ms, attempts }`
   - `ModeMastery = Record<itemId, ItemMastery>`; `MasteryStore = Record<modeId, ModeMastery>`
 - **ERD:** None (no relational data). `Category 1—n Mode 1—n Item` in-memory.
-- **Migration:** Storage keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale) + `bg-trainer-textscale-v1` (text size), all listed in `TRACKED_KEYS` (§3.12). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All schemas are independent. On native, legacy `localStorage` values move into Capacitor Preferences once per key (§3.12). `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning). Nothing leaves the device: there is no cloud mirror and no sync.
+- **Migration:** Storage keys = `bg-trainer-v3` (history) + `bg-trainer-mastery-v1` (mastery) + `bg-trainer-pace-v1` (pace) + `bg-trainer-lang-v1` (locale) + `bg-trainer-textscale-v1` (text size) + `bg-trainer-review-v1` (rating-request counter, FR-IOS-REVIEW), all listed in `TRACKED_KEYS` (§3.12). Bumping the `v*` suffix effectively resets; older keys are left orphaned. All schemas are independent. On native, legacy `localStorage` values move into Capacitor Preferences once per key (§3.12). `itemKey()` migration: `BuildItem`/`LiItem` keys switched from Russian `translation` to Bulgarian `words.join("|")` / `result` — pre-existing mastery for build/li modes is silently orphaned (acceptable: small data subset, transparent re-learning). Nothing leaves the device: there is no cloud mirror and no sync.
 
 ## 5. Logic
 - **Algos:**
