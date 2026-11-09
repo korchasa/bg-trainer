@@ -305,8 +305,8 @@
 - **Acceptance:**
   - [x] Screen component exists. Evidence: `src/components/screens/ResultsScreen.tsx`
   - [x] Appends `HistoryEntry` on completion, `qsTotal` included. Evidence: `src/App.tsx`, `src/utils/history.ts`
-  - [x] Accuracy divides by the session's answer count, never by a constant. Evidence: `src/components/screens/ResultsScreen.tsx:10-20`, `scripts/accuracy.ts`
-  - [x] Badge chosen by share correct, not by absolute points. Evidence: `src/components/screens/ResultsScreen.tsx`
+  - [x] Accuracy divides by the session's answer count, never by a constant. Evidence: `src/utils/sessionShare.ts:18-19`, `src/components/screens/ResultsScreen.tsx:4,14`, `scripts/accuracy.ts`
+  - [x] Badge chosen by share correct, not by absolute points; 🏆 threshold (0.8) defined once, shared with FR-IOS-REVIEW. Evidence: `src/utils/sessionShare.ts:7,22`, `src/components/screens/ResultsScreen.tsx:15`
   - [x] All twelve engines report through `SessionComplete`. Evidence: `src/types.ts`, `scripts/accuracy.ts`
 - **Status:** [x]
 - **Limits:** the count is the session's questions, not the ones the learner reached. An aborted session never reaches this screen, so the two only differ where nothing reads them.
@@ -422,15 +422,16 @@
 - **Status:** [x]
 
 ### 3.38 FR-IOS-REVIEW
-- **Desc:** iOS app asks for an App Store rating through Apple's system sheet only — no custom "rate us" UI. Finished session = one reaching the results screen (single game or round, FR-GAME-SESSION / FR-ROUND); aborted ones do not count. Request after the 3rd finished session, once the results screen is on screen; never at launch, never mid-session. At most one request per app version (`CFBundleShortVersionString`); a later version needs 3 new finished sessions. Apple caps the sheet at 3/year and may skip it. Web build never asks. Owner approval 2026-11-09.
-- **Scenario:** Learner finishes sessions 1, 2 → nothing. Session 3 → results screen → ~1.2 s later the system rating sheet. More sessions in the same version → nothing. After an update → 3 more finished sessions → sheet again (Apple's cap permitting).
+- **Desc:** iOS app asks for an App Store rating through Apple's system sheet only — no custom "rate us" UI. Finished session = one reaching the results screen (single game or round, FR-GAME-SESSION / FR-ROUND); aborted ones do not count; every finished session counts, whatever its result. Due = 3+ finished sessions, this version not asked yet, and not the first calendar day of use (local day of the first finished session; state stored before this field existed reads first day = day of first read). Request sent only from a successful results screen — share correct ≥ 0.8, the 🏆 of FR-RESULTS, same definition; a session with no answers never asks — after it has been on screen 2.5 s (Apple: end of a completed sequence, after a pause of a few seconds). Due but below 0.8 → no request, stays due for a later 🏆. Never at launch, never mid-session. At most one request per app version (`CFBundleShortVersionString`); a later version needs 3 new finished sessions. Apple caps the sheet at 3/year and may skip it. Web build never asks. Owner approval 2026-11-09 (trigger narrowed to 🏆 results and later days the same day).
+- **Scenario:** Day 1: learner finishes 3+ sessions, 🏆 included → nothing. Day 2: a result below 80% → nothing; next 🏆 result → ~2.5 s later the system rating sheet. More sessions in the same version → nothing. After an update → 3 more finished sessions and a 🏆 → sheet again (Apple's cap permitting).
 - **Acceptance:**
-  - [x] Counter/threshold/once-per-version logic asserted by `deno task test` (`scripts/review.ts`). Evidence: `src/utils/reviewPrompt.ts`, `scripts/review.ts`, `scripts/test.ts:22,59`
-  - [x] Request only on iOS, only from the results screen, cancelled if the screen changes first. Evidence: `src/utils/storeReview.ts:34,48`, `src/App.tsx:26-27,90-104,183,199`
+  - [x] Counter/threshold/once-per-version, 🏆 gate, first-day rule and old-state migration asserted by `deno task test` (`scripts/review.ts`). Evidence: `src/utils/reviewPrompt.ts:43,52,64,84`, `src/utils/sessionShare.ts:22`, `scripts/review.ts`, `scripts/test.ts:22,61`
+  - [x] Request only on iOS, only from a 🏆 results screen after 2.5 s, cancelled if the screen changes first. Evidence: `src/utils/storeReview.ts:43,58`, `src/App.tsx:32,95-115,194,210`
   - [x] State persisted natively under `bg-trainer-review-v1`. Evidence: `src/utils/storage.ts:22`
   - [x] Native side uses `AppStore.requestReview(in:)` (iOS 16+) / `SKStoreReviewController.requestReview(in:)` (iOS 15); no new package. Evidence: `ios/App/App/StoreReviewPlugin.swift:33,35`, `ios/App/App/BridgeViewController.swift:8`, `ios/App/App/Base.lproj/Main.storyboard:14`
-  - [x] Web bundle never reaches the bridge: a build with `VITE_PLATFORM=web` contains no `StoreReview` string. Evidence: manual — agent — 2026-11-09
+  - [x] Web bundle never reaches the bridge: a build with `VITE_PLATFORM=web` contains no `StoreReview` string (rechecked after the 🏆 gate). Evidence: manual — agent — 2026-11-09
   - [x] Simulator walk: no sheet after sessions 1–2, sheet after session 3; stored state afterwards `{"finished":0,"askedVersion":"1.3"}`. Evidence: manual — agent — Release simulator walk 2026-11-09 (iPhone 17)
+  - [x] Simulator walk of the 🏆 / first-day rule: due on first day + 🏆 → no sheet; later day, 67% → no sheet, stays due; then 🏆 → sheet, StoreKit request 2.5 s after the results screen appeared (screen recording + system log); another 🏆 same version → no sheet; stored state afterwards `{"finished":0,"askedVersion":"1.3","firstDay":"2026-11-08"}`. Evidence: manual — agent — Release simulator walk 2026-11-09 (iPhone 17)
 - **Status:** [x]
 
 ### 3.9 FR-NAV

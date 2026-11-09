@@ -1,29 +1,18 @@
 import { ACCENT } from "../../constants";
 import { useI18n } from "../../i18n/context";
 import type { GameResult } from "../../types";
+import { isTrophy, shareCorrect } from "../../utils/sessionShare";
 
 interface Props extends GameResult {
   onRestart: () => void;
   onMenu: () => void;
 }
 
-/**
- * FR-RESULTS: the share of answers the learner got right on the first attempt.
- *
- * Both figures below are built from it rather than from the score, because the
- * score is in points and points per answer differ by mode — at 15 a piece a
- * 35-question `q_build` session cleared the old 80-point trophy with six answers
- * right out of thirty-five, while an 8-question `l2_frame` session at 10 a piece
- * needed all eight.
- */
-const shareCorrect = (errors: number, qsTotal: number) =>
-  qsTotal > 0 ? Math.max(0, 1 - errors / qsTotal) : null;
-
 export function ResultsScreen({ score, time, errors, qsTotal, onRestart, onMenu }: Props) {
   const { t } = useI18n();
   const seconds = Math.floor(time / 1000);
   const share = shareCorrect(errors, qsTotal);
-  const emoji = share === null ? "👍" : share >= 0.8 ? "🏆" : share >= 0.5 ? "👍" : "💪";
+  const emoji = share === null ? "👍" : isTrophy(share) ? "🏆" : share >= 0.5 ? "👍" : "💪";
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 gap-6 text-center">
       <div className="text-7xl">{emoji}</div>

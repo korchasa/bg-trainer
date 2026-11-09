@@ -55,8 +55,10 @@ export async function test(): Promise<void> {
   section("Data invariants: every mode reachable through a lesson (FR-LESSONS)");
   checkLessons();
 
-  section("Logic: rating request after the 3rd finished session, once per version (FR-IOS-REVIEW)");
-  checkReviewPrompt();
+  section(
+    "Logic: rating request on a trophy result after the 3rd finished session (FR-IOS-REVIEW)",
+  );
+  await checkReviewPrompt();
 }
 
 if (import.meta.main) await test();

@@ -48,11 +48,33 @@ Collect App Store ratings from learners who already got value from the app. The 
 - [x] Web bundle carries no `StoreReview` call path (build with `VITE_PLATFORM=web`: string absent, both adapter functions compiled away)
 - [x] Simulator walk (iPhone 17, iOS Release build 1.3): no sheet after sessions 1, 2 (stored `finished` 1, 2); sheet after 3; stored `{"finished":0,"askedVersion":"1.3"}`
 - [x] `deno task check` green (12 test sections; baseline 11)
+- [x] Trigger narrowed (same day, owner-approved): request only from a 🏆 results screen (share ≥ 0.8, one definition in `src/utils/sessionShare.ts`), 2.5 s delay, never on the first calendar day of use; old stored state migrates to first day = day of first read
+- [x] `scripts/review.ts` red first for the 🏆 gate, first-day rule and migration; each proved by breaking exactly that line (first-day check, trophy gate, migration default) and seeing only its own assertions fail
+- [x] Release simulator walk of the narrowed trigger: first day + 🏆 → no sheet; later day + 67% → no sheet; then 🏆 → sheet; another 🏆 same version → no sheet; web build still has no `StoreReview`
 
 ## Findings
 
 - Local `.env` (gitignored, never committed) sets `VITE_PLATFORM=ios`, so every local `deno task check` / `build` here compiles the *iOS* flavour under the name "web". CI has no `.env`, so the deployed web app is unaffected. To inspect a real web bundle locally, set `VITE_PLATFORM=web` explicitly.
 - Capacitor Preferences writes reach `Library/Preferences/dev.korchasa.bgtrainer.plist` with a delay of seconds; read the plist after a pause, not right after the action.
+
+## Change: ask after a successful session, not on the first day
+
+### Why
+
+Apple's guidance: ask at the end of a successfully completed sequence, after the person has paused on the completion scene for a few seconds; avoid first launch and onboarding. The results screen was the right place, but the first version could ask right after a failed session (any result), after only 1.2 s, and on the very first day of use. Owner approved the change on 2026-11-09.
+
+### What changed
+
+- Success = the 🏆 result: share of first-try correct answers `max(0, 1 - errors/qsTotal)` ≥ 0.8. Extracted from `ResultsScreen.tsx` into `src/utils/sessionShare.ts` (`shareCorrect`, `TROPHY_SHARE`, `isTrophy`); the screen renders exactly as before. `qsTotal === 0` → share `null` → never asks.
+- Every finished session still counts toward the 3. Due + below 0.8 → no request, stays due for a later 🏆.
+- `ReviewState.firstDay` = local `YYYY-MM-DD` of the first finished session; due only on a later day. State stored without the field reads as first day = day of first read and is written back on the next save. Day injected (`localDay(date)`), so the rule stays pure.
+- `REVIEW_DELAY_MS` 1200 → 2500.
+- `noteFinishedSession` now disarms `reviewDue` synchronously before counting, so a request armed for an earlier results screen and cancelled by leaving it cannot fire on a later weaker result.
+
+### Findings
+
+- Walk timing: StoreKit request logged 2.5 s after the results screen appeared; the simulator's StoreKit UI service then needs ~1.8 s more to draw the sheet, so the sheet becomes visible ~4.3 s after the results screen.
+- Seeding the stored state: edit `Library/Preferences/dev.korchasa.bgtrainer.plist` in the app's data container with `plistlib` (the key `CapacitorStorage.bg-trainer-review-v1` contains dots, so `plutil -replace` would read it as a key path) while the app is terminated, then restart the simulator's `cfprefsd`.
 
 ## Solution
 

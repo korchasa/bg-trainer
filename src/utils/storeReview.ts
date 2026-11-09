@@ -7,7 +7,13 @@
 import { registerPlugin } from "@capacitor/core";
 import { IS_IOS } from "./platform";
 import { getRaw, setRaw } from "./storage";
-import { countFinished, isReviewDue, markRequested, parseReviewState } from "./reviewPrompt";
+import {
+  countFinished,
+  localDay,
+  markRequested,
+  parseReviewState,
+  shouldRequestReview,
+} from "./reviewPrompt";
 
 export const REVIEW_STORAGE_KEY = "bg-trainer-review-v1";
 
@@ -29,14 +35,19 @@ function appVersion(): Promise<string> {
   return version;
 }
 
-/** Counts one finished session; resolves `true` when the rating request is due. */
-export async function countFinishedSession(): Promise<boolean> {
+/**
+ * Counts one finished session whose result was `share` (`shareCorrect`, null when
+ * nothing was asked); resolves `true` when the rating request should be sent from
+ * this results screen.
+ */
+export async function countFinishedSession(share: number | null): Promise<boolean> {
   if (!IS_IOS) return false;
   try {
     const v = await appVersion();
-    const next = countFinished(parseReviewState(getRaw(REVIEW_STORAGE_KEY)), v);
+    const today = localDay(new Date());
+    const next = countFinished(parseReviewState(getRaw(REVIEW_STORAGE_KEY), today), v, today);
     setRaw(REVIEW_STORAGE_KEY, JSON.stringify(next));
-    return isReviewDue(next, v);
+    return shouldRequestReview(next, v, today, share);
   } catch (e) {
     console.warn("[review] could not count the finished session:", e);
     return false;
@@ -48,7 +59,8 @@ export async function requestStoreReview(): Promise<void> {
   if (!IS_IOS) return;
   try {
     const v = await appVersion();
-    setRaw(REVIEW_STORAGE_KEY, JSON.stringify(markRequested(parseReviewState(getRaw(REVIEW_STORAGE_KEY)), v)));
+    const state = parseReviewState(getRaw(REVIEW_STORAGE_KEY), localDay(new Date()));
+    setRaw(REVIEW_STORAGE_KEY, JSON.stringify(markRequested(state, v)));
     await bridge().requestReview();
   } catch (e) {
     console.warn("[review] rating request failed:", e);

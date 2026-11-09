@@ -8,6 +8,7 @@ import { loadPace, savePace } from "./utils/pace";
 import { applyTextScale, loadTextScale, saveTextScale, DEFAULT_TEXT_SCALE, type TextScale } from "./utils/textScale";
 import { hapticRoundFinished } from "./utils/nativeUx";
 import { countFinishedSession, requestStoreReview } from "./utils/storeReview";
+import { shareCorrect } from "./utils/sessionShare";
 import { shuffle } from "./utils/shuffle";
 import { sliceData } from "./utils/sliceData";
 import { SESSION_SIZE_BY_PACE, ROUND_GAMES, DEFAULT_PACE } from "./constants";
@@ -23,8 +24,12 @@ import { useI18n } from "./i18n/context";
 import { useHintChannel } from "./hooks/useHintChannel";
 import type { HistoryEntry, GameResult, Screen, MasteryStore, MasteryEvent, SessionPace } from "./types";
 
-/** FR-IOS-REVIEW: the results screen is on screen this long before iOS is asked for a rating. */
-const REVIEW_DELAY_MS = 1200;
+/**
+ * FR-IOS-REVIEW: the results screen is on screen this long before iOS is asked
+ * for a rating — Apple: ask after the person has paused on the completion scene
+ * for a few seconds.
+ */
+const REVIEW_DELAY_MS = 2500;
 
 interface RoundState {
   lessonId: string;
@@ -88,7 +93,7 @@ export default function App() {
   }, [textScale]);
 
   // FR-IOS-REVIEW: ask only while the results screen is showing. Leaving it first
-  // cancels the timer; the request stays due for the next finished session.
+  // cancels the timer; the request stays due for the next 🏆 result.
   useEffect(() => {
     if (screen !== "results" || !reviewDue) return;
     const timer = setTimeout(() => {
@@ -98,9 +103,15 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [screen, reviewDue]);
 
-  /** FR-IOS-REVIEW: every session that reaches the results screen counts. */
-  const noteFinishedSession = useCallback(() => {
-    void countFinishedSession().then(due => { if (due) setReviewDue(true); });
+  /**
+   * FR-IOS-REVIEW: every session that reaches the results screen counts; the
+   * request is armed only for this results screen, and only after a 🏆 result.
+   * Disarmed synchronously first, so a request armed for an earlier results
+   * screen and cancelled by leaving it never fires on a weaker result.
+   */
+  const noteFinishedSession = useCallback((errors: number, qsTotal: number) => {
+    setReviewDue(false);
+    void countFinishedSession(shareCorrect(errors, qsTotal)).then(setReviewDue);
   }, []);
 
   const changePace = useCallback((p: SessionPace) => {
@@ -180,7 +191,7 @@ export default function App() {
       setResultMode(roundMode);
       setRound(null);
       setScreen("results");
-      noteFinishedSession();
+      noteFinishedSession(nextTotals.errors, nextTotals.qsTotal);
       return;
     }
     const mid = modeId!;
@@ -196,7 +207,7 @@ export default function App() {
     setResult({ score, time, errors, qsTotal });
     setResultMode(mid);
     setScreen("results");
-    noteFinishedSession();
+    noteFinishedSession(errors, qsTotal);
   }, [round, modeId, lessonId, appendHistory, noteFinishedSession]);
 
   const openLesson = (id: string) => {
