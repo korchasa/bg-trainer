@@ -36,7 +36,7 @@ import type { ReactNode } from "react";
  */
 export function StickyQuestion({ children }: { children: ReactNode }) {
   return (
-    <div className="sticky -top-4 xs:-top-6 z-30 -mx-4 xs:-mx-6 w-[calc(100%+2rem)] xs:w-[calc(100%+3rem)] px-4 xs:px-6 pt-4 xs:pt-6 pb-3 bg-white flex flex-col items-center">
+    <div data-pinned-question className="sticky -top-4 xs:-top-6 z-30 -mx-4 xs:-mx-6 w-[calc(100%+2rem)] xs:w-[calc(100%+3rem)] px-4 xs:px-6 pt-4 xs:pt-6 pb-3 bg-white flex flex-col items-center">
       {children}
     </div>
   );

@@ -20,6 +20,7 @@ import { checkAccuracy } from "./accuracy.ts";
 import { checkLexicon } from "./lexicon.ts";
 import { checkLessons } from "./lessons.ts";
 import { checkReviewPrompt } from "./review.ts";
+import { checkKeyboardScroll } from "./keyboard.ts";
 
 export async function test(): Promise<void> {
   section("Data invariants: build-mode punctuation (FR-BUILD)");
@@ -59,6 +60,11 @@ export async function test(): Promise<void> {
     "Logic: rating request on a trophy result after the 3rd finished session (FR-IOS-REVIEW)",
   );
   await checkReviewPrompt();
+
+  section(
+    "Logic: the typing field stays below the pinned question with the keyboard up (FR-IOS-UX)",
+  );
+  await checkKeyboardScroll();
 }
 
 if (import.meta.main) await test();
